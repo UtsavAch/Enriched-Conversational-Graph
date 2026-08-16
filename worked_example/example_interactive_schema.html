@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversational Memory Graph Viewer — Schema Design Example</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0F14;
+    --bg-panel: #12161D;
+    --bg-chrome: #161B24;
+    --line: #262E3A;
+    --line-soft: #1C222C;
+    --text: #E7EAEE;
+    --text-dim: #8B95A5;
+    --text-faint: #5C6675;
+
+    --interaction: #E3A857;
+    --interaction-ring: #B8843F;
+    --entity: #4FC3B0;
+    --state-goal: #9C8CF0;
+    --state-decision: #E06BA0;
+    --state-constraint: #E0673F;
+    --state-open: #E8C547;
+
+    --edge-hier: #6B7686;
+    --edge-revises: #E3524F;
+    --edge-contradicts: #E38A2F;
+    --edge-resolves: #4CAF7D;
+    --edge-depends: #4E8FE3;
+    --edge-references: #7C8798;
+    --edge-mentions: rgba(79,195,176,0.35);
+    --edge-state: rgba(156,140,240,0.4);
+
+    --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+  }
+
+  body { display: flex; flex-direction: column; }
+
+  header {
+    background: var(--bg-chrome);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .brand { display: flex; flex-direction: column; gap: 2px; margin-right: 8px; }
+  .brand .eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .brand h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .ctrl-group label { display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+  .ctrl-group select {
+    background: var(--bg-panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .divider { width: 1px; align-self: stretch; background: var(--line); margin: 0 2px; }
+
+  .chk {
+    width: 14px; height: 14px;
+    accent-color: var(--interaction);
+    cursor: pointer;
+  }
+
+  .spacer { flex: 1; }
+
+  button.btn {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  button.btn:hover { border-color: var(--interaction-ring); color: var(--text); }
+
+  main {
+    flex: 1;
+    position: relative;
+    display: flex;
+    min-height: 0;
+  }
+
+  #canvas-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+  }
+  #canvas-wrap.panning { cursor: grabbing; }
+
+  svg#graph { width: 100%; height: 100%; display: block; }
+
+  .node-shape { cursor: pointer; transition: opacity .15s; }
+  .node-label {
+    font-family: var(--sans);
+    font-size: 10.5px;
+    fill: var(--text);
+    pointer-events: none;
+    text-anchor: middle;
+  }
+  .node-tag {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    text-anchor: middle;
+    text-transform: uppercase;
+  }
+
+  .edge-line { fill: none; transition: opacity .15s; }
+  .edge-label {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    pointer-events: none;
+    text-anchor: middle;
+  }
+
+  .dim { opacity: 0.10 !important; }
+  .hidden-el { display: none !important; }
+
+  /* ---- Detail panel ---- */
+  #panel {
+    width: 380px;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .22s ease;
+  }
+  #panel.open { transform: translateX(0); }
+
+  #panel-header {
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  #panel-kind {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  #panel-title { font-size: 15px; font-weight: 600; line-height: 1.35; }
+  #panel-close {
+    background: none; border: none; color: var(--text-faint);
+    cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 6px;
+    border-radius: 4px;
+  }
+  #panel-close:hover { color: var(--text); background: var(--bg-chrome); }
+
+  #panel-body { padding: 14px 18px 24px; overflow-y: auto; flex: 1; }
+  .pfield { margin-bottom: 16px; }
+  .pfield .plabel {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 5px;
+  }
+  .pfield .pval { font-size: 13px; line-height: 1.55; color: var(--text); }
+  .pfield .pval.mono { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+  .pval .cite {
+    background: rgba(227,168,87,0.16);
+    color: var(--interaction);
+    padding: 0 4px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--bg-chrome);
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    margin: 0 5px 5px 0;
+  }
+  .status-open { color: var(--state-open); border-color: var(--state-open); }
+  .status-resolved { color: var(--edge-resolves); border-color: var(--edge-resolves); }
+  .status-contested { color: var(--edge-contradicts); border-color: var(--edge-contradicts); }
+  .status-superseded { color: var(--text-faint); border-color: var(--text-faint); }
+  .status-active { color: var(--edge-depends); border-color: var(--edge-depends); }
+  .history-row {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  .history-row:last-child { border-bottom: none; }
+  .empty-state {
+    color: var(--text-faint);
+    font-size: 12.5px;
+    padding: 40px 18px;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* ---- Legend ---- */
+  #legend {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    background: rgba(18,22,29,0.92);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 11.5px;
+    max-width: 300px;
+    backdrop-filter: blur(6px);
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  #legend.collapsed { transform: translateY(calc(100% - 34px)); }
+  #legend h3 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .lgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; margin-bottom: 10px; }
+  .lgrid:last-child { margin-bottom: 0; }
+  .litem { display: flex; align-items: center; gap: 7px; color: var(--text-dim); white-space: nowrap; }
+  .lswatch { width: 10px; height: 10px; flex-shrink: 0; border-radius: 2px; }
+  .lswatch.round { border-radius: 50%; }
+  .lswatch.diamond { transform: rotate(45deg); border-radius: 1px; }
+  .lline { width: 16px; height: 2px; flex-shrink: 0; }
+
+  #hint {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-faint);
+    text-align: right;
+    line-height: 1.6;
+    pointer-events: none;
+  }
+
+  @media (max-width: 860px) {
+    #panel { position: absolute; right: 0; top: 0; bottom: 0; z-index: 20; box-shadow: -10px 0 30px rgba(0,0,0,0.4); }
+    #legend { max-width: 220px; font-size: 10.5px; }
+    #hint { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #panel, #legend { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="eyebrow">Phase 1–2 · Graph-Augmented Conversational Memory</span>
+    <h1>Memory Graph Viewer</h1>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="ctrl-group">
+    <span style="color:var(--text-dim)">Example — Researcher &amp; Assistant (Schema Design)</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="ctrl-group" id="node-filters">
+    <label><input type="checkbox" class="chk" data-filter="interaction" checked> Interactions</label>
+    <label><input type="checkbox" class="chk" data-filter="entity" checked> Entities</label>
+    <label><input type="checkbox" class="chk" data-filter="state" checked> State nodes</label>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="ctrl-group" id="edge-filters">
+    <label><input type="checkbox" class="chk" data-filter="hierarchical" checked> Hierarchical</label>
+    <label><input type="checkbox" class="chk" data-filter="pragmatic" checked> Pragmatic</label>
+    <label><input type="checkbox" class="chk" data-filter="mentions" checked> Mentions</label>
+    <label><input type="checkbox" class="chk" data-filter="statelink" checked> Creates/updates</label>
+  </div>
+
+  <div class="spacer"></div>
+
+  <button class="btn" id="fit-btn">Fit to view</button>
+  <button class="btn" id="reheat-btn">Re-layout</button>
+</header>
+
+<main>
+  <div id="canvas-wrap">
+    <svg id="graph">
+      <g id="viewport">
+        <g id="edge-layer"></g>
+        <g id="node-layer"></g>
+      </g>
+    </svg>
+
+    <div id="legend">
+      <h3 id="legend-toggle">Legend <span id="legend-caret">▾</span></h3>
+      <div id="legend-body">
+        <div class="lgrid">
+          <div class="litem"><span class="lswatch round" style="background:var(--interaction)"></span>Interaction</div>
+          <div class="litem"><span class="lswatch diamond" style="background:var(--entity)"></span>Entity</div>
+          <div class="litem"><span class="lswatch" style="background:var(--state-goal)"></span>Goal</div>
+          <div class="litem"><span class="lswatch" style="background:var(--state-decision)"></span>Decision</div>
+          <div class="litem"><span class="lswatch" style="background:var(--state-constraint)"></span>Constraint</div>
+          <div class="litem"><span class="lswatch" style="background:var(--state-open)"></span>Open question</div>
+        </div>
+        <div class="lgrid">
+          <div class="litem"><span class="lline" style="background:var(--edge-hier)"></span>subcase / supercase</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-hier); opacity:.5"></span>same_level</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-revises)"></span>revises</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-contradicts)"></span>contradicts</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-resolves)"></span>resolves</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-depends)"></span>depends_on</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-references)"></span>references</div>
+          <div class="litem"><span class="lline" style="background:var(--edge-state)"></span>creates/updates</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="hint">drag node to move · scroll to zoom<br>drag background to pan · click node for detail</div>
+  </div>
+
+  <aside id="panel">
+    <div id="panel-header">
+      <div>
+        <span id="panel-kind">NODE</span>
+        <div id="panel-title">Select a node</div>
+      </div>
+      <button id="panel-close">&times;</button>
+    </div>
+    <div id="panel-body">
+      <div class="empty-state">Click any node in the graph to inspect its full schema fields here.</div>
+    </div>
+  </aside>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     DATA — transcribed from the report's worked examples (§4.1, §4.2)
+     ============================================================ */
+
+  const DATASETS = {
+    K: {
+      title: "Graph-Augmented Conversational Memory - Schema Design Example",
+      interactions: [
+        { id:"N_1", ref:"Goal and cost constraint set", summary:"Sets the goal (enriched schema) and the constraint (bounded per-turn extraction cost) for Phase 1-2.", question:"For Phase 1 and 2 of the INESC TEC graph memory work, our goal is to extend the schema to represent entities, goals, decisions, constraints, and open questions - and whatever we add, per-turn extraction cost needs to stay bounded to just a few extra async calls.", answer:"Got it - I'll track both: the goal is the enriched schema covering entities and the four state-node types, and the constraint is keeping added extraction cost to a small, bounded number of async calls per turn.", speech_act:"request", epistemic_status:"resolved", history:[["N_1", "creation", "resolved"]], recurrence_count:1, retrieval_count:1, citations:[] },
+        { id:"N_2", ref:"Five pragmatic edge types adopted", summary:"Five pragmatic edge types are proposed: revises, contradicts, resolves, depends_on, references.", question:"What relation types should we add beyond subcase, supercase, and same_level?", answer:"I'd propose five pragmatic edges - revises, contradicts, resolves, depends_on, and references - covering correction, disagreement, resolution, prerequisite, and simple callback, while keeping the number of extra calls Claude makes each turn bounded [N_1].", speech_act:"decision", epistemic_status:"resolved", history:[["N_2", "creation", "resolved"], ["N_6", "contradicts", "contested"], ["N_7", "resolves", "resolved"]], recurrence_count:5, retrieval_count:5, citations:["N_1"] },
+        { id:"N_3", ref:"W2/W3 ordering question opened", summary:"Opens the question of whether W2/W3 call ordering matters or can run in parallel.", question:"When you said pragmatic edges get their own classification call - does that mean W2 and W3 always run fully independently in parallel, or could the order actually matter?", answer:"Good question to pin down - that's not settled yet. I'd flag it as an open question: does W3 need W2's hierarchical labels first, or can they run fully in parallel? We won't know for certain until we test it end to end.", speech_act:"clarification_request", epistemic_status:"resolved", history:[["N_3", "creation", "open"], ["N_8", "resolves", "resolved"]], recurrence_count:2, retrieval_count:2, citations:[] },
+        { id:"N_4", ref:"Default epistemic_status rule set", summary:"Sets the default epistemic_status rule: open for questions, resolved otherwise.", question:"Separately, what should the default epistemic_status be when a new node is created?", answer:"I'd default to open only for factual_question and clarification_request, and resolved for every other speech act.", speech_act:"decision", epistemic_status:"superseded", history:[["N_4", "creation", "resolved"], ["N_9", "revises", "superseded"]], recurrence_count:2, retrieval_count:2, citations:[] },
+        { id:"N_5", ref:"Schema decisions summarized", summary:"Summarizes the schema decisions so far: five edge types, default status rule, ordering still open.", question:"Can you summarize the schema decisions in the Phase 1-2 report so far?", answer:"Sure - we're adding five pragmatic edge types while staying within the bounded per-turn cost constraint [N_1], defaulting new nodes to resolved unless they're a question, and we still haven't settled whether W2 and W3 need a fixed order.", speech_act:"information", epistemic_status:"resolved", history:[["N_5", "creation", "resolved"]], recurrence_count:0, retrieval_count:0, citations:["N_1"] },
+        { id:"N_6", ref:"Five-edge-type decision disputed", summary:"Pushback: five pragmatic edge types may be overengineered relative to two.", question:"Actually, I think five pragmatic types is overengineered - let's just keep revises and resolves, the rest adds complexity without proven benefit.", answer:"Worth taking seriously - I'll flag this as a direct challenge to the five-edge-type decision until we think it through.", speech_act:"disagreement", epistemic_status:"resolved", history:[["N_6", "creation", "resolved"], ["N_7", "resolves", "resolved"]], recurrence_count:1, retrieval_count:1, citations:[] },
+        { id:"N_7", ref:"Five-edge-type dispute resolved", summary:"Defends keeping all five pragmatic edge types, resolving the pushback.", question:"Have you thought it through?", answer:"Yes - each of the five maps to something the thesis needs distinctly [N_6]: contradicts surfaces disputes explicitly instead of hiding them in a plain edge, and depends_on lets retrieval find prerequisite context. I'd keep all five, though the strength values should stay provisional until Phase 4's parameter sweep.", speech_act:"correction", epistemic_status:"resolved", history:[["N_7", "creation", "resolved"]], recurrence_count:0, retrieval_count:0, citations:["N_6"] },
+        { id:"N_8", ref:"W2/W3 ordering confirmed to matter", summary:"Testing confirms W2 must run before W3; the ordering question is resolved.", question:"We tested it - does the W2/W3 ordering actually matter?", answer:"Yes, it does: running W2 before W3 turned out to matter, since W3 needs W2's hierarchical labels to set epistemic_status defaults correctly. Resolved.", speech_act:"information", epistemic_status:"resolved", history:[["N_8", "creation", "resolved"]], recurrence_count:0, retrieval_count:0, citations:[] },
+        { id:"N_9", ref:"Default status rule simplified", summary:"Simplifies the default epistemic_status rule following the ordering finding.", question:"Given that finding, should we simplify the default epistemic_status rule too?", answer:"Yes - simplify further: default resolved unless the speech act is a question type, no separate handling for edge cases.", speech_act:"decision", epistemic_status:"resolved", history:[["N_9", "creation", "resolved"]], recurrence_count:0, retrieval_count:0, citations:[] },
+        { id:"N_10", ref:"Plan reconfirmed before review", summary:"Confirms the five-edge-type decision still holds ahead of the supervisor meeting.", question:"Right before the meeting with my thesis advisor - are we still keeping all five pragmatic edge types?", answer:"Yes, still all five [N_2], no changes - the report's ready for review.", speech_act:"follow_up", epistemic_status:"resolved", history:[["N_10", "creation", "resolved"]], recurrence_count:0, retrieval_count:0, citations:["N_2"] },
+      ],
+      entities: [
+        { id:"E_1", type:"organization", name:"INESC TEC", mentioned_in:["N_1"] },
+        { id:"E_2", type:"person", name:"the thesis advisor", mentioned_in:["N_10"] },
+        { id:"E_3", type:"system", name:"Claude", mentioned_in:["N_2"] },
+        { id:"E_4", type:"document", name:"the Phase 1-2 report", mentioned_in:["N_5", "N_10"] },
+        { id:"E_5", type:"event", name:"the supervisor meeting", mentioned_in:["N_10"] },
+        { id:"E_6", type:"measurement", name:"per-turn extraction cost budget", mentioned_in:["N_1"] },
+      ],
+      states: [
+        { id:"SN_1", type:"goal", label:"Extend the graph schema to represent entities, goals, decisions, constraints, and open questions", status:"active", creation_turn:"N_1", last_updated_turn:["N_1"] },
+        { id:"SN_2", type:"constraint", label:"Per-turn extraction cost must stay bounded to a small number of async calls", status:"active", creation_turn:"N_1", last_updated_turn:["N_1"] },
+        { id:"SN_3", type:"decision", label:"Adopt five pragmatic edge types: revises, contradicts, resolves, depends_on, references", status:"active", creation_turn:"N_2", last_updated_turn:["N_2"] },
+        { id:"SN_4", type:"open_question", label:"Does classification order between W2 and W3 matter, or can they run fully in parallel?", status:"resolved", creation_turn:"N_3", last_updated_turn:["N_3", "N_8"] },
+        { id:"SN_5", type:"decision", label:"Default epistemic_status: open only for factual_question/clarification_request, resolved otherwise", status:"revised", creation_turn:"N_4", last_updated_turn:["N_4", "N_9"] },
+      ],
+      hierarchical: [
+        ["N_3","N_2","subcase"],
+        ["N_4","N_3","same_level"],
+        ["N_5","N_2","supercase"],
+        ["N_5","N_4","supercase"],
+      ],
+      pragmatic: [
+        ["N_2","N_1","depends_on"],
+        ["N_6","N_2","contradicts"],
+        ["N_7","N_6","resolves"],
+        ["N_7","N_2","resolves"],
+        ["N_8","N_3","resolves"],
+        ["N_9","N_4","revises"],
+        ["N_10","N_2","references"],
+      ],
+      state_links: [
+        ["N_1","SN_1","creates"],
+        ["N_1","SN_2","creates"],
+        ["N_2","SN_3","creates"],
+        ["N_3","SN_4","creates"],
+        ["N_4","SN_5","creates"],
+        ["N_8","SN_4","updates"],
+        ["N_9","SN_5","updates"],
+      ]
+    }
+  };
+
+  /* ============================================================
+     BUILD GRAPH MODEL from a dataset
+     ============================================================ */
+
+  const NODE_R = { interaction: 20, entity: 12, state: 13 };
+
+  function stateColorVar(type){
+    return { goal:"--state-goal", decision:"--state-decision", constraint:"--state-constraint", open_question:"--state-open" }[type];
+  }
+  function stateTag(type){
+    return { goal:"Goal", decision:"Decision", constraint:"Constraint", open_question:"Open Q" }[type];
+  }
+
+  function buildGraph(key){
+    const d = DATASETS[key];
+    const nodes = [];
+    const edges = [];
+    const byId = {};
+
+    d.interactions.forEach((n,i) => {
+      const node = { id:n.id, kind:"interaction", label:n.ref, raw:n, x: 0, y: 0, vx:0, vy:0, r: NODE_R.interaction };
+      nodes.push(node); byId[n.id] = node;
+    });
+    d.entities.forEach((n,i) => {
+      const node = { id:n.id, kind:"entity", label:n.name, raw:n, x: 0, y: 0, vx:0, vy:0, r: NODE_R.entity };
+      nodes.push(node); byId[n.id] = node;
+    });
+    d.states.forEach((n,i) => {
+      const node = { id:n.id, kind:"state", subtype:n.type, label:n.label, raw:n, x: 0, y: 0, vx:0, vy:0, r: NODE_R.state };
+      nodes.push(node); byId[n.id] = node;
+    });
+
+    // Seed positions: interactions on a rough timeline arc, entities/states scattered near their neighbours
+    const inter = nodes.filter(n=>n.kind==="interaction");
+    const W = 1200, H = 800;
+    inter.forEach((n,i) => {
+      const t = inter.length > 1 ? i/(inter.length-1) : 0.5;
+      n.x = 160 + t*(W-320) + (Math.random()-0.5)*40;
+      n.y = H/2 + Math.sin(t*Math.PI*2)*90 + (Math.random()-0.5)*60;
+    });
+    nodes.filter(n=>n.kind!=="interaction").forEach(n => {
+      n.x = W/2 + (Math.random()-0.5)*W*0.8;
+      n.y = H/2 + (Math.random()-0.5)*H*0.8;
+    });
+
+    function addEdge(source, target, cat, label, opts){
+      opts = opts || {};
+      if(!byId[source] || !byId[target]) return;
+      edges.push(Object.assign({ id: cat+":"+source+"->"+target+":"+label+":"+edges.length, source, target, cat, label }, opts));
+    }
+
+    d.hierarchical.forEach(([s,t,l]) => addEdge(s,t,"hierarchical",l,{ directed: l!=="same_level" }));
+    d.pragmatic.forEach(([s,t,l]) => addEdge(s,t,"pragmatic",l,{ directed:true }));
+    d.entities.forEach(e => e.mentioned_in.forEach(iid => addEdge(iid, e.id, "mentions", "mentions", { directed:false })));
+    d.state_links.forEach(([s,t,l]) => addEdge(s,t,"statelink",l,{ directed:true }));
+
+    // curvature offsets for parallel edges between the same unordered pair
+    const pairCount = {};
+    edges.forEach(e => {
+      const key = [e.source,e.target].sort().join("|");
+      pairCount[key] = pairCount[key] || [];
+      pairCount[key].push(e);
+    });
+    Object.values(pairCount).forEach(list => {
+      const n = list.length;
+      list.forEach((e,i) => { e.curve = n===1 ? 0 : (i - (n-1)/2) * 26; });
+    });
+
+    return { nodes, edges, byId, title: d.title };
+  }
+
+  /* ============================================================
+     RENDERING + FORCE SIMULATION
+     ============================================================ */
+
+  const svg = document.getElementById("graph");
+  const viewport = document.getElementById("viewport");
+  const edgeLayer = document.getElementById("edge-layer");
+  const nodeLayer = document.getElementById("node-layer");
+  const wrap = document.getElementById("canvas-wrap");
+  const panel = document.getElementById("panel");
+  const panelBody = document.getElementById("panel-body");
+  const panelTitle = document.getElementById("panel-title");
+  const panelKind = document.getElementById("panel-kind");
+
+  let graph = null;
+  let selectedId = null;
+  let alpha = 1;
+  let raf = null;
+  const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const filters = {
+    interaction:true, entity:true, state:true,
+    hierarchical:true, pragmatic:true, mentions:true, statelink:true
+  };
+
+  // view transform
+  let tx = 0, ty = 0, scale = 0.85;
+
+  function applyTransform(){
+    viewport.setAttribute("transform", "translate("+tx+","+ty+") scale("+scale+")");
+  }
+
+  function edgeColor(e){
+    if(e.cat === "hierarchical") return e.label === "same_level" ? "var(--edge-hier)" : "var(--edge-hier)";
+    if(e.cat === "pragmatic") return {
+      revises: "var(--edge-revises)", contradicts: "var(--edge-contradicts)",
+      resolves: "var(--edge-resolves)", depends_on: "var(--edge-depends)", references: "var(--edge-references)"
+    }[e.label] || "var(--edge-hier)";
+    if(e.cat === "mentions") return "var(--edge-mentions)";
+    if(e.cat === "statelink") return "var(--edge-state)";
+    return "#666";
+  }
+
+  function edgeWidth(e){
+    if(e.cat === "mentions") return 1;
+    if(e.cat === "statelink") return 1.4;
+    if(e.cat === "hierarchical") return e.label === "same_level" ? 1.3 : 1.8;
+    return 2;
+  }
+
+  function edgeDash(e){
+    if(e.cat === "mentions") return "2,3";
+    if(e.cat === "statelink") return "5,4";
+    if(e.cat === "hierarchical" && e.label === "same_level") return "3,3";
+    if(e.cat === "pragmatic" && e.label === "contradicts") return "6,3";
+    return null;
+  }
+
+  function nodeFill(n){
+    if(n.kind === "interaction") return "var(--interaction)";
+    if(n.kind === "entity") return "var(--entity)";
+    if(n.kind === "state") return "var(--" + n.subtype.replace("open_question","open") + ")".replace("--open","--state-open").replace("--goal","--state-goal").replace("--decision","--state-decision").replace("--constraint","--state-constraint");
+    return "#888";
+  }
+  // simpler + correct color mapping for state subtypes
+  function stateFillVar(subtype){
+    return { goal:"var(--state-goal)", decision:"var(--state-decision)", constraint:"var(--state-constraint)", open_question:"var(--state-open)" }[subtype];
+  }
+
+  function render(datasetKey){
+    graph = buildGraph(datasetKey);
+    selectedId = null;
+    closePanel();
+    edgeLayer.innerHTML = "";
+    nodeLayer.innerHTML = "";
+    alpha = 1;
+
+    // --- edges ---
+    graph.edges.forEach(e => {
+      const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+      g.classList.add("edge-el");
+      g.dataset.cat = e.cat;
+      g.dataset.source = e.source;
+      g.dataset.target = e.target;
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+      path.classList.add("edge-line");
+      path.setAttribute("stroke", edgeColor(e));
+      path.setAttribute("stroke-width", edgeWidth(e));
+      const dash = edgeDash(e);
+      if(dash) path.setAttribute("stroke-dasharray", dash);
+      if(e.directed && e.cat !== "mentions"){
+        path.setAttribute("marker-end", "url(#arrow-"+cssSafe(edgeColorRaw(e))+")");
+      }
+      g.appendChild(path);
+      e._path = path;
+
+      if(e.cat === "hierarchical" || e.cat === "pragmatic" || e.cat === "statelink"){
+        const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+        label.classList.add("edge-label");
+        label.setAttribute("fill", edgeColor(e));
+        label.textContent = e.label;
+        g.appendChild(label);
+        e._label = label;
+      }
+
+      edgeLayer.appendChild(g);
+    });
+
+    ensureArrowMarkers();
+
+    // --- nodes ---
+    graph.nodes.forEach(n => {
+      const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+      g.classList.add("node-el");
+      g.dataset.id = n.id;
+      g.dataset.kind = n.kind;
+      g.style.cursor = "grab";
+
+      let shape;
+      if(n.kind === "entity"){
+        shape = document.createElementNS("http://www.w3.org/2000/svg","rect");
+        const s = n.r*1.25;
+        shape.setAttribute("width", s); shape.setAttribute("height", s);
+        shape.setAttribute("transform", "rotate(45)");
+        shape.setAttribute("x", -s/2); shape.setAttribute("y", -s/2);
+        shape.setAttribute("fill", "var(--entity)");
+        shape.setAttribute("fill-opacity", "0.85");
+      } else if(n.kind === "state"){
+        shape = document.createElementNS("http://www.w3.org/2000/svg","rect");
+        const s = n.r*1.65;
+        shape.setAttribute("width", s); shape.setAttribute("height", s);
+        shape.setAttribute("x", -s/2); shape.setAttribute("y", -s/2);
+        shape.setAttribute("rx", 3);
+        shape.setAttribute("fill", stateFillVar(n.subtype));
+        shape.setAttribute("fill-opacity", "0.85");
+      } else {
+        shape = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        shape.setAttribute("r", n.r);
+        shape.setAttribute("fill", "var(--interaction)");
+        shape.setAttribute("fill-opacity", "0.9");
+      }
+      shape.classList.add("node-shape");
+      shape.setAttribute("stroke", "rgba(0,0,0,0.35)");
+      shape.setAttribute("stroke-width", "1.5");
+      g.appendChild(shape);
+      n._shape = shape;
+
+      if(n.kind === "state"){
+        const tag = document.createElementNS("http://www.w3.org/2000/svg","text");
+        tag.classList.add("node-tag");
+        tag.setAttribute("y", -n.r - 6);
+        tag.setAttribute("fill", stateFillVar(n.subtype));
+        tag.textContent = stateTag(n.subtype);
+        g.appendChild(tag);
+      }
+
+      const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+      label.classList.add("node-label");
+      label.setAttribute("y", n.r + (n.kind==="state" ? 15 : 14));
+      label.textContent = truncate(n.label, n.kind === "interaction" ? 26 : 22);
+      g.appendChild(label);
+
+      const idTag = document.createElementNS("http://www.w3.org/2000/svg","text");
+      idTag.classList.add("node-tag");
+      idTag.setAttribute("y", 3);
+      idTag.setAttribute("fill", "rgba(0,0,0,0.55)");
+      idTag.style.fontSize = "8.5px";
+      idTag.style.fontWeight = "700";
+      idTag.textContent = n.id;
+      if(n.kind === "interaction") g.appendChild(idTag);
+
+      nodeLayer.appendChild(g);
+      n._g = g;
+
+      attachDrag(g, n);
+      g.addEventListener("click", (ev) => { ev.stopPropagation(); selectNode(n.id); });
+    });
+
+    applyFilters();
+    if(!raf) tick();
+    setTimeout(fitToView, prefersReducedMotion ? 0 : 650);
+  }
+
+  function edgeColorRaw(e){
+    if(e.cat === "pragmatic") return e.label;
+    if(e.cat === "hierarchical") return "hier";
+    if(e.cat === "statelink") return "state";
+    return "mentions";
+  }
+  function cssSafe(s){ return String(s).replace(/[^a-z0-9_-]/gi,""); }
+
+  function ensureArrowMarkers(){
+    let defs = svg.querySelector("defs");
+    if(defs) defs.remove();
+    defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+    const colors = {
+      "hier": "var(--edge-hier)", "state": "var(--edge-state)",
+      "revises": "var(--edge-revises)", "contradicts": "var(--edge-contradicts)",
+      "resolves": "var(--edge-resolves)", "depends_on": "var(--edge-depends)", "references": "var(--edge-references)"
+    };
+    Object.entries(colors).forEach(([key, colorVar]) => {
+      const m = document.createElementNS("http://www.w3.org/2000/svg","marker");
+      m.setAttribute("id", "arrow-"+cssSafe(key));
+      m.setAttribute("viewBox", "0 0 10 10");
+      m.setAttribute("refX", "9"); m.setAttribute("refY", "5");
+      m.setAttribute("markerWidth", "7"); m.setAttribute("markerHeight", "7");
+      m.setAttribute("orient", "auto-start-reverse");
+      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      p.setAttribute("d", "M0,0 L10,5 L0,10 z");
+      // resolve css var to a concrete color for marker fill (markers don't inherit CSS vars reliably in all renderers)
+      p.setAttribute("fill", resolveVarColor(colorVar));
+      m.appendChild(p);
+      defs.appendChild(m);
+    });
+    svg.insertBefore(defs, svg.firstChild);
+  }
+
+  function resolveVarColor(varExpr){
+    const name = varExpr.replace("var(","").replace(")","").trim();
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
+  }
+
+  function truncate(s, n){ return s.length > n ? s.slice(0,n-1)+"…" : s; }
+
+  /* ---- Force simulation (hand-rolled, no dependency) ---- */
+
+  function tick(){
+    raf = requestAnimationFrame(tick);
+    if(!graph) return;
+    if(alpha < 0.015 && !anyDragging) { layoutAndDraw(false); return; }
+
+    const nodes = graph.nodes;
+    const REPEL = 2600;
+    const CENTER_X = 600, CENTER_Y = 400;
+    const CENTER_K = 0.0022;
+
+    for(let i=0;i<nodes.length;i++){
+      const a = nodes[i];
+      if(a.fixed) continue;
+      let fx = 0, fy = 0;
+      for(let j=0;j<nodes.length;j++){
+        if(i===j) continue;
+        const b = nodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        let d2 = dx*dx + dy*dy;
+        if(d2 < 1) d2 = 1;
+        const d = Math.sqrt(d2);
+        const force = REPEL / d2;
+        fx += (dx/d) * force;
+        fy += (dy/d) * force;
+      }
+      fx += (CENTER_X - a.x) * CENTER_K;
+      fy += (CENTER_Y - a.y) * CENTER_K;
+      a.vx = (a.vx + fx*alpha) * 0.82;
+      a.vy = (a.vy + fy*alpha) * 0.82;
+    }
+
+    graph.edges.forEach(e => {
+      const s = graph.byId[e.source], t = graph.byId[e.target];
+      if(!s || !t) return;
+      let rest = 150;
+      let k = 0.02;
+      if(e.cat === "mentions"){ rest = 85; k = 0.035; }
+      else if(e.cat === "statelink"){ rest = 100; k = 0.03; }
+      else if(e.cat === "hierarchical"){ rest = 170; k = 0.018; }
+      else if(e.cat === "pragmatic"){ rest = 190; k = 0.016; }
+
+      const dx = t.x - s.x, dy = t.y - s.y;
+      const d = Math.max(Math.sqrt(dx*dx+dy*dy), 1);
+      const diff = (d - rest) * k * alpha;
+      const ux = dx/d, uy = dy/d;
+      if(!s.fixed){ s.vx += ux*diff; s.vy += uy*diff; }
+      if(!t.fixed){ t.vx -= ux*diff; t.vy -= uy*diff; }
+    });
+
+    nodes.forEach(n => {
+      if(n.fixed) return;
+      n.x += n.vx; n.y += n.vy;
+    });
+
+    alpha *= 0.988;
+    layoutAndDraw(true);
+  }
+
+  function layoutAndDraw(){
+    if(!graph) return;
+    graph.edges.forEach(e => {
+      const s = graph.byId[e.source], t = graph.byId[e.target];
+      if(!s || !t || !e._path) return;
+      const mx = (s.x+t.x)/2, my = (s.y+t.y)/2;
+      const dx = t.x-s.x, dy = t.y-s.y;
+      const len = Math.max(Math.sqrt(dx*dx+dy*dy),1);
+      const nx = -dy/len, ny = dx/len;
+      const cx = mx + nx*(e.curve||0), cy = my + ny*(e.curve||0);
+      e._path.setAttribute("d", "M"+s.x+","+s.y+" Q"+cx+","+cy+" "+t.x+","+t.y);
+      if(e._label){
+        const lx = 0.5*0.5*s.x + 0.5*t.x*0.5 + cx*0.5;
+        // quadratic bezier midpoint approx
+        const bx = 0.25*s.x + 0.5*cx + 0.25*t.x;
+        const by = 0.25*s.y + 0.5*cy + 0.25*t.y;
+        e._label.setAttribute("x", bx);
+        e._label.setAttribute("y", by - 4);
+      }
+    });
+    graph.nodes.forEach(n => {
+      if(n._g) n._g.setAttribute("transform", "translate("+n.x+","+n.y+")");
+    });
+  }
+
+  /* ---- Filters ---- */
+
+  function applyFilters(){
+    if(!graph) return;
+    graph.nodes.forEach(n => {
+      const visible = filters[n.kind];
+      n._g.classList.toggle("hidden-el", !visible);
+    });
+    Array.from(edgeLayer.children).forEach(g => {
+      const cat = g.dataset.cat;
+      const s = graph.byId[g.dataset.source], t = graph.byId[g.dataset.target];
+      const endpointsVisible = s && t && filters[s.kind] && filters[t.kind];
+      g.classList.toggle("hidden-el", !filters[cat] || !endpointsVisible);
+    });
+  }
+
+  document.querySelectorAll('#node-filters input, #edge-filters input').forEach(cb => {
+    cb.addEventListener("change", () => {
+      filters[cb.dataset.filter] = cb.checked;
+      applyFilters();
+    });
+  });
+
+  /* ---- Selection & highlighting ---- */
+
+  function selectNode(id){
+    selectedId = id;
+    const n = graph.byId[id];
+    if(!n) return;
+
+    const connected = new Set([id]);
+    graph.edges.forEach(e => {
+      if(e.source === id) connected.add(e.target);
+      if(e.target === id) connected.add(e.source);
+    });
+
+    graph.nodes.forEach(nd => nd._g.classList.toggle("dim", !connected.has(nd.id)));
+    Array.from(edgeLayer.children).forEach(g => {
+      const on = g.dataset.source === id || g.dataset.target === id;
+      g.classList.toggle("dim", !on);
+    });
+
+    openPanel(n);
+  }
+
+  wrap.addEventListener("click", () => { clearSelection(); });
+  function clearSelection(){
+    selectedId = null;
+    if(graph){
+      graph.nodes.forEach(nd => nd._g.classList.remove("dim"));
+      Array.from(edgeLayer.children).forEach(g => g.classList.remove("dim"));
+    }
+    closePanel();
+  }
+
+  /* ---- Panel ---- */
+
+  function statusBadgeClass(s){
+    return "status-" + (s||"").toLowerCase();
+  }
+
+  function citedText(text){
+    return text.replace(/\[([A-Za-z]_\d+)\]/g, '<span class="cite">$1</span>');
+  }
+
+  function openPanel(n){
+    panel.classList.add("open");
+    if(n.kind === "interaction"){
+      panelKind.textContent = "INTERACTION NODE";
+      panelKind.style.color = "var(--interaction)";
+      panelKind.style.background = "rgba(227,168,87,0.14)";
+      panelTitle.textContent = n.id + " — " + n.label;
+      const r = n.raw;
+      panelBody.innerHTML =
+        field("Question", esc(r.question)) +
+        field("Answer", citedText(esc(r.answer))) +
+        field("Summary", esc(r.summary)) +
+        field("Reference", esc(r.ref)) +
+        fieldBadges("Speech act / Status", [
+          {t:r.speech_act, cls:""}, {t:r.epistemic_status, cls:statusBadgeClass(r.epistemic_status)}
+        ]) +
+        field("Recurrence / retrieval count", r.recurrence_count + " / " + r.retrieval_count, true) +
+        field("Citations", r.citations.length ? r.citations.join(", ") : "(none)", true) +
+        historyBlock(r.history);
+    } else if(n.kind === "entity"){
+      panelKind.textContent = "ENTITY";
+      panelKind.style.color = "var(--entity)";
+      panelKind.style.background = "rgba(79,195,176,0.14)";
+      panelTitle.textContent = n.id + " — " + n.label;
+      const r = n.raw;
+      panelBody.innerHTML =
+        field("Type", r.type, true) +
+        field("Name", esc(r.name)) +
+        field("Mentioned in", r.mentioned_in.join(", "), true);
+    } else {
+      const color = stateFillVar(n.subtype);
+      panelKind.textContent = stateTag(n.subtype).toUpperCase() + " STATE NODE";
+      panelKind.style.color = color;
+      panelKind.style.background = "rgba(255,255,255,0.06)";
+      panelTitle.textContent = n.id + " — " + n.label;
+      const r = n.raw;
+      panelBody.innerHTML =
+        field("Type", r.type, true) +
+        field("Label", esc(r.label)) +
+        fieldBadges("Status", [{t:r.status, cls:statusBadgeClass(r.status)}]) +
+        field("Creation turn", r.creation_turn, true) +
+        field("Last updated by", r.last_updated_turn.join(" → "), true);
+    }
+  }
+
+  function field(label, value, mono){
+    return '<div class="pfield"><div class="plabel">'+label+'</div><div class="pval'+(mono?' mono':'')+'">'+value+'</div></div>';
+  }
+  function fieldBadges(label, items){
+    const badges = items.map(it => '<span class="badge '+it.cls+'">'+it.t+'</span>').join("");
+    return '<div class="pfield"><div class="plabel">'+label+'</div><div class="pval">'+badges+'</div></div>';
+  }
+  function historyBlock(history){
+    if(!history || !history.length) return "";
+    const rows = history.map(h => '<div class="history-row">['+h[0]+'] '+h[1]+' &rarr; <b style="color:var(--text)">'+h[2]+'</b></div>').join("");
+    return '<div class="pfield"><div class="plabel">Epistemic history</div><div class="pval">'+rows+'</div></div>';
+  }
+  function esc(s){
+    const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
+  }
+
+  document.getElementById("panel-close").addEventListener("click", (e) => { e.stopPropagation(); clearSelection(); });
+  function closePanel(){
+    panel.classList.remove("open");
+    panelTitle.textContent = "Select a node";
+    panelKind.textContent = "NODE";
+    panelKind.style.color = "var(--text-dim)";
+    panelKind.style.background = "var(--bg-chrome)";
+    panelBody.innerHTML = '<div class="empty-state">Click any node in the graph to inspect its full schema fields here.</div>';
+  }
+
+  /* ---- Drag (nodes) ---- */
+
+  let anyDragging = false;
+
+  function screenToWorld(clientX, clientY){
+    const rect = wrap.getBoundingClientRect();
+    const lx = clientX - rect.left, ly = clientY - rect.top;
+    return { x: (lx - tx) / scale, y: (ly - ty) / scale };
+  }
+
+  function attachDrag(g, n){
+    let dragging = false;
+    g.addEventListener("pointerdown", (ev) => {
+      ev.stopPropagation();
+      dragging = true; anyDragging = true;
+      n.fixed = true;
+      g.style.cursor = "grabbing";
+      g.setPointerCapture(ev.pointerId);
+      alpha = Math.max(alpha, 0.3);
+    });
+    g.addEventListener("pointermove", (ev) => {
+      if(!dragging) return;
+      const p = screenToWorld(ev.clientX, ev.clientY);
+      n.x = p.x; n.y = p.y; n.vx = 0; n.vy = 0;
+      layoutAndDraw();
+    });
+    function release(ev){
+      if(!dragging) return;
+      dragging = false; anyDragging = false;
+      n.fixed = false;
+      g.style.cursor = "grab";
+      alpha = Math.max(alpha, 0.25);
+    }
+    g.addEventListener("pointerup", release);
+    g.addEventListener("pointerleave", (ev) => { if(ev.buttons===0) release(ev); });
+  }
+
+  /* ---- Pan & zoom (background) ---- */
+
+  let panning = false, panStart = null, txStart = 0, tyStart = 0;
+
+  wrap.addEventListener("pointerdown", (ev) => {
+    if(ev.target !== wrap && ev.target !== svg && ev.target !== viewport) return;
+    panning = true; wrap.classList.add("panning");
+    panStart = { x: ev.clientX, y: ev.clientY };
+    txStart = tx; tyStart = ty;
+  });
+  window.addEventListener("pointermove", (ev) => {
+    if(!panning) return;
+    tx = txStart + (ev.clientX - panStart.x);
+    ty = tyStart + (ev.clientY - panStart.y);
+    applyTransform();
+  });
+  window.addEventListener("pointerup", () => { panning = false; wrap.classList.remove("panning"); });
+
+  wrap.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const rect = wrap.getBoundingClientRect();
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    const worldX = (mx - tx) / scale, worldY = (my - ty) / scale;
+    const factor = ev.deltaY < 0 ? 1.08 : 0.93;
+    scale = Math.min(3, Math.max(0.18, scale * factor));
+    tx = mx - worldX * scale;
+    ty = my - worldY * scale;
+    applyTransform();
+  }, { passive: false });
+
+  function fitToView(){
+    if(!graph || !graph.nodes.length) return;
+    let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+    graph.nodes.forEach(n => {
+      minX = Math.min(minX, n.x - 60); maxX = Math.max(maxX, n.x + 60);
+      minY = Math.min(minY, n.y - 40); maxY = Math.max(maxY, n.y + 40);
+    });
+    const rect = wrap.getBoundingClientRect();
+    const gw = maxX-minX, gh = maxY-minY;
+    const s = Math.min(rect.width/gw, rect.height/gh, 1.4);
+    scale = Math.max(0.18, Math.min(3, s));
+    tx = rect.width/2 - ((minX+maxX)/2)*scale;
+    ty = rect.height/2 - ((minY+maxY)/2)*scale;
+    applyTransform();
+  }
+
+  document.getElementById("fit-btn").addEventListener("click", fitToView);
+  document.getElementById("reheat-btn").addEventListener("click", () => {
+    graph.nodes.forEach(n => { n.fixed = false; });
+    alpha = 1;
+  });
+
+  /* ---- Legend collapse ---- */
+  document.getElementById("legend-toggle").addEventListener("click", () => {
+    const lg = document.getElementById("legend");
+    lg.classList.toggle("collapsed");
+    document.getElementById("legend-caret").textContent = lg.classList.contains("collapsed") ? "▸" : "▾";
+  });
+
+  /* ---- Init (single dataset - no switcher needed) ---- */
+  render("K");
+  applyTransform();
+
+  window.addEventListener("resize", () => { if(graph) fitToView(); });
+
+})();
+</script>
+
+</body>
+</html>

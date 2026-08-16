@@ -1,0 +1,261 @@
+{
+  "interaction_nodes": {
+    "N_1": {
+      "question": "For Phase 1 and 2 of the INESC TEC graph memory work, our goal is to extend the schema to represent entities, goals, decisions, constraints, and open questions - and whatever we add, per-turn extraction cost needs to stay bounded to just a few extra async calls.",
+      "answer": "Got it - I'll track both: the goal is the enriched schema covering entities and the four state-node types, and the constraint is keeping added extraction cost to a small, bounded number of async calls per turn.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": ["E_1", "E_6"],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [["N_1", "creation", "resolved"]],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Sets the goal (enriched schema) and the constraint (bounded per-turn extraction cost) for Phase 1-2.",
+      "reference": "Goal and cost constraint set",
+      "edges": { "hierarchical": [], "pragmatic": [] },
+      "state_node_links": { "creates": ["SN_1", "SN_2"] }
+    },
+    "N_2": {
+      "question": "What relation types should we add beyond subcase, supercase, and same_level?",
+      "answer": "I'd propose five pragmatic edges - revises, contradicts, resolves, depends_on, and references - covering correction, disagreement, resolution, prerequisite, and simple callback, while keeping the number of extra calls Claude makes each turn bounded [N_1].",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": ["E_3"],
+      "citations": ["N_1"],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        ["N_2", "creation", "resolved"],
+        ["N_6", "contradicts", "contested"],
+        ["N_7", "resolves", "resolved"]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Five pragmatic edge types are proposed: revises, contradicts, resolves, depends_on, references.",
+      "reference": "Five pragmatic edge types adopted",
+      "edges": { "hierarchical": [], "pragmatic": [["N_1", "depends_on"]] },
+      "state_node_links": { "creates": ["SN_3"] }
+    },
+    "N_3": {
+      "question": "When you said pragmatic edges get their own classification call - does that mean W2 and W3 always run fully independently in parallel, or could the order actually matter?",
+      "answer": "Good question to pin down - that's not settled yet. I'd flag it as an open question: does W3 need W2's hierarchical labels first, or can they run fully in parallel? We won't know for certain until we test it end to end.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        ["N_3", "creation", "open"],
+        ["N_8", "resolves", "resolved"]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Opens the question of whether W2/W3 call ordering matters or can run in parallel.",
+      "reference": "W2/W3 ordering question opened",
+      "edges": { "hierarchical": [["N_2", "subcase"]], "pragmatic": [] },
+      "state_node_links": { "creates": ["SN_4"] }
+    },
+    "N_4": {
+      "question": "Separately, what should the default epistemic_status be when a new node is created?",
+      "answer": "I'd default to open only for factual_question and clarification_request, and resolved for every other speech act.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        ["N_4", "creation", "resolved"],
+        ["N_9", "revises", "superseded"]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Sets the default epistemic_status rule: open for questions, resolved otherwise.",
+      "reference": "Default epistemic_status rule set",
+      "edges": { "hierarchical": [["N_3", "same_level"]], "pragmatic": [] },
+      "state_node_links": { "creates": ["SN_5"] }
+    },
+    "N_5": {
+      "question": "Can you summarize the schema decisions in the Phase 1-2 report so far?",
+      "answer": "Sure - we're adding five pragmatic edge types while staying within the bounded per-turn cost constraint [N_1], defaulting new nodes to resolved unless they're a question, and we still haven't settled whether W2 and W3 need a fixed order.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": ["E_4"],
+      "citations": ["N_1"],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [["N_5", "creation", "resolved"]],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Summarizes the schema decisions so far: five edge types, default status rule, ordering still open.",
+      "reference": "Schema decisions summarized",
+      "edges": {
+        "hierarchical": [
+          ["N_2", "supercase"],
+          ["N_4", "supercase"]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_6": {
+      "question": "Actually, I think five pragmatic types is overengineered - let's just keep revises and resolves, the rest adds complexity without proven benefit.",
+      "answer": "Worth taking seriously - I'll flag this as a direct challenge to the five-edge-type decision until we think it through.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        ["N_6", "creation", "resolved"],
+        ["N_7", "resolves", "resolved"]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Pushback: five pragmatic edge types may be overengineered relative to two.",
+      "reference": "Five-edge-type decision disputed",
+      "edges": { "hierarchical": [], "pragmatic": [["N_2", "contradicts"]] },
+      "state_node_links": {}
+    },
+    "N_7": {
+      "question": "Have you thought it through?",
+      "answer": "Yes - each of the five maps to something the thesis needs distinctly [N_6]: contradicts surfaces disputes explicitly instead of hiding them in a plain edge, and depends_on lets retrieval find prerequisite context. I'd keep all five, though the strength values should stay provisional until Phase 4's parameter sweep.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [],
+      "citations": ["N_6"],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [["N_7", "creation", "resolved"]],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Defends keeping all five pragmatic edge types, resolving the pushback.",
+      "reference": "Five-edge-type dispute resolved",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          ["N_6", "resolves"],
+          ["N_2", "resolves"]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "We tested it - does the W2/W3 ordering actually matter?",
+      "answer": "Yes, it does: running W2 before W3 turned out to matter, since W3 needs W2's hierarchical labels to set epistemic_status defaults correctly. Resolved.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [["N_8", "creation", "resolved"]],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Testing confirms W2 must run before W3; the ordering question is resolved.",
+      "reference": "W2/W3 ordering confirmed to matter",
+      "edges": { "hierarchical": [], "pragmatic": [["N_3", "resolves"]] },
+      "state_node_links": { "updates": ["SN_4"] }
+    },
+    "N_9": {
+      "question": "Given that finding, should we simplify the default epistemic_status rule too?",
+      "answer": "Yes - simplify further: default resolved unless the speech act is a question type, no separate handling for edge cases.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [["N_9", "creation", "resolved"]],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Simplifies the default epistemic_status rule following the ordering finding.",
+      "reference": "Default status rule simplified",
+      "edges": { "hierarchical": [], "pragmatic": [["N_4", "revises"]] },
+      "state_node_links": { "updates": ["SN_5"] }
+    },
+    "N_10": {
+      "question": "Right before the meeting with my thesis advisor - are we still keeping all five pragmatic edge types?",
+      "answer": "Yes, still all five [N_2], no changes - the report's ready for review.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": ["E_2", "E_5", "E_4"],
+      "citations": ["N_2"],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [["N_10", "creation", "resolved"]],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Confirms the five-edge-type decision still holds ahead of the supervisor meeting.",
+      "reference": "Plan reconfirmed before review",
+      "edges": { "hierarchical": [], "pragmatic": [["N_2", "references"]] },
+      "state_node_links": {}
+    }
+  },
+
+  "entities": {
+    "E_1": {
+      "type": "organization",
+      "name": "INESC TEC",
+      "mentioned_in": ["N_1"]
+    },
+    "E_2": {
+      "type": "person",
+      "name": "the thesis advisor",
+      "mentioned_in": ["N_10"]
+    },
+    "E_3": { "type": "system", "name": "Claude", "mentioned_in": ["N_2"] },
+    "E_4": {
+      "type": "document",
+      "name": "the Phase 1-2 report",
+      "mentioned_in": ["N_5", "N_10"]
+    },
+    "E_5": {
+      "type": "event",
+      "name": "the supervisor meeting",
+      "mentioned_in": ["N_10"]
+    },
+    "E_6": {
+      "type": "measurement",
+      "name": "per-turn extraction cost budget",
+      "mentioned_in": ["N_1"]
+    }
+  },
+
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Extend the graph schema to represent entities, goals, decisions, constraints, and open questions",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "active",
+      "last_updated_turn": ["N_1"]
+    },
+    "SN_2": {
+      "type": "constraint",
+      "label": "Per-turn extraction cost must stay bounded to a small number of async calls",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_1",
+      "status": "active",
+      "last_updated_turn": ["N_1"]
+    },
+    "SN_3": {
+      "type": "decision",
+      "label": "Adopt five pragmatic edge types: revises, contradicts, resolves, depends_on, references",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_2",
+      "status": "active",
+      "last_updated_turn": ["N_2"]
+    },
+    "SN_4": {
+      "type": "open_question",
+      "label": "Does classification order between W2 and W3 matter, or can they run fully in parallel?",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_3",
+      "status": "resolved",
+      "last_updated_turn": ["N_3", "N_8"]
+    },
+    "SN_5": {
+      "type": "decision",
+      "label": "Default epistemic_status: open only for factual_question/clarification_request, resolved otherwise",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_4",
+      "status": "revised",
+      "last_updated_turn": ["N_4", "N_9"]
+    }
+  }
+}

@@ -90,7 +90,7 @@
       { "speaker": "researcher", "text": "Have you thought it through?" },
       {
         "speaker": "assistant",
-        "text": "Yes - each of the five maps to something the thesis needs distinctly [N_6]: contradicts surfaces disputes explicitly instead of hiding them in a plain edge, and depends_on lets retrieval find prerequisite context. I'd keep all five, though the strength values should stay provisional until Phase 4's parameter sweep."
+        "text": "Yes - each of the five maps to something the thesis needs distinctly [N_6]: contradicts surface disputes explicitly instead of hiding them in a plain edge, and depends_on lets retrieval find prerequisite context. I'd keep all five, though the strength values should stay provisional until Phase 4's parameter sweep."
       }
     ]
   },
@@ -104,7 +104,7 @@
       },
       {
         "speaker": "assistant",
-        "text": "Yes, it does: running W2 before W3 turned out to matter, since W3 needs W2's hierarchical labels to set epistemic_status defaults correctly. Resolved."
+        "text": "No, it doesn't - we checked: both calls read the same candidate list and neither touches the other's output, so there's no dependency between them. They run fully in parallel. Resolved."
       }
     ]
   },
@@ -114,7 +114,7 @@
     "turns": [
       {
         "speaker": "researcher",
-        "text": "Given that finding, should we simplify the default epistemic_status rule too?"
+        "text": "Separately, should we simplify the default epistemic_status rule too?"
       },
       {
         "speaker": "assistant",

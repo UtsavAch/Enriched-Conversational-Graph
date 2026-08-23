@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversational Memory Graph — Phase 1–2 Schema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --bg: #F5F6F1;
+    --bg-grid: #E9EBE3;
+    --panel: #FFFFFF;
+    --ink: #1C1E22;
+    --ink-soft: #5B6069;
+    --ink-faint: #9498A0;
+    --line: #DDE0D8;
+    --line-strong: #C6CABF;
+
+    --c-interaction: #2E5A8C;
+    --c-interaction-soft: #DCE6F0;
+    --c-entity: #B4802E;
+    --c-entity-soft: #F3E7D2;
+    --c-goal: #2F8F6B;
+    --c-goal-soft: #DBEEE5;
+    --c-constraint: #B84A3E;
+    --c-constraint-soft: #F5DEDA;
+    --c-decision: #6B4FA3;
+    --c-decision-soft: #E7E0F2;
+    --c-question: #C08A16;
+    --c-question-soft: #F4E8CC;
+
+    --e-hier: #9AA0A6;
+    --e-revises: #6B4FA3;
+    --e-contradicts: #B84A3E;
+    --e-resolves: #2F8F6B;
+    --e-dependson: #2E5A8C;
+    --e-references: #8A8F94;
+    --e-statelink: #B4802E;
+    --e-citation: #A9ADA6;
+    --e-mention: #C7CAC0;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0/32px 32px,
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px) 0 0/32px 32px,
+      var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  header{
+    padding: 18px 26px 14px 26px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(6px);
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .title-block h1{
+    font-family:'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 3px 0;
+    letter-spacing: -0.01em;
+  }
+  .title-block .sub{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.01em;
+  }
+  .stats{
+    display:flex; gap: 18px; font-family:'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-soft);
+  }
+  .stats b{ color: var(--ink); font-weight:600; }
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap: 22px;
+    padding: 10px 26px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.5);
+    flex-wrap: wrap;
+    font-size: 12.5px;
+  }
+  .toolbar-group{ display:flex; align-items:center; gap:10px; }
+  .toolbar-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    margin-right: 2px;
+  }
+  .seg{
+    display:flex; border:1px solid var(--line-strong); border-radius: 7px; overflow:hidden;
+  }
+  .seg button{
+    border:none; background:var(--panel); color:var(--ink-soft); font-family:'IBM Plex Sans',sans-serif;
+    font-size:12px; padding:6px 12px; cursor:pointer; transition:.15s;
+  }
+  .seg button + button{ border-left:1px solid var(--line-strong); }
+  .seg button.active{ background: var(--ink); color:#fff; }
+  .seg button:hover:not(.active){ background: var(--bg-grid); }
+
+  .chip{
+    display:flex; align-items:center; gap:6px; padding:4px 10px 4px 6px;
+    border:1px solid var(--line-strong); border-radius: 20px; cursor:pointer; user-select:none;
+    background: var(--panel); transition: opacity .15s, transform .1s;
+  }
+  .chip.off{ opacity:.35; }
+  .chip:active{ transform: scale(.97); }
+  .chip input{ display:none; }
+  .swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+  .swatch.dot{ border-radius:50%; }
+  .swatch.diamond{ transform: rotate(45deg); border-radius: 2px; }
+  .chip-label{ font-size:11.5px; color: var(--ink); white-space:nowrap; }
+
+  main{
+    flex:1; display:flex; min-height:0;
+  }
+
+  #chat-panel{
+    width: 340px; flex:none; border-right:1px solid var(--line); background: var(--panel);
+    display:flex; flex-direction:column; min-height:0;
+  }
+  .chat-head{
+    padding: 14px 18px 10px 18px; border-bottom:1px solid var(--line); flex:none;
+  }
+  .chat-head .chat-title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:14.5px; margin:0 0 2px 0;
+  }
+  .chat-head .chat-sub{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; color: var(--ink-faint);
+  }
+  .chat-scroll{
+    flex:1; overflow-y:auto; padding: 10px 14px 14px 14px;
+  }
+  .chat-scroll::-webkit-scrollbar{ width:8px; }
+  .chat-scroll::-webkit-scrollbar-thumb{ background: var(--line-strong); border-radius:8px; }
+
+  .turn{
+    border:1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
+    cursor:pointer; transition: border-color .15s, box-shadow .15s, background .15s; background: var(--panel);
+  }
+  .turn:hover{ border-color: var(--line-strong); background: var(--bg); }
+  .turn.active{
+    border-color: var(--c-interaction); background: var(--c-interaction-soft);
+    box-shadow: 0 0 0 1px var(--c-interaction) inset;
+  }
+  .turn-meta{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;
+  }
+  .turn-id{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color: var(--c-interaction); font-weight:500; }
+  .turn-date{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color: var(--ink-faint); }
+  .bubble{
+    border-radius:9px; padding:7px 9px; font-size:11.8px; line-height:1.45; margin-bottom:5px;
+  }
+  .bubble.q{ background:#EFF1EC; color: var(--ink); }
+  .bubble.a{ background: var(--c-interaction-soft); color: var(--ink); }
+  .bubble-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:8.5px; text-transform:uppercase; letter-spacing:.06em;
+    color: var(--ink-faint); display:block; margin-bottom:2px;
+  }
+
+  .chat-composer{
+    flex:none; border-top:1px solid var(--line); padding: 12px 14px; display:flex; gap:8px; align-items:center;
+    background: var(--bg);
+  }
+  .chat-composer input{
+    flex:1; border:1px solid var(--line-strong); border-radius: 20px; padding: 9px 14px;
+    font-family:'IBM Plex Sans', sans-serif; font-size:12.5px; background: var(--panel); color: var(--ink-faint);
+    cursor:not-allowed;
+  }
+  .chat-composer input::placeholder{ color: var(--ink-faint); }
+  .chat-composer button{
+    flex:none; width:34px; height:34px; border-radius:50%; border:none; background: var(--line-strong);
+    color:#fff; cursor:not-allowed; display:flex; align-items:center; justify-content:center;
+  }
+  .chat-composer-note{
+    font-family:'IBM Plex Mono', monospace; font-size:9px; color: var(--ink-faint); text-align:center;
+    padding: 0 14px 10px 14px; background: var(--bg);
+  }
+
+  #canvas-wrap{ flex:1; position:relative; min-width:0; }
+  svg{ width:100%; height:100%; display:block; cursor: grab; }
+  svg:active{ cursor: grabbing; }
+
+  .hint{
+    position:absolute; left:20px; bottom:16px; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; color: var(--ink-faint); pointer-events:none;
+    background: rgba(255,255,255,.7); padding: 4px 8px; border-radius:6px;
+  }
+
+  aside{
+    width: 360px; flex:none; border-left:1px solid var(--line); background: var(--panel);
+    overflow-y:auto; padding: 20px 20px 40px 20px;
+  }
+  aside::-webkit-scrollbar{ width:8px; }
+  aside::-webkit-scrollbar-thumb{ background: var(--line-strong); border-radius:8px; }
+
+  .empty-panel{ color: var(--ink-faint); font-size: 13px; line-height:1.6; margin-top: 40px; }
+  .empty-panel b{ color: var(--ink-soft); }
+
+  .badge{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    padding: 2px 8px; border-radius: 20px; letter-spacing:.02em; font-weight:500;
+  }
+  .panel-id{
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-faint); margin-bottom:4px;
+  }
+  .panel-title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:18px; line-height:1.3; margin: 0 0 10px 0;
+  }
+  .badge-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom: 14px; }
+  .field{ margin-bottom: 14px; }
+  .field-label{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:.07em;
+    color: var(--ink-faint); margin-bottom: 4px;
+  }
+  .field-value{ font-size: 13px; line-height: 1.55; color: var(--ink); }
+  .qa-block{
+    background: var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:8px;
+  }
+  .qa-role{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; color: var(--ink-faint); margin-bottom:3px;}
+  .qa-text{ font-size:12.8px; line-height:1.5; }
+
+  .rel-list{ list-style:none; margin:0; padding:0; }
+  .rel-item{
+    display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:7px; cursor:pointer;
+    font-size:12px; transition: background .12s;
+  }
+  .rel-item:hover{ background: var(--bg); }
+  .rel-arrow{ color: var(--ink-faint); font-family:'IBM Plex Mono', monospace; font-size:11px; }
+  .rel-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:9.5px; padding:1px 6px; border-radius:10px; flex:none;
+  }
+  .rel-target{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color: var(--ink); }
+  .rel-target-name{ color: var(--ink-soft); font-family:'IBM Plex Sans',sans-serif; }
+
+  .divider{ height:1px; background: var(--line); margin: 16px 0; }
+
+  .legend-note{ font-size:11.5px; color: var(--ink-faint); line-height:1.5; margin-top: 18px; }
+
+  .node-label{ font-family:'IBM Plex Mono', monospace; font-size: 9.5px; fill: var(--ink); pointer-events:none; }
+  .node-sub{ font-family:'IBM Plex Sans', sans-serif; font-size: 8.5px; fill: var(--ink-soft); pointer-events:none; }
+
+  .axis text{ font-family:'IBM Plex Mono', monospace; font-size:10px; fill: var(--ink-faint); }
+  .axis path, .axis line{ stroke: var(--line-strong); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <h1>Conversational Memory Graph</h1>
+    <div class="sub">Phase 1–2 Schema · Graph-Augmented Conversational Memory · INESC TEC</div>
+  </div>
+  <div class="stats">
+    <span><b>10</b> interactions</span>
+    <span><b>6</b> entities</span>
+    <span><b>5</b> state nodes</span>
+    <span><b>26</b> edges</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-group">
+    <span class="toolbar-label">View</span>
+    <div class="seg" id="view-toggle">
+      <button data-view="graph" class="active">Force graph</button>
+      <button data-view="timeline">Timeline</button>
+    </div>
+  </div>
+
+  <div class="toolbar-group">
+    <span class="toolbar-label">Node types</span>
+    <label class="chip" data-filter="node" data-key="interaction"><input type="checkbox" checked><span class="swatch dot" style="background:var(--c-interaction)"></span><span class="chip-label">Interaction</span></label>
+    <label class="chip" data-filter="node" data-key="entity"><input type="checkbox" checked><span class="swatch diamond" style="background:var(--c-entity)"></span><span class="chip-label">Entity</span></label>
+    <label class="chip" data-filter="node" data-key="state"><input type="checkbox" checked><span class="swatch" style="background:var(--c-decision)"></span><span class="chip-label">State node</span></label>
+  </div>
+
+  <div class="toolbar-group">
+    <span class="toolbar-label">Edges</span>
+    <label class="chip" data-filter="edge" data-key="hierarchical"><input type="checkbox" checked><span class="swatch" style="background:var(--e-hier)"></span><span class="chip-label">Hierarchical</span></label>
+    <label class="chip" data-filter="edge" data-key="pragmatic"><input type="checkbox" checked><span class="swatch" style="background:var(--e-dependson)"></span><span class="chip-label">Pragmatic</span></label>
+    <label class="chip" data-filter="edge" data-key="state_link"><input type="checkbox" checked><span class="swatch" style="background:var(--e-statelink)"></span><span class="chip-label">State link</span></label>
+    <label class="chip" data-filter="edge" data-key="citation"><input type="checkbox" checked><span class="swatch" style="background:var(--e-citation)"></span><span class="chip-label">Citation</span></label>
+    <label class="chip" data-filter="edge" data-key="mention"><input type="checkbox" checked><span class="swatch" style="background:var(--e-mention)"></span><span class="chip-label">Mentions</span></label>
+  </div>
+</div>
+
+<main>
+  <aside id="chat-panel">
+    <div class="chat-head">
+      <div class="chat-title">Conversation history</div>
+      <div class="chat-sub">10 turns · Jan 15 – Jul 10, 2026</div>
+    </div>
+    <div class="chat-scroll" id="chat-scroll"></div>
+    <div class="chat-composer">
+      <input type="text" placeholder="Design preview only — sending disabled" disabled>
+      <button disabled title="Design preview only">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="white"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+  <div id="canvas-wrap">
+    <svg id="svg"></svg>
+    <div class="hint">drag to move nodes · scroll to zoom · click a node for detail · click background to deselect</div>
+  </div>
+  <aside id="panel">
+    <div class="empty-panel">
+      Select any node — an <b>interaction</b> (turn), <b>entity</b>, or <b>state node</b> (goal / constraint / decision / open question) — to inspect its fields and every edge attached to it.
+      <div class="legend-note">
+        Node size for interactions scales with <b>retrieval_count + recurrence_count</b> — a rough proxy for how often that turn has been re-surfaced by retrieval. Dimmed state nodes are <b>resolved</b> or <b>revised</b>.
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script>
+/* ---------------------------------------------------------------
+   DATA — derived directly from conversation_input.json /
+   conversation_output.json (Phase 1–2 schema dump)
+----------------------------------------------------------------*/
+
+const interactionNodes = [
+  {id:'N_1', date:'2026-01-15', speech_act:'request', epistemic_status:'resolved',
+   recurrence_count:1, retrieval_count:1,
+   question:"For Phase 1 and 2 of the INESC TEC graph memory work, our goal is to extend the schema to represent entities, goals, decisions, constraints, and open questions - and whatever we add, per-turn extraction cost needs to stay bounded to just a few extra async calls.",
+   answer:"Got it - I'll track both: the goal is the enriched schema covering entities and the four state-node types, and the constraint is keeping added extraction cost to a small, bounded number of async calls per turn.",
+   summary:"Sets the goal (enriched schema) and the constraint (bounded per-turn extraction cost) for Phase 1-2.",
+   reference:"Goal and cost constraint set"},
+  {id:'N_2', date:'2026-01-20', speech_act:'decision', epistemic_status:'resolved',
+   recurrence_count:5, retrieval_count:5,
+   question:"What relation types should we add beyond subcase, supercase, and same_level?",
+   answer:"I'd propose five pragmatic edges - revises, contradicts, resolves, depends_on, and references - covering correction, disagreement, resolution, prerequisite, and simple callback, while keeping the number of extra calls Claude makes each turn bounded.",
+   summary:"Five pragmatic edge types are proposed: revises, contradicts, resolves, depends_on, references.",
+   reference:"Five pragmatic edge types adopted"},
+  {id:'N_3', date:'2026-02-02', speech_act:'clarification_request', epistemic_status:'resolved',
+   recurrence_count:2, retrieval_count:2,
+   question:"When you said pragmatic edges get their own classification call - does that mean W2 and W3 always run fully independently in parallel, or could the order actually matter?",
+   answer:"Good question to pin down - that's not settled yet. I'd flag it as an open question: does W3 need W2's hierarchical labels first, or can they run fully in parallel? We won't know for certain until we test it end to end.",
+   summary:"Opens the question of whether W2/W3 call ordering matters or can run in parallel.",
+   reference:"W2/W3 ordering question opened"},
+  {id:'N_4', date:'2026-02-04', speech_act:'decision', epistemic_status:'superseded',
+   recurrence_count:2, retrieval_count:2,
+   question:"Separately, what should the default epistemic_status be when a new node is created?",
+   answer:"I'd default to open only for factual_question and clarification_request, and resolved for every other speech act.",
+   summary:"Sets the default epistemic_status rule: open for questions, resolved otherwise.",
+   reference:"Default epistemic_status rule set"},
+  {id:'N_5', date:'2026-02-10', speech_act:'information', epistemic_status:'resolved',
+   recurrence_count:0, retrieval_count:0,
+   question:"Can you summarize the schema decisions in the Phase 1-2 report so far?",
+   answer:"Sure - we're adding five pragmatic edge types while staying within the bounded per-turn cost constraint, defaulting new nodes to resolved unless they're a question, and we still haven't settled whether W2 and W3 need a fixed order.",
+   summary:"Summarizes the schema decisions so far: five edge types, default status rule, ordering still open.",
+   reference:"Schema decisions summarized"},
+  {id:'N_6', date:'2026-03-01', speech_act:'disagreement', epistemic_status:'resolved',
+   recurrence_count:1, retrieval_count:1,
+   question:"Actually, I think five pragmatic types is overengineered - let's just keep revises and resolves, the rest adds complexity without proven benefit.",
+   answer:"Worth taking seriously - I'll flag this as a direct challenge to the five-edge-type decision until we think it through.",
+   summary:"Pushback: five pragmatic edge types may be overengineered relative to two.",
+   reference:"Five-edge-type decision disputed"},
+  {id:'N_7', date:'2026-03-04', speech_act:'correction', epistemic_status:'resolved',
+   recurrence_count:0, retrieval_count:0,
+   question:"Have you thought it through?",
+   answer:"Yes - each of the five maps to something the thesis needs distinctly: contradicts surface disputes explicitly instead of hiding them in a plain edge, and depends_on lets retrieval find prerequisite context. I'd keep all five, though the strength values should stay provisional until Phase 4's parameter sweep.",
+   summary:"Defends keeping all five pragmatic edge types, resolving the pushback.",
+   reference:"Five-edge-type dispute resolved"},
+  {id:'N_8', date:'2026-04-12', speech_act:'information', epistemic_status:'resolved',
+   recurrence_count:0, retrieval_count:0,
+   question:"We tested it - does the W2/W3 ordering actually matter?",
+   answer:"No, it doesn't - we checked: both calls read the same candidate list and neither touches the other's output, so there's no dependency between them. They run fully in parallel. Resolved.",
+   summary:"Testing confirms W2 and W3 have no dependency and run fully in parallel.",
+   reference:"W2/W3 confirmed independent, run in parallel"},
+  {id:'N_9', date:'2026-04-15', speech_act:'decision', epistemic_status:'resolved',
+   recurrence_count:0, retrieval_count:0,
+   question:"Separately, should we simplify the default epistemic_status rule too?",
+   answer:"Yes - simplify further: default resolved unless the speech act is a question type, no separate handling for edge cases.",
+   summary:"Simplifies the default epistemic_status rule further, independent of the ordering question.",
+   reference:"Default status rule simplified"},
+  {id:'N_10', date:'2026-07-10', speech_act:'follow_up', epistemic_status:'resolved',
+   recurrence_count:0, retrieval_count:0,
+   question:"Right before the meeting with my thesis advisor - are we still keeping all five pragmatic edge types?",
+   answer:"Yes, still all five, no changes - the report's ready for review.",
+   summary:"Confirms the five-edge-type decision still holds ahead of the supervisor meeting.",
+   reference:"Plan reconfirmed before review"},
+];
+
+const entities = [
+  {id:'E_1', type:'organization', name:'INESC TEC', mentioned_in:['N_1']},
+  {id:'E_2', type:'person', name:'the thesis advisor', mentioned_in:['N_10']},
+  {id:'E_3', type:'system', name:'Claude', mentioned_in:['N_2']},
+  {id:'E_4', type:'document', name:'the Phase 1-2 report', mentioned_in:['N_5','N_10']},
+  {id:'E_5', type:'event', name:'the supervisor meeting', mentioned_in:['N_10']},
+  {id:'E_6', type:'measurement', name:'per-turn extraction cost budget', mentioned_in:['N_1']},
+];
+
+const stateNodes = [
+  {id:'SN_1', type:'goal', label:'Extend the graph schema to represent entities, goals, decisions, constraints, and open questions', status:'active', creation_turn:'N_1'},
+  {id:'SN_2', type:'constraint', label:'Per-turn extraction cost must stay bounded to a small number of async calls', status:'active', creation_turn:'N_1'},
+  {id:'SN_3', type:'decision', label:'Adopt five pragmatic edge types: revises, contradicts, resolves, depends_on, references', status:'active', creation_turn:'N_2'},
+  {id:'SN_4', type:'open_question', label:'Does classification order between W2 and W3 matter, or can they run fully in parallel?', status:'resolved', creation_turn:'N_3'},
+  {id:'SN_5', type:'decision', label:'Default epistemic_status: open only for factual_question/clarification_request, resolved otherwise', status:'revised', creation_turn:'N_4'},
+];
+
+const edges = [
+  // hierarchical (topic structure between interaction turns)
+  {source:'N_3', target:'N_2', label:'subcase', group:'hierarchical'},
+  {source:'N_4', target:'N_3', label:'same_level', group:'hierarchical'},
+  {source:'N_5', target:'N_2', label:'supercase', group:'hierarchical'},
+  {source:'N_5', target:'N_4', label:'supercase', group:'hierarchical'},
+
+  // pragmatic (discourse relations between interaction turns)
+  {source:'N_2', target:'N_1', label:'depends_on', group:'pragmatic'},
+  {source:'N_6', target:'N_2', label:'contradicts', group:'pragmatic'},
+  {source:'N_7', target:'N_6', label:'resolves', group:'pragmatic'},
+  {source:'N_7', target:'N_2', label:'resolves', group:'pragmatic'},
+  {source:'N_8', target:'N_3', label:'resolves', group:'pragmatic'},
+  {source:'N_9', target:'N_4', label:'revises', group:'pragmatic'},
+  {source:'N_10', target:'N_2', label:'references', group:'pragmatic'},
+
+  // state links (interaction turns creating / touching state nodes)
+  {source:'N_1', target:'SN_1', label:'creates', group:'state_link'},
+  {source:'N_1', target:'SN_2', label:'creates', group:'state_link'},
+  {source:'N_2', target:'SN_3', label:'creates', group:'state_link'},
+  {source:'N_2', target:'SN_2', label:'constrained_by', group:'state_link'},
+  {source:'N_3', target:'SN_4', label:'creates', group:'state_link'},
+  {source:'N_4', target:'SN_5', label:'creates', group:'state_link'},
+  {source:'N_5', target:'SN_2', label:'supports', group:'state_link'},
+  {source:'N_6', target:'SN_3', label:'contradicts', group:'state_link'},
+  {source:'N_7', target:'SN_3', label:'supports', group:'state_link'},
+  {source:'N_8', target:'SN_4', label:'updates → resolved', group:'state_link'},
+  {source:'N_9', target:'SN_5', label:'updates → revised', group:'state_link'},
+
+  // citation (explicit [N_x] callouts not already covered above)
+  {source:'N_5', target:'N_1', label:'cites', group:'citation'},
+
+  // entity mentions
+  {source:'N_1', target:'E_1', label:'mentions', group:'mention'},
+  {source:'N_1', target:'E_6', label:'mentions', group:'mention'},
+  {source:'N_2', target:'E_3', label:'mentions', group:'mention'},
+  {source:'N_5', target:'E_4', label:'mentions', group:'mention'},
+  {source:'N_10', target:'E_2', label:'mentions', group:'mention'},
+  {source:'N_10', target:'E_5', label:'mentions', group:'mention'},
+  {source:'N_10', target:'E_4', label:'mentions', group:'mention'},
+];
+
+/* ---------------------------------------------------------------
+   BUILD UNIFIED NODE LIST
+----------------------------------------------------------------*/
+const nodes = [
+  ...interactionNodes.map(d => ({...d, kind:'interaction'})),
+  ...entities.map(d => ({...d, kind:'entity'})),
+  ...stateNodes.map(d => ({...d, kind:'state'})),
+];
+const byId = new Map(nodes.map(d => [d.id, d]));
+
+const edgeColor = {hierarchical:'var(--e-hier)', pragmatic:null, state_link:'var(--e-statelink)', citation:'var(--e-citation)', mention:'var(--e-mention)'};
+const pragmaticColor = {revises:'var(--e-revises)', contradicts:'var(--e-contradicts)', resolves:'var(--e-resolves)', depends_on:'var(--e-dependson)', references:'var(--e-references)'};
+
+function resolveVar(v){
+  if(v.startsWith('var(')) return getComputedStyle(document.documentElement).getPropertyValue(v.slice(4,-1)).trim();
+  return v;
+}
+function edgeStroke(e){
+  if(e.group === 'pragmatic') return resolveVar(pragmaticColor[e.label] || pragmaticColor.references);
+  return resolveVar(edgeColor[e.group]);
+}
+function edgeDash(e){
+  if(e.group === 'hierarchical') return '2,3';
+  if(e.group === 'citation') return '1,4';
+  if(e.group === 'mention') return '1,3';
+  if(e.group === 'state_link') return '4,2';
+  return null;
+}
+
+function nodeColor(d){
+  if(d.kind === 'interaction') return resolveVar('var(--c-interaction)');
+  if(d.kind === 'entity') return resolveVar('var(--c-entity)');
+  if(d.type === 'goal') return resolveVar('var(--c-goal)');
+  if(d.type === 'constraint') return resolveVar('var(--c-constraint)');
+  if(d.type === 'decision') return resolveVar('var(--c-decision)');
+  if(d.type === 'open_question') return resolveVar('var(--c-question)');
+  return '#999';
+}
+function nodeSoft(d){
+  if(d.kind === 'interaction') return resolveVar('var(--c-interaction-soft)');
+  if(d.kind === 'entity') return resolveVar('var(--c-entity-soft)');
+  if(d.type === 'goal') return resolveVar('var(--c-goal-soft)');
+  if(d.type === 'constraint') return resolveVar('var(--c-constraint-soft)');
+  if(d.type === 'decision') return resolveVar('var(--c-decision-soft)');
+  if(d.type === 'open_question') return resolveVar('var(--c-question-soft)');
+  return '#eee';
+}
+function isDimmedState(d){
+  return d.kind === 'state' && (d.status === 'resolved' || d.status === 'revised');
+}
+function nodeRadius(d){
+  if(d.kind === 'interaction') return 13 + Math.min(10, (d.recurrence_count + d.retrieval_count));
+  if(d.kind === 'entity') return 10;
+  return 12;
+}
+
+/* ---------------------------------------------------------------
+   SVG SETUP
+----------------------------------------------------------------*/
+const svg = d3.select('#svg');
+const wrap = document.getElementById('canvas-wrap');
+let width = wrap.clientWidth, height = wrap.clientHeight;
+
+const g = svg.append('g');
+const linkLayer = g.append('g').attr('class','links');
+const nodeLayer = g.append('g').attr('class','nodes');
+const axisLayer = svg.append('g').attr('class','axis-layer');
+
+svg.call(d3.zoom().scaleExtent([0.3, 3]).on('zoom', (ev) => {
+  g.attr('transform', ev.transform);
+}));
+
+svg.on('click', () => { selectNode(null); });
+
+// arrow markers, one per stroke color actually used
+const markerColors = new Set();
+edges.forEach(e => markerColors.add(edgeStroke(e)));
+const defs = svg.append('defs');
+[...markerColors].forEach((col,i) => {
+  defs.append('marker')
+    .attr('id', 'arrow-'+i)
+    .attr('viewBox','0 -4 8 8')
+    .attr('refX', 8).attr('refY', 0)
+    .attr('markerWidth', 6).attr('markerHeight', 6)
+    .attr('orient','auto')
+    .append('path').attr('d','M0,-4L8,0L0,4').attr('fill', col);
+});
+function markerFor(col){
+  const arr = [...markerColors];
+  return 'url(#arrow-' + arr.indexOf(col) + ')';
+}
+
+/* ---------------------------------------------------------------
+   SIMULATION
+----------------------------------------------------------------*/
+const linkForce = d3.forceLink(edges).id(d => d.id).distance(d => d.group==='mention'? 55 : d.group==='state_link'? 70 : 85).strength(0.55);
+
+const simulation = d3.forceSimulation(nodes)
+  .force('link', linkForce)
+  .force('charge', d3.forceManyBody().strength(-260))
+  .force('center', d3.forceCenter(width/2, height/2))
+  .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 14));
+
+const linkSel = linkLayer.selectAll('line')
+  .data(edges)
+  .join('line')
+  .attr('stroke', d => edgeStroke(d))
+  .attr('stroke-width', d => d.group === 'pragmatic' ? 1.8 : 1.2)
+  .attr('stroke-dasharray', d => edgeDash(d))
+  .attr('marker-end', d => markerFor(edgeStroke(d)))
+  .attr('opacity', 0.85);
+
+const nodeGroups = nodeLayer.selectAll('g.node')
+  .data(nodes)
+  .join('g')
+  .attr('class','node')
+  .style('cursor','pointer')
+  .call(d3.drag()
+    .on('start', (ev,d) => { if(!ev.active) simulation.alphaTarget(0.25).restart(); d.fx=d.x; d.fy=d.y; })
+    .on('drag', (ev,d) => { d.fx=ev.x; d.fy=ev.y; })
+    .on('end', (ev,d) => { if(!ev.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }))
+  .on('click', (ev,d) => { ev.stopPropagation(); selectNode(d.id); });
+
+nodeGroups.each(function(d){
+  const sel = d3.select(this);
+  if(d.kind === 'interaction'){
+    sel.append('circle')
+      .attr('r', nodeRadius(d))
+      .attr('fill', nodeSoft(d))
+      .attr('stroke', nodeColor(d))
+      .attr('stroke-width', 2);
+  } else if(d.kind === 'entity'){
+    const r = nodeRadius(d);
+    sel.append('rect')
+      .attr('width', r*1.5).attr('height', r*1.5)
+      .attr('x', -r*0.75).attr('y', -r*0.75)
+      .attr('transform','rotate(45)')
+      .attr('fill', nodeSoft(d))
+      .attr('stroke', nodeColor(d))
+      .attr('stroke-width', 2);
+  } else {
+    const r = nodeRadius(d);
+    sel.append('rect')
+      .attr('width', r*2.1).attr('height', r*1.5)
+      .attr('x', -r*1.05).attr('y', -r*0.75)
+      .attr('rx', 5)
+      .attr('fill', nodeSoft(d))
+      .attr('stroke', nodeColor(d))
+      .attr('stroke-width', 2)
+      .attr('opacity', isDimmedState(d) ? 0.55 : 1);
+  }
+  sel.append('text')
+    .attr('class','node-label')
+    .attr('text-anchor','middle')
+    .attr('y', nodeRadius(d) + 13)
+    .text(d.id);
+});
+
+nodeGroups.append('title').text(d => d.kind==='interaction' ? d.summary : d.kind==='entity' ? d.name : d.label);
+
+simulation.on('tick', () => {
+  linkSel
+    .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+  nodeGroups.attr('transform', d => `translate(${d.x},${d.y})`);
+});
+
+/* ---------------------------------------------------------------
+   TIMELINE VIEW
+----------------------------------------------------------------*/
+const parseDate = d3.timeParse('%Y-%m-%d');
+interactionNodes.forEach(d => d.dateObj = parseDate(d.date));
+const timeExtent = d3.extent(interactionNodes, d => d.dateObj);
+let timelineActive = false;
+let xScale, forceXTimeline, forceYTimeline;
+
+function buildTimelineForces(){
+  const margin = 90;
+  xScale = d3.scaleTime().domain(timeExtent).range([margin, width - margin]);
+  forceXTimeline = d3.forceX(d => {
+    if(d.kind === 'interaction') return xScale(d.dateObj);
+    return width/2;
+  }).strength(d => d.kind === 'interaction' ? 0.9 : 0.05);
+  forceYTimeline = d3.forceY(d => {
+    if(d.kind === 'interaction') return height/2;
+    if(d.kind === 'state') return height/2 - 130;
+    return height/2 + 130;
+  }).strength(d => d.kind === 'interaction' ? 0.35 : 0.18);
+}
+
+function drawAxis(){
+  axisLayer.selectAll('*').remove();
+  if(!timelineActive) return;
+  axisLayer.append('g')
+    .attr('class','axis')
+    .attr('transform', `translate(0, ${height - 34})`)
+    .call(d3.axisBottom(xScale).ticks(6).tickFormat(d3.timeFormat('%b %Y')));
+}
+
+function setView(view){
+  timelineActive = (view === 'timeline');
+  document.querySelectorAll('#view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.view===view));
+  if(timelineActive){
+    buildTimelineForces();
+    simulation.force('x', forceXTimeline).force('y', forceYTimeline).force('center', null);
+    drawAxis();
+  } else {
+    simulation.force('x', null).force('y', null).force('center', d3.forceCenter(width/2, height/2));
+    axisLayer.selectAll('*').remove();
+  }
+  simulation.alpha(0.9).restart();
+}
+document.getElementById('view-toggle').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('button'); if(!btn) return;
+  setView(btn.dataset.view);
+});
+
+/* ---------------------------------------------------------------
+   FILTERS
+----------------------------------------------------------------*/
+const nodeFilter = {interaction:true, entity:true, state:true};
+const edgeFilter = {hierarchical:true, pragmatic:true, state_link:true, citation:true, mention:true};
+
+function applyFilters(){
+  nodeGroups.style('display', d => nodeFilter[d.kind] ? null : 'none');
+  linkSel.style('display', d => {
+    const srcOk = nodeFilter[typeOf(d.source)];
+    const tgtOk = nodeFilter[typeOf(d.target)];
+    return (edgeFilter[d.group] && srcOk && tgtOk) ? null : 'none';
+  });
+}
+function typeOf(node){
+  const n = typeof node === 'object' ? node : byId.get(node);
+  return n.kind;
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    const input = chip.querySelector('input');
+    input.checked = !input.checked;
+    chip.classList.toggle('off', !input.checked);
+    const filterType = chip.dataset.filter, key = chip.dataset.key;
+    (filterType === 'node' ? nodeFilter : edgeFilter)[key] = input.checked;
+    applyFilters();
+  });
+});
+
+/* ---------------------------------------------------------------
+   CHAT HISTORY PANEL
+----------------------------------------------------------------*/
+const chatScroll = document.getElementById('chat-scroll');
+chatScroll.innerHTML = interactionNodes.map(d => `
+  <div class="turn" data-id="${d.id}">
+    <div class="turn-meta">
+      <span class="turn-id">${d.id}</span>
+      <span class="turn-date">${d.date}</span>
+    </div>
+    <div class="bubble q"><span class="bubble-tag">researcher</span>${d.question}</div>
+    <div class="bubble a"><span class="bubble-tag">assistant</span>${d.answer}</div>
+  </div>
+`).join('');
+chatScroll.querySelectorAll('.turn').forEach(el => {
+  el.addEventListener('click', () => selectNode(el.dataset.id));
+});
+function syncChatHighlight(id){
+  chatScroll.querySelectorAll('.turn').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+  if(id){
+    const active = chatScroll.querySelector('.turn.active');
+    if(active) active.scrollIntoView({block:'nearest', behavior:'smooth'});
+  }
+}
+
+/* ---------------------------------------------------------------
+   SELECTION + DETAIL PANEL
+----------------------------------------------------------------*/
+let selectedId = null;
+
+function neighborsOf(id){
+  const out = [];
+  edges.forEach(e => {
+    const s = typeof e.source==='object'? e.source.id : e.source;
+    const t = typeof e.target==='object'? e.target.id : e.target;
+    if(s === id) out.push({edge:e, dir:'out', other:t});
+    if(t === id) out.push({edge:e, dir:'in', other:s});
+  });
+  return out;
+}
+
+function selectNode(id){
+  selectedId = id;
+  const connected = new Set();
+  if(id){ connected.add(id); neighborsOf(id).forEach(n => connected.add(n.other)); }
+
+  nodeGroups.select('circle, rect')
+    .attr('opacity', d => !id || connected.has(d.id) ? 1 : 0.15);
+  nodeGroups.select('.node-label').attr('opacity', d => !id || connected.has(d.id) ? 1 : 0.15);
+
+  linkSel.attr('opacity', d => {
+    if(!id) return 0.85;
+    const s = typeof d.source==='object'? d.source.id : d.source;
+    const t = typeof d.target==='object'? d.target.id : d.target;
+    return (s===id || t===id) ? 1 : 0.06;
+  }).attr('stroke-width', d => {
+    if(!id) return d.group==='pragmatic'?1.8:1.2;
+    const s = typeof d.source==='object'? d.source.id : d.source;
+    const t = typeof d.target==='object'? d.target.id : d.target;
+    return (s===id||t===id) ? (d.group==='pragmatic'?3:2.2) : (d.group==='pragmatic'?1.8:1.2);
+  });
+
+  renderPanel(id);
+  syncChatHighlight(id);
+}
+
+function statusBadge(status){
+  const map = {
+    resolved:['var(--c-goal-soft)','var(--c-goal)'],
+    open:['var(--c-question-soft)','var(--c-question)'],
+    contested:['var(--c-constraint-soft)','var(--c-constraint)'],
+    superseded:['var(--c-entity-soft)','var(--c-entity)'],
+    active:['var(--c-goal-soft)','var(--c-goal)'],
+    revised:['var(--c-decision-soft)','var(--c-decision)'],
+  };
+  const [bg,fg] = map[status] || ['#eee','#555'];
+  return `<span class="badge" style="background:${bg};color:${fg}">${status}</span>`;
+}
+function speechActBadge(act){
+  return `<span class="badge" style="background:var(--c-interaction-soft);color:var(--c-interaction)">${act.replace('_',' ')}</span>`;
+}
+
+function relRow(n){
+  const e = n.edge;
+  const other = byId.get(n.other);
+  const nameOf = other.kind==='interaction' ? other.summary : other.kind==='entity' ? other.name : other.label;
+  const arrow = n.dir === 'out' ? '→' : '←';
+  const col = edgeStroke(e);
+  return `<li class="rel-item" data-jump="${other.id}">
+    <span class="rel-arrow">${arrow}</span>
+    <span class="rel-tag" style="background:${col}22;color:${col}">${e.label}</span>
+    <span class="rel-target">${other.id}</span>
+    <span class="rel-target-name">${truncate(nameOf, 34)}</span>
+  </li>`;
+}
+function truncate(s,n){ return s && s.length>n ? s.slice(0,n-1)+'…' : (s||''); }
+
+function renderPanel(id){
+  const panel = document.getElementById('panel');
+  if(!id){
+    panel.innerHTML = `<div class="empty-panel">
+      Select any node — an <b>interaction</b> (turn), <b>entity</b>, or <b>state node</b> (goal / constraint / decision / open question) — to inspect its fields and every edge attached to it.
+      <div class="legend-note">Node size for interactions scales with <b>retrieval_count + recurrence_count</b>. Dimmed state nodes are <b>resolved</b> or <b>revised</b>.</div>
+    </div>`;
+    return;
+  }
+  const d = byId.get(id);
+  const rels = neighborsOf(id);
+  let html = '';
+
+  if(d.kind === 'interaction'){
+    html += `<div class="panel-id">interaction node</div>
+      <div class="panel-title">${d.id}</div>
+      <div class="badge-row">${speechActBadge(d.speech_act)}${statusBadge(d.epistemic_status)}
+        <span class="badge" style="background:#eee;color:#666">${d.date}</span></div>
+      <div class="qa-block"><div class="qa-role">question / prompt</div><div class="qa-text">${d.question}</div></div>
+      <div class="qa-block"><div class="qa-role">answer</div><div class="qa-text">${d.answer}</div></div>
+      <div class="field"><div class="field-label">Summary</div><div class="field-value">${d.summary}</div></div>
+      <div class="field"><div class="field-label">Reference</div><div class="field-value">${d.reference}</div></div>
+      <div class="field"><div class="field-label">Recurrence / retrieval count</div><div class="field-value">${d.recurrence_count} / ${d.retrieval_count}</div></div>`;
+  } else if(d.kind === 'entity'){
+    html += `<div class="panel-id">entity</div>
+      <div class="panel-title">${d.name}</div>
+      <div class="badge-row"><span class="badge" style="background:var(--c-entity-soft);color:var(--c-entity)">${d.type}</span></div>
+      <div class="field"><div class="field-label">Mentioned in</div><div class="field-value">${d.mentioned_in.join(', ')}</div></div>`;
+  } else {
+    html += `<div class="panel-id">state node · ${d.type}</div>
+      <div class="panel-title">${d.label}</div>
+      <div class="badge-row">${statusBadge(d.status)}</div>
+      <div class="field"><div class="field-label">Created at</div><div class="field-value">${d.creation_turn}</div></div>`;
+  }
+
+  html += `<div class="divider"></div><div class="field-label" style="margin-bottom:8px;">Connected edges (${rels.length})</div>
+    <ul class="rel-list">${rels.map(relRow).join('')}</ul>`;
+
+  panel.innerHTML = html;
+  panel.querySelectorAll('.rel-item').forEach(el => {
+    el.addEventListener('click', () => selectNode(el.dataset.jump));
+  });
+}
+
+/* ---------------------------------------------------------------
+   RESIZE
+----------------------------------------------------------------*/
+window.addEventListener('resize', () => {
+  width = wrap.clientWidth; height = wrap.clientHeight;
+  if(timelineActive){ buildTimelineForces(); simulation.force('x', forceXTimeline).force('y', forceYTimeline); drawAxis(); }
+  else { simulation.force('center', d3.forceCenter(width/2, height/2)); }
+  simulation.alpha(0.5).restart();
+});
+
+renderPanel(null);
+</script>
+</body>
+</html>

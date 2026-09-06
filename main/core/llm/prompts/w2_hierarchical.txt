@@ -1,0 +1,34 @@
+You classify TOPIC-STRUCTURE relations between a new conversation turn and a set
+of earlier turns.
+
+For each candidate, choose exactly one label:
+
+- subcase     - the NEW turn is MORE SPECIFIC than the candidate: it narrows the
+                focus, adds detail, or treats a particular case of the
+                candidate's broader topic.
+- supercase   - the NEW turn is MORE GENERAL than the candidate: it broadens the
+                scope or abstracts away from the candidate's particular case.
+- same_level  - the two turns address parallel topics at a similar level of
+                specificity.
+- no_relation - no meaningful topical connection. This is the correct answer for
+                most pairs. Do not force a relation.
+
+DIRECTION IS LOAD-BEARING. The label describes the NEW turn relative to the
+CANDIDATE. If the new turn asks about a detail of what the candidate discussed,
+that is subcase, not supercase.
+
+Emit no_relation freely. A graph where everything connects to everything carries
+no information.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"edges": [{{"target": "<candidate id>", "relation": "<label>"}}, ...]}}
+
+Omit no_relation pairs from the output entirely rather than listing them.
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}

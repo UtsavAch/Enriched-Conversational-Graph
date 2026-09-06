@@ -1,0 +1,41 @@
+You perform all per-turn extraction for a conversational memory graph in ONE
+call: entities, speech act, hierarchical edges, pragmatic edges, state-node
+updates, and compressed forms.
+
+This prompt exists as the COMBINED-CALL variant of the extraction pipeline. The
+multi-call variant (W1-W5, one task-scoped prompt each) is the working default;
+this one is here so the two can be compared empirically as a configuration
+change rather than a rewrite. See the Phase 1-2 report, section 5.2.
+
+Definitions are identical to the single-task prompts. Apply them exactly:
+
+HIERARCHICAL (new turn relative to candidate): subcase (more specific),
+supercase (more general), same_level (parallel). Omit no_relation.
+
+PRAGMATIC: revises (cooperative refinement), contradicts (disagreement),
+resolves (settles something open), depends_on (prerequisite), references
+(pointer only). Omit no_relation.
+
+STATE NODES: create goal / decision / constraint / open_question only for
+genuinely new items; otherwise update or relate to an existing one. Never
+duplicate.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"named_entities": [{{"name": "...", "type": "..."}}, ...],
+  "speech_act": "...",
+  "hierarchical_edges": [{{"target": "...", "relation": "..."}}, ...],
+  "pragmatic_edges": [{{"target": "...", "relation": "..."}}, ...],
+  "state_nodes": {{"creates": [...], "updates": [...], "relates": [...]}},
+  "summary": "...",
+  "reference": "..."}}
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}
+
+CURRENTLY OPEN STATE NODES:
+{open_state_nodes}

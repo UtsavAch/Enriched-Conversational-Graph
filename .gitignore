@@ -22,5 +22,3 @@ node_modules/
 dist/
 *.local
 .vite/
-
-INESCTEC_RESEARCH.md

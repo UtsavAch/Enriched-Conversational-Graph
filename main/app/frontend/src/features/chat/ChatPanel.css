@@ -1,0 +1,123 @@
+.chat-panel {
+  width: var(--chat-width);
+  flex: none;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chat-head { padding: var(--sp-3) var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--line); flex: none; }
+.chat-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  margin: 0 0 2px;
+  line-height: 1.25;
+}
+.chat-sub { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); margin: 0; }
+
+.chat-scroll { flex: 1; overflow-y: auto; padding: var(--sp-3); display: flex; flex-direction: column; }
+
+/* ── turn card ── */
+.turn {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-2);
+  cursor: pointer;
+  background: var(--panel);
+  transition: border-color 0.15s, background 0.15s;
+  flex: none;
+}
+.turn:hover { border-color: var(--line-strong); background: var(--panel-raised); }
+.turn-active {
+  border-color: var(--c-interaction);
+  background: var(--c-interaction-soft);
+  box-shadow: inset 0 0 0 1px var(--c-interaction);
+}
+.turn-pending { opacity: 0.75; cursor: default; }
+
+.turn-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-1); gap: var(--sp-2); }
+.turn-meta-right { display: flex; align-items: center; gap: 6px; }
+.turn-id { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--c-interaction); font-weight: 500; }
+.turn-date { font-family: var(--font-mono); font-size: 9px; color: var(--ink-faint); }
+
+.bubble { border-radius: var(--r-md); padding: 7px 9px; font-size: var(--text-base); line-height: 1.5; margin-bottom: 5px; }
+.bubble:last-child { margin-bottom: 0; }
+.bubble-q { background: #EFF1EC; }
+.bubble-a { background: var(--c-interaction-soft); }
+.bubble-tag {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.turn-footer {
+  display: flex; gap: var(--sp-2); margin-top: 6px;
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-faint);
+}
+.turn-grounded { color: var(--c-entity); }
+
+/* Three dots while the pipeline runs. The only non-user-triggered motion in
+   the app, and it earns its place: it is the sole signal that work is
+   happening during a multi-second extraction. */
+.bubble-thinking { display: flex; align-items: center; gap: var(--sp-2); }
+.dots { display: inline-flex; gap: 3px; }
+.dots i {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--c-interaction);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.dots i:nth-child(2) { animation-delay: 0.15s; }
+.dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes pulse { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
+
+/* ── composer ── */
+.composer-wrap { flex: none; border-top: 1px solid var(--line); background: var(--bg); }
+.composer { display: flex; gap: var(--sp-2); align-items: flex-end; padding: var(--sp-3); }
+
+.composer textarea {
+  flex: 1;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  padding: 8px 12px;
+  font-size: var(--text-base);
+  background: var(--panel);
+  resize: none;
+  min-height: 38px;
+  max-height: 140px;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+.composer textarea:focus { outline: none; border-color: var(--c-interaction); }
+.composer textarea:disabled { background: var(--bg); color: var(--ink-faint); cursor: not-allowed; }
+
+.composer-send {
+  flex: none;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--c-interaction);
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.composer-send:hover:not(:disabled) { background: #24486f; }
+.composer-send:disabled { background: var(--line-strong); cursor: not-allowed; }
+
+.composer-note {
+  margin: 0;
+  padding: 0 var(--sp-3) var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-faint);
+  line-height: 1.5;
+}
+.composer-error { color: var(--c-constraint); }

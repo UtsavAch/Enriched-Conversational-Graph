@@ -1,0 +1,33 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: 9px var(--sp-5);
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.5);
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.toolbar-group { display: flex; align-items: center; gap: var(--sp-2); }
+
+.toolbar-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+
+.segmented { display: flex; border: 1px solid var(--line-strong); border-radius: var(--r-sm); overflow: hidden; }
+.segmented button {
+  border: none;
+  background: var(--panel);
+  color: var(--ink-soft);
+  font-size: var(--text-base);
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.segmented button + button { border-left: 1px solid var(--line-strong); }
+.segmented button.active { background: var(--ink); color: #fff; }
+.segmented button:hover:not(.active) { background: var(--bg-grid); }

@@ -1,0 +1,58 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(6px);
+  flex: none;
+  flex-wrap: wrap;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-2xl);
+  letter-spacing: -0.012em;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.app-stats { display: flex; gap: var(--sp-4); margin: 0 0 0 auto; }
+.stat { display: flex; align-items: baseline; gap: 5px; }
+.stat-value { font-family: var(--font-mono); font-size: var(--text-md); font-weight: 600; margin: 0; }
+.stat-label { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); order: 2; }
+
+.canvas-placeholder { flex: 1; display: flex; min-width: 0; }
+
+.side-panel {
+  width: var(--panel-width);
+  flex: none;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.side-tabs { display: flex; border-bottom: 1px solid var(--line); flex: none; }
+.side-tabs button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 8px;
+  font-size: var(--text-base);
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.side-tabs button:hover { color: var(--ink-soft); }
+.side-tabs button.active { color: var(--ink); border-bottom-color: var(--c-interaction); }
+
+.side-body { flex: 1; overflow-y: auto; padding: var(--sp-4) var(--sp-4) var(--sp-6); }
+
+@media (max-width: 1200px) {
+  :root { --chat-width: 290px; --panel-width: 320px; }
+}

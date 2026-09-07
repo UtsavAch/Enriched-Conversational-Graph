@@ -1,0 +1,21 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  user-select: none;
+  background: var(--panel);
+  transition: opacity 0.15s, transform 0.08s;
+}
+.chip:has(:focus-visible) { outline: var(--focus-ring); outline-offset: 2px; }
+.chip:active { transform: scale(0.97); }
+.chip-off { opacity: 0.36; }
+
+.chip-swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.chip-swatch-dot { border-radius: 50%; }
+.chip-swatch-diamond { transform: rotate(45deg); border-radius: 2px; }
+
+.chip-label { font-size: var(--text-sm); color: var(--ink); white-space: nowrap; }

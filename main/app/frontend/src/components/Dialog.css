@@ -1,0 +1,35 @@
+.dialog {
+  border: none;
+  border-radius: var(--r-lg);
+  padding: var(--sp-5) var(--sp-6) var(--sp-5);
+  width: min(420px, calc(100vw - 32px));
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+.dialog::backdrop { background: rgba(28, 30, 34, 0.32); backdrop-filter: blur(2px); }
+
+.dialog-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-xl);
+  margin: 0 0 var(--sp-4);
+}
+.dialog-body { display: flex; flex-direction: column; gap: var(--sp-3); }
+.dialog-footer { display: flex; gap: var(--sp-2); justify-content: flex-end; margin-top: var(--sp-5); }
+
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+}
+.field-group input {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  font-size: var(--text-md);
+  background: var(--panel);
+}
+.field-group .field-hint { font-size: var(--text-xs); color: var(--ink-faint); line-height: 1.5; }

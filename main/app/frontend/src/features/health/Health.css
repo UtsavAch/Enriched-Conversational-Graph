@@ -1,0 +1,50 @@
+.health { display: flex; flex-direction: column; }
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--sp-2) 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+.metric-warn { border-color: var(--c-constraint); background: var(--c-constraint-soft); }
+
+.metric-value { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 500; }
+.metric-label { font-family: var(--font-mono); font-size: 9px; color: var(--ink-faint); }
+
+.health-note { font-size: var(--text-xs); color: var(--ink-faint); line-height: 1.6; margin: var(--sp-2) 0 0; }
+.health-warn { color: var(--c-constraint); }
+
+.health-bars { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.health-bar-row { display: grid; grid-template-columns: 92px 1fr 28px; align-items: center; gap: var(--sp-2); }
+.health-bar-label { font-family: var(--font-mono); font-size: 9.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.health-bar-track { height: 6px; background: var(--neutral-soft); border-radius: var(--r-pill); overflow: hidden; }
+.health-bar-fill { display: block; height: 100%; border-radius: var(--r-pill); }
+.health-bar-count { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-soft); text-align: right; }
+
+.health-chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  cursor: pointer;
+}
+.health-chip:hover { background: var(--bg-grid); }
+
+.health-danglers {
+  list-style: none; margin: 6px 0 0; padding: 0;
+  font-family: var(--font-mono); font-size: 9.5px; color: var(--c-constraint);
+  display: flex; flex-direction: column; gap: 3px;
+}

@@ -16,3 +16,9 @@ htmlcov/
 
 # macOS
 .DS_Store
+
+#frontend
+node_modules/
+dist/
+*.local
+.vite/

@@ -1,0 +1,21 @@
+.conv-picker { display: flex; align-items: center; gap: var(--sp-2); }
+
+.conv-picker-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.conv-select {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 5px 9px;
+  cursor: pointer;
+  max-width: 300px;
+}
+.conv-select:disabled { color: var(--ink-faint); cursor: wait; }

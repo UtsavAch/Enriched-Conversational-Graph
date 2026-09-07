@@ -1,0 +1,121 @@
+.inspector { display: flex; flex-direction: column; }
+
+.inspector-kind {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  margin: 0 0 4px;
+}
+.inspector-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-xl);
+  line-height: 1.3;
+  margin: 0 0 var(--sp-3);
+}
+.inspector-lede {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0 0 var(--sp-4);
+}
+.inspector-divider { height: 1px; background: var(--line); margin: var(--sp-4) 0; }
+
+.badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--sp-4); }
+.tag-row { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.field { margin-bottom: var(--sp-4); }
+.field-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin: 0 0 5px;
+}
+.field-value { font-size: var(--text-md); line-height: 1.6; color: var(--ink); }
+.field-note {
+  display: block;
+  margin-top: 5px;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  line-height: 1.55;
+}
+
+.qa-block {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 9px 11px;
+  margin-bottom: var(--sp-2);
+}
+.qa-role {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  margin: 0 0 3px;
+}
+.qa-text { font-size: var(--text-base); line-height: 1.55; margin: 0; }
+
+/* ── epistemic timeline ── */
+.epistemic-timeline { list-style: none; margin: 8px 0 0; padding: 0 0 0 3px; }
+.epistemic-event {
+  display: flex;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-3);
+  position: relative;
+}
+.epistemic-event:not(:last-child)::before {
+  /* The connecting rule is the timeline. It stops at the last marker rather
+     than trailing into nothing. */
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 11px;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-strong);
+}
+.epistemic-marker {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex: none;
+  margin-top: 3px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 2px var(--panel);
+}
+.epistemic-body { display: flex; flex-direction: column; gap: 1px; }
+.epistemic-status { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 500; }
+.epistemic-cause { font-size: var(--text-xs); color: var(--ink-faint); }
+
+/* ── relation list ── */
+.rel-group { margin-bottom: var(--sp-3); }
+.rel-group-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-faint);
+  margin: 0 0 3px;
+}
+.rel-list { list-style: none; margin: 0; padding: 0; }
+
+.rel-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: var(--text-base);
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  transition: background 0.12s;
+}
+.rel-item:hover { background: var(--bg); }
+
+.rel-arrow { color: var(--ink-faint); font-family: var(--font-mono); font-size: var(--text-sm); flex: none; }
+.rel-tag { font-family: var(--font-mono); font-size: 9.5px; padding: 1px 6px; border-radius: var(--r-pill); flex: none; }
+.rel-target { font-family: var(--font-mono); font-size: var(--text-sm); flex: none; }
+.rel-name { color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

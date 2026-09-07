@@ -1,10 +1,6 @@
-# CLAUDE.md
+## Graph Augmented Conversational memory
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## What This Is
-
-A graph-augmented conversational memory system (thesis research at INESC TEC, supervised by Prof. Davide Carneiro). The system processes multi-turn dialogues, extracts entities and discourse relations via Claude AI, and maintains a dynamic knowledge graph. It extends the baseline architecture from Oliveira (2026) by adding pragmatic edges, named entity nodes, and state nodes (goals, decisions, constraints, open questions).
+The system processes multi-turn dialogues, extracts entities and discourse relations via Claude AI, and maintains a dynamic knowledge graph. It extends the previous baseline architecture by adding pragmatic edges, named entity nodes, and state nodes (goals, decisions, constraints, open questions).
 
 The design document is `INESCTEC_RESEARCH.md` — consult it for schema decisions, edge-strength rationale, and open questions that Phase 3/4 are meant to settle empirically.
 

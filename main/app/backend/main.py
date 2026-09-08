@@ -15,6 +15,11 @@ system a supervisor is shown from drifting apart.
 
 from __future__ import annotations
 
+# Load .env before any other import so module-level os.environ reads
+# (e.g. CHAT_ENABLED in api/chat.py) see the values from the file.
+from dotenv import load_dotenv
+load_dotenv()
+
 import logging
 from pathlib import Path
 

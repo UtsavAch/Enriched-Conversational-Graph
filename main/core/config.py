@@ -40,19 +40,41 @@ EVAL_CORPORA_DIR = DATA_ROOT / "eval_corpora"
 class ContextProfile:
     """A budget allocation for one purpose.
 
-    Two profiles exist because assembling context to *answer a question* and
-    assembling candidates to *classify an edge* are different jobs with
-    different cost tolerances.
+    Two primary profiles exist because assembling context to *answer a question*
+    and assembling candidates to *classify an edge* are different jobs with
+    different cost tolerances. Five additional named profiles reproduce the
+    ablation baselines required by Task 4.4 (section 5.4-5.5).
+
+    Parameters
+    ----------
+    r_pragmatic:
+        Controls the graph-slot budget split between hierarchical and pragmatic
+        edge pools. ``None`` (default) = pooled best-edge-wins scoring (the
+        ENRICHED production behaviour). A float in [0, 1] = split the G slots,
+        giving G*r_pragmatic to pragmatic and the rest to hierarchical.
+        Section 5.5, step 4 of the Phase 1-2 report.
+    compress:
+        When True, historical-layer nodes are rendered at the cheapest tier
+        that fits within the remaining token budget (full → summary →
+        reference). When False, every node is rendered at full. Section 3.6.
+    count_retrieval:
+        When True, ``retrieval_count`` is incremented for every node pulled
+        into context. False for write-time candidate selection (being selected
+        for edge classification is a different event from being retrieved to
+        answer a query). Section 5.5, ``bump_retrieval``.
     """
 
     name: str
     n_recent: int = 5
     k_semantic: int = 5
-    k_entity: int = 3
-    k_state: int = 3
+    k_entity: int = 2
+    k_state: int = 2
     graph_slots_fraction: float = 0.25
     k_historical: int = 40
     k_documents: int = 0
+    r_pragmatic: float | None = None   # [provisional] None = pooled
+    compress: bool = False             # [provisional]
+    count_retrieval: bool = False      # [provisional]
 
     @property
     def graph_slots(self) -> int:
@@ -62,29 +84,36 @@ class ContextProfile:
 #: Used when generating an answer to the user. [thesis] for k_historical and
 #: graph_slots_fraction (chapter 3, table 3.9); [provisional] for the rest,
 #: which are new in Phase 1-2 and are Phase 4 sweep targets.
+#: Section 5.5 of the Phase 1-2 report.
 ANSWER_PROFILE = ContextProfile(
     name="answer",
-    n_recent=5,          # [thesis] LAYER1_RECENT_TURNS
-    k_historical=40,     # [thesis] K_HISTORICAL
-    graph_slots_fraction=0.25,  # [thesis] GRAPH_SLOTS_FRACTION
-    k_semantic=5,        # [thesis] K_SEMANTIC (graph entry points)
-    k_entity=3,          # [provisional]
-    k_state=3,           # [provisional]
-    k_documents=3,       # [provisional] external RAG slots, see note below
+    n_recent=5,                  # [thesis] LAYER1_RECENT_TURNS
+    k_historical=40,             # [thesis] K_HISTORICAL (K_target - N_recent = 45 - 5)
+    graph_slots_fraction=0.25,   # [thesis] GRAPH_SLOTS_FRACTION
+    k_semantic=5,                # [thesis] K_SEMANTIC (graph entry points)
+    k_entity=2,                  # [provisional] sweep 0/2/4
+    k_state=2,                   # [provisional] sweep 0/2/4
+    k_documents=3,               # [provisional] external RAG slots
+    r_pragmatic=None,            # [provisional] None = pooled (ENRICHED default)
+    compress=True,               # [provisional] greedy first-fit compression
+    count_retrieval=True,        # [provisional] track retrieval_count
 )
 
 #: Used when selecting candidate prior nodes for edge classification (W2/W3).
 #: Small on purpose: the candidate cap is one of the two mechanisms that keep
-#: per-turn cost bounded (thesis section 3.3).
+#: per-turn cost bounded (thesis section 3.3). Section 5.5, EDGE_PROFILE.
 EDGE_PROFILE = ContextProfile(
     name="edge",
-    n_recent=0,
-    k_semantic=8,        # [thesis] K_EDGE_CLASSIFICATION
-    k_entity=0,
-    k_state=0,
-    k_historical=8,
-    graph_slots_fraction=0.0,
+    n_recent=1,                  # [provisional] guarantee the immediately prior turn
+    k_semantic=3,                # [provisional]
+    k_entity=2,                  # [provisional]
+    k_state=2,                   # [provisional]
+    k_historical=8,              # [provisional] K_target=8, so K_historical=8-1=7 + 1 recent
+    graph_slots_fraction=0.5,    # [provisional] half of historical slots from graph
     k_documents=0,
+    r_pragmatic=None,            # not applicable at write time
+    compress=False,              # candidates are rendered without compression
+    count_retrieval=False,       # write-time selection is a different event
 )
 
 #: External document chunks get their OWN budget, not a share of the graph
@@ -92,6 +121,77 @@ EDGE_PROFILE = ContextProfile(
 #: interpretable, because you can always say how many slots went to dialogue
 #: memory vs. how many went to external documents. [engineering + provisional]
 RAG_SLOTS_ARE_SEPARATE = True
+
+
+# --------------------------------------------------------------------------
+# Task 4.4 comparison profiles
+# --------------------------------------------------------------------------
+#
+# All five conditions are based on ANSWER_PROFILE, changing only the parameters
+# being compared. Everything else remains fixed so only retrieval composition
+# varies between conditions. Section 5.5 of the Phase 1-2 report.
+#
+# These reproduce the ablation baselines as degenerate parameter settings of
+# assemble_context rather than separate codebases, which removes implementation-
+# divergence as a confound.
+
+RECENCY_ONLY_PROFILE = ContextProfile(
+    name="recency_only",
+    n_recent=45,            # K_target forces K_historical to zero → short-circuit
+    k_historical=40,
+    graph_slots_fraction=0.25,
+    k_semantic=5,
+    k_entity=2,
+    k_state=2,
+    k_documents=3,
+    r_pragmatic=None,
+    compress=True,
+    count_retrieval=True,
+)
+
+BASELINE_SEMANTIC_PROFILE = ContextProfile(
+    name="baseline_semantic",
+    n_recent=5,
+    k_historical=40,
+    graph_slots_fraction=0.0,  # no graph slots → all historical filled semantically
+    k_semantic=5,
+    k_entity=0,                # no entity anchoring
+    k_state=0,                 # no state-node anchoring
+    k_documents=3,
+    r_pragmatic=None,          # no effect when graph_slots_fraction=0
+    compress=True,
+    count_retrieval=True,
+)
+
+BASELINE_HIERARCHICAL_PROFILE = ContextProfile(
+    name="baseline_hierarchical",
+    n_recent=5,
+    k_historical=40,
+    graph_slots_fraction=0.25,
+    k_semantic=5,
+    k_entity=0,                # no entity anchoring (Oliveira baseline)
+    k_state=0,                 # no state-node anchoring (Oliveira baseline)
+    k_documents=3,
+    r_pragmatic=0.0,           # 0% of graph slots from pragmatic pool → hierarchical only
+    compress=True,
+    count_retrieval=True,
+)
+
+PRAGMATIC_ONLY_PROFILE = ContextProfile(
+    name="pragmatic_only",
+    n_recent=5,
+    k_historical=40,
+    graph_slots_fraction=0.25,
+    k_semantic=5,
+    k_entity=0,
+    k_state=0,
+    k_documents=3,
+    r_pragmatic=1.0,           # 100% of graph slots from pragmatic pool
+    compress=True,
+    count_retrieval=True,
+)
+
+ENRICHED_PROFILE = ANSWER_PROFILE  # r_pragmatic=None → pooled best-edge-wins
 
 
 # --------------------------------------------------------------------------
@@ -111,16 +211,16 @@ HIERARCHICAL_EDGE_STRENGTH: dict[str, float] = {
 PRAGMATIC_EDGE_STRENGTH: dict[str, float] = {
     "revises": 1.0,
     "contradicts": 0.9,
-    "resolves": 0.9,
-    "depends_on": 0.8,
+    "resolves": 0.85,
+    "depends_on": 0.7,
     "references": 0.5,
 }
 
 STATE_RELATION_STRENGTH: dict[str, float] = {
-    "resolves": 1.0,
+    "resolves": 0.85,
     "contradicts": 0.9,
-    "constrained_by": 0.8,
-    "supports": 0.7,
+    "constrained_by": 0.7,
+    "supports": 0.6,
 }
 
 
@@ -158,12 +258,18 @@ class PipelineConfig:
 
 @dataclass
 class ModelConfig:
-    """Model identifiers. Swapping models should be a config edit only."""
+    """Model identifiers. Swapping models — including to a local SLM via an
+    OpenAI-compatible endpoint — should be a config/environment edit only."""
 
     answer_model: str = os.environ.get("GM_ANSWER_MODEL", "claude-sonnet-4-6")
     extraction_model: str = os.environ.get("GM_EXTRACTION_MODEL", "claude-sonnet-4-6")
     embedding_model: str = os.environ.get("GM_EMBEDDING_MODEL", "hashing")
     embedding_dim: int = 768  # [thesis] 768-d vectors compared by dot product
+
+    #: Base URL for an OpenAI-compatible endpoint (Ollama, vLLM, etc.).
+    #: Set GM_OPENAI_BASE_URL to use a local SLM instead of Anthropic.
+    openai_base_url: str | None = os.environ.get("GM_OPENAI_BASE_URL")
+    openai_api_key: str = os.environ.get("GM_OPENAI_API_KEY", "ollama")
 
 
 # --------------------------------------------------------------------------

@@ -1,25 +1,44 @@
-You extract structured metadata from a single turn of a research conversation.
+You extract structured metadata from a single turn of a conversation.
 
-Given one question/answer pair, produce three things:
+Given one question/answer pair, produce two things:
 
-1. named_entities - concrete things referred to by name. Include an entity only
-   if a reader would recognise it as a specific thing, not a generic noun.
+1. entities - named entities mentioned in the question or answer. Include an
+   entity only if a reader would recognise it as a specific, referenceable
+   thing: a proper noun, a technical term, a named system or tool, a person,
+   an organisation. Skip generic nouns, pronouns, and vague references.
    "INESC TEC" is an entity; "the schema" is not.
-   Allowed types: person, organization, system, location, document, tool, event,
-   measurement, other.
+   Allowed types: person, organization, system, location, document, tool,
+   event, measurement, other.
 
-2. speech_act - the discourse function of the USER's turn. Choose exactly one:
+2. speech_act - the discourse function of the USER's question turn. Choose
+   exactly one of:
    factual_question, clarification_request, decision, suggestion, feedback,
    correction, follow_up, agreement, disagreement, information, request.
 
-3. Nothing else. Do not classify relations, do not summarise.
+Note: the answer may contain bracketed markers like [N_3] pointing back to an
+earlier interaction. These are citation markers — never extract a bracketed ID
+as an entity, and ignore them when judging the speech act.
 
 Return strict JSON only, with no preamble and no markdown fences:
-{{"named_entities": [{{"name": "<surface form>", "type": "<type>"}}, ...],
+{{"entities": [{{"name": "<surface form as it appears in the text>", "type": "<one of the allowed types>"}}, ...],
   "speech_act": "<one of the values above>"}}
 
 If there are no entities, return an empty list. Do not invent entities that are
 not present in the text.
+
+FEW-SHOT EXAMPLES:
+
+Q: "What relation types should we add beyond subcase, supercase, and same_level?"
+A: "I'd propose five pragmatic edges — revises, contradicts, resolves, depends_on,
+    and references — while keeping the number of extra calls Claude makes each turn
+    bounded [N_1]."
+→ {{"entities": [{{"name": "Claude", "type": "system"}}], "speech_act": "decision"}}
+([N_1] is a citation marker, not an entity)
+
+Q: "When you said pragmatic edges get their own classification call — does that mean
+    W2 and W3 always run fully independently in parallel, or could the order matter?"
+A: "Good question — that's not settled yet. I'd flag it as an open question."
+→ {{"entities": [], "speech_act": "clarification_request"}}
 
 === USER ===
 TURN:

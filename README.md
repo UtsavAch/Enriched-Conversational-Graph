@@ -30,6 +30,10 @@ npm run typecheck  # Type check only
 
 ```bash
 python -m scripts.ingest_conversation data/raw/conversation.json --conversation-id <id>
+# With a specific context profile (recency_only | baseline_semantic | baseline_hierarchical | pragmatic_only | enriched)
+python -m scripts.ingest_conversation data/raw/conversation.json --conversation-id <id> --profile enriched
+# With combined LLM call instead of 5 separate calls
+python -m scripts.ingest_conversation data/raw/conversation.json --conversation-id <id> --strategy combined_call
 python -m scripts.ingest_document papers/doc.pdf --title "Title"
 python -m scripts.export_graph_snapshot <conversation_id> --out snapshot.json
 ```
@@ -66,10 +70,20 @@ Nothing in `app`, `scripts`, or `evaluation` is imported by `core`. No layer imp
 
 1. Assemble context (recency + semantic + graph + state + documents) — budget-bounded
 2. Generate answer (LLM call R2) — **on critical path**
-3. Create interaction node + embed — **on critical path**
+3. Create interaction node — **on critical path**
 4. Select edge candidates (R1)
-5. Run W1–W5 extractions — **deferred** (after answer is returned)
+5. Run W1–W5 extractions — **deferred** (after answer is returned), **three-wave concurrent**
 6. Apply extraction results and commit to graph
+
+**Three-wave concurrent extraction (Section 5.7):**
+
+| Wave | Tasks              | Starts when                      |
+| ---- | ------------------ | -------------------------------- |
+| 1    | EMBED + W1 + W5    | Immediately (need only raw turn) |
+| 2    | W4                 | After EMBED completes            |
+| 3    | W2 + W3 (parallel) | After both EMBED and W1 finish   |
+
+Wall-clock cost is the slowest wave, not the sum of all calls.
 
 **The 5 extraction steps:**
 
@@ -85,9 +99,16 @@ W2 and W3 are independent axes on the same candidate pairs — a node pair can h
 
 ### Schema Highlights
 
-**Epistemic status** on `InteractionNode` is write-time derived from pragmatic edges: `revises` → superseded, `resolves` → resolved, `contradicts` → contested. Default at creation depends on `speech_act`: `open` for `factual_question`/`clarification_request`, `resolved` for everything else.
+**Epistemic status** on `InteractionNode` is write-time derived from pragmatic edges: `revises` → superseded (always wins regardless of current status), `resolves` → resolved (unless target is already superseded), `contradicts` → contested (unless target is already superseded). Default at creation depends on `speech_act`: `open` for `factual_question`/`clarification_request`, `resolved` for everything else.
 
-**State nodes** have type-specific lifecycle statuses with terminal states enforced in `apply_w4` (terminal states block further LLM-proposed updates).
+**State nodes** have type-specific lifecycle statuses with terminal states enforced in `apply_w4` (terminal states block further LLM-proposed updates):
+
+| Type            | Valid statuses                | Terminal            |
+| --------------- | ----------------------------- | ------------------- |
+| `goal`          | active → achieved / abandoned | achieved, abandoned |
+| `decision`      | active → revised → reverted   | reverted            |
+| `constraint`    | active → revised → lifted     | lifted              |
+| `open_question` | open → resolved               | resolved            |
 
 **Compression tiers** for context injection (greedy first-fit against token budget): Tier 1 = full Q+A, Tier 2 = stored summary (W5), Tier 3 = live-rendered state-node/entity reference or fallback to stored `reference` string (W5).
 
@@ -98,15 +119,19 @@ Single source of truth, with provenance annotations: `[thesis]` = empirical base
 Key knobs:
 
 - `ANSWER_PROFILE` / `EDGE_PROFILE` — context budget sizes (items + graph fraction)
-- `PipelineConfig.strategy` — `"multi_call"` (5 task-scoped calls) vs `"combined_call"`
+- Five named comparison profiles for ablation (Section 5.5 Task 4.4): `RECENCY_ONLY`, `BASELINE_SEMANTIC`, `BASELINE_HIERARCHICAL`, `PRAGMATIC_ONLY`, `ENRICHED`
+- `PipelineConfig.strategy` — `"multi_call"` (5 task-scoped calls, 3-wave concurrent) vs `"combined_call"` (single call, all W1–W5)
 - `PipelineConfig.best_effort` — `True` means failed extraction steps don't drop the whole turn
 
 Environment variable overrides:
 
 - `GM_DATA_ROOT` — data directory (default: `main/data/`)
-- `GM_ANSWER_MODEL` / `GM_EXTRACTION_MODEL` — Claude model IDs (default: `claude-sonnet-4-6`)
+- `GM_OPENAI_BASE_URL` — OpenAI-compatible endpoint base URL (Ollama, vLLM, LM Studio); takes priority over `ANTHROPIC_API_KEY`
+- `GM_OPENAI_API_KEY` — API key for OpenAI-compatible endpoint (default: `"ollama"`)
+- `ANTHROPIC_API_KEY` — Anthropic Claude API key; used if `GM_OPENAI_BASE_URL` is not set
+- `GM_ANSWER_MODEL` / `GM_EXTRACTION_MODEL` — model IDs (default: `claude-sonnet-4-6`)
 - `GM_EMBEDDING_MODEL` — `"hashing"` (default) or `"sentence-transformers"`
-- `GM_ENABLE_CHAT=1` — enables the `/api/chat/turn` endpoint (disabled by default; single-process only, per-conversation lock)
+- `GM_ENABLE_CHAT=1` — enables the `/api/chat/turn` endpoint (disabled by default; single-process only, per-conversation threading lock)
 
 ### App Layer (`main/app/`)
 
@@ -115,6 +140,6 @@ Environment variable overrides:
 
 ### Known Gaps (do not fix without thesis context)
 
-1. W2–W5 run sequentially in the current implementation; the design intends them to run in parallel.
-2. Live chat concurrency is single-process only (per-conversation asyncio lock).
-3. Compression tier selection does not yet consider `epistemic_status` or `recurrence_count` when choosing how hard to compress a node.
+1. Compression tier selection uses slot-type heuristic (FULL/SUMMARY per layer) rather than greedy first-fit against a real token budget (Section 3.6). Deferred to Phase 4.
+2. Live chat concurrency is single-process only (per-conversation threading lock; does not survive multiple Uvicorn workers).
+3. Compression does not yet weight nodes by `epistemic_status` or `recurrence_count` (e.g. compress superseded nodes harder, protect high-recurrence nodes). Deferred to Phase 4.

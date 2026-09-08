@@ -13,24 +13,49 @@
 
 // ── controlled vocabularies (mirror core/schema/enums.py) ──────────────────
 
-export type NodeKind = 'interaction' | 'entity' | 'state';
+export type NodeKind = "interaction" | "entity" | "state";
 
 export type SpeechAct =
-  | 'factual_question' | 'clarification_request' | 'decision' | 'suggestion'
-  | 'feedback' | 'correction' | 'follow_up' | 'agreement' | 'disagreement'
-  | 'information' | 'request';
+  | "factual_question"
+  | "clarification_request"
+  | "decision"
+  | "suggestion"
+  | "feedback"
+  | "correction"
+  | "follow_up"
+  | "agreement"
+  | "disagreement"
+  | "information"
+  | "request";
 
-export type EpistemicStatus = 'open' | 'resolved' | 'contested' | 'superseded';
+export type EpistemicStatus = "open" | "resolved" | "contested" | "superseded";
 
-export type StateNodeType = 'goal' | 'decision' | 'constraint' | 'open_question';
+export type StateNodeType =
+  | "goal"
+  | "decision"
+  | "constraint"
+  | "open_question";
 
 export type StateNodeStatus =
-  | 'active' | 'achieved' | 'abandoned' | 'revised'
-  | 'superseded' | 'satisfied' | 'violated' | 'resolved';
+  | "active" // goal, decision, constraint: starting status
+  | "open" // open_question: starting status
+  | "achieved" // goal: terminal
+  | "abandoned" // goal: terminal
+  | "revised" // decision, constraint: non-terminal (can repeat)
+  | "reverted" // decision: terminal
+  | "lifted" // constraint: terminal
+  | "resolved"; // open_question: terminal
 
 export type EntityType =
-  | 'person' | 'organization' | 'system' | 'location'
-  | 'document' | 'tool' | 'event' | 'measurement' | 'other';
+  | "person"
+  | "organization"
+  | "system"
+  | "location"
+  | "document"
+  | "tool"
+  | "event"
+  | "measurement"
+  | "other";
 
 /**
  * Edge groups. `mention` and `citation` are derived rather than classified —
@@ -38,10 +63,18 @@ export type EntityType =
  * default on the backend.
  */
 export type EdgeGroup =
-  | 'hierarchical' | 'pragmatic' | 'state_link' | 'citation' | 'mention';
+  | "hierarchical"
+  | "pragmatic"
+  | "state_link"
+  | "citation"
+  | "mention";
 
 export type PragmaticRelation =
-  | 'revises' | 'contradicts' | 'resolves' | 'depends_on' | 'references';
+  | "revises"
+  | "contradicts"
+  | "resolves"
+  | "depends_on"
+  | "references";
 
 // ── view model (mirrors build_graph_view) ─────────────────────────────────
 
@@ -118,7 +151,7 @@ export interface ConversationSummary {
 }
 
 export interface RelationRef {
-  direction: 'in' | 'out';
+  direction: "in" | "out";
   other: string;
   other_name: string;
   label: string;
@@ -206,6 +239,6 @@ export interface ChatResponse {
  * `d.label` being read off an interaction node.
  */
 export type GraphNodeDatum =
-  | { id: string; kind: 'interaction'; data: InteractionNodeView }
-  | { id: string; kind: 'entity'; data: EntityView }
-  | { id: string; kind: 'state'; data: StateNodeView };
+  | { id: string; kind: "interaction"; data: InteractionNodeView }
+  | { id: string; kind: "entity"; data: EntityView }
+  | { id: string; kind: "state"; data: StateNodeView };

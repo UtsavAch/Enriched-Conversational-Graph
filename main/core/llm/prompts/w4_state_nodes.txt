@@ -9,22 +9,32 @@ Given a new turn and the currently-open state nodes, emit three lists:
                      another way.
    - constraint    : a requirement or limit that must hold.
    - open_question : something raised and explicitly NOT settled.
-   One turn can create several. Do not create a state node for every turn -
+   One turn can create several. Do not create a state node for every turn —
    most turns create none.
 
 2. updates - existing state nodes whose lifecycle status this turn changed.
-   Valid statuses depend on the type:
-     goal          -> active, achieved, abandoned, revised
-     decision      -> active, revised, superseded
-     constraint    -> active, satisfied, violated, revised
-     open_question -> active, resolved, abandoned
+   Valid new_status values depend on the node's type — use exactly one of these,
+   never invent a status outside this list:
+     goal          -> achieved (objective met) | abandoned (given up on)
+     decision      -> revised (changed but still stands, can happen more than once) | reverted (undone entirely)
+     constraint    -> revised (terms changed, still in force) | lifted (no longer applies)
+     open_question -> resolved (answered)
+   achieved, abandoned, reverted, lifted, and resolved are TERMINAL — do not
+   propose an update against a node whose current status is already one of those.
 
 3. relates - existing state nodes this turn stands in a relation to, without
-   necessarily changing their status:
-     supports, contradicts, constrained_by, resolves.
+   necessarily changing their status. Use exactly one of:
+     supports      : reinforces the target without changing it
+     contradicts   : conflicts with the target without revising or lifting it
+     constrained_by: this turn's content is bound or limited by the target
+     resolves      : answers/closes a target open_question
+   IMPORTANT: resolves ALWAYS also produces a matching UPDATE (new_status:
+   "resolved") on the same target. It is the one relation that is also a status
+   change, so it appears in BOTH lists, not one or the other.
+   If none of the above apply, return all three lists empty.
 
 MERGE, DO NOT DUPLICATE. If the turn restates or refines something already in
-the open state-node list, that is an update or a relation on the existing node -
+the open state-node list, that is an update or a relation on the existing node —
 never a new create with a near-identical label. Duplicate state nodes are the
 main failure mode of this task.
 
@@ -39,6 +49,34 @@ Return strict JSON only, no preamble, no markdown fences:
               "new_status": "<a status valid for that node's type>"}}, ...],
   "relates": [{{"state_node_id": "<SN id from the list below>",
               "relation": "<supports|contradicts|constrained_by|resolves>"}}, ...]}}
+
+FEW-SHOT EXAMPLES:
+
+NEW TURN:
+Q: "For Phase 1 and 2 of the INESC TEC graph memory work, our goal is to extend
+    the schema to represent entities, goals, decisions, constraints, and open
+    questions — and whatever we add, per-turn extraction cost needs to stay bounded."
+A: "Got it — I'll track both: the goal is the enriched schema, and the constraint
+    is keeping extraction cost to a small, bounded number of async calls per turn."
+CURRENTLY OPEN STATE NODES: (none yet)
+→ {{"creates": [{{"state_type": "goal", "label": "Extend graph schema to represent entities and state-node types"}}, {{"state_type": "constraint", "label": "Per-turn extraction cost must stay bounded to a small number of async calls"}}], "updates": [], "relates": []}}
+
+NEW TURN:
+Q: "We tested it — does the W2/W3 ordering actually matter?"
+A: "No, it doesn't — both calls read the same candidate list and neither touches
+    the other's output, so there's no dependency. They run fully in parallel."
+CURRENTLY OPEN STATE NODES:
+- SN_4 (open_question): "Does classification order between W2 and W3 matter?" - open
+→ {{"creates": [], "updates": [{{"state_node_id": "SN_4", "new_status": "resolved"}}], "relates": [{{"state_node_id": "SN_4", "relation": "resolves"}}]}}
+(resolves appears in BOTH lists: status change in updates, typed reason in relates)
+
+NEW TURN:
+Q: "Should we simplify the default epistemic_status rule?"
+A: "Yes — simplify further: default resolved unless the speech act is a question type."
+CURRENTLY OPEN STATE NODES:
+- SN_5 (decision): "Default epistemic_status: open for questions, resolved otherwise" - active
+→ {{"creates": [], "updates": [{{"state_node_id": "SN_5", "new_status": "revised"}}], "relates": []}}
+(a plain status change with no typed relation — revised is not one of the four relation labels)
 
 === USER ===
 NEW TURN:

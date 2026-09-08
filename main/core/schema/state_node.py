@@ -7,13 +7,19 @@ currently true of the project*. This is the layer that lets the agent answer
 A state node is created once and then updated in place. It is the only part of
 the graph that is genuinely mutable, which is why its status transitions are
 validated rather than trusted.
+
+Section 3.3 of the Phase 1-2 report.
 """
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field, model_validator
 
 from core.schema.enums import (
+    DEFAULT_STATUS_BY_TYPE,
+    TERMINAL_STATUSES_BY_TYPE,
     VALID_STATUSES_BY_TYPE,
     StateNodeStatus,
     StateNodeType,
@@ -50,12 +56,33 @@ class StateNode(BaseModel):
         None, description="Embedding of ``label``, for state-node retrieval."
     )
     creation_turn: str = Field(..., description="Interaction id that created this.")
+
+    # Status defaults are type-specific — see DEFAULT_STATUS_BY_TYPE.
+    # Do not hardcode ACTIVE here in calls; use StateNode.initial_status(type).
     status: StateNodeStatus = StateNodeStatus.ACTIVE
 
-    #: Audit trail. Split into two lists mirroring W4's own output shape, so a
-    #: W4 response maps onto storage without a lossy transformation.
+    #: Audit trail. Split into two lists mirroring W4's own output shape.
     updates: list[StateNodeUpdate] = Field(default_factory=list)
     relations: list[StateNodeRelationRef] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _apply_type_default_status(cls, data: Any) -> Any:
+        """Set the correct default status for the node's type when not supplied.
+
+        open_question starts as OPEN, not ACTIVE. goal/decision/constraint
+        start as ACTIVE. Callers should use ``StateNode.initial_status(type)``
+        or pass status explicitly; this validator is the safety net.
+        """
+        if isinstance(data, dict) and data.get("status") is None:
+            stype = data.get("type")
+            if stype is not None:
+                try:
+                    stype_enum = StateNodeType(stype)
+                    data["status"] = DEFAULT_STATUS_BY_TYPE[stype_enum].value
+                except (ValueError, KeyError):
+                    pass
+        return data
 
     @model_validator(mode="after")
     def _status_valid_for_type(self) -> "StateNode":
@@ -67,6 +94,11 @@ class StateNode(BaseModel):
             )
         return self
 
+    @staticmethod
+    def initial_status(node_type: StateNodeType) -> StateNodeStatus:
+        """Return the correct starting status for a newly created state node."""
+        return DEFAULT_STATUS_BY_TYPE[node_type]
+
     @property
     def last_updated_turn(self) -> str:
         """Most recent turn that touched this node, falling back to creation."""
@@ -77,14 +109,31 @@ class StateNode(BaseModel):
     def is_open(self) -> bool:
         """Whether this node should be offered to W4 as a merge candidate.
 
-        Only open state nodes are worth showing to the merge call: a resolved
-        question or an abandoned goal cannot sensibly be updated again, and
-        including them just burns prompt tokens and invites bad merges.
+        Per section 5.5: filter = status IN {"active", "open"}.
+        Only ACTIVE (goal/decision/constraint) and OPEN (open_question) nodes
+        are shown to W4. Terminal nodes and REVISED nodes are excluded.
+        REVISED is excluded because a revised decision/constraint is still
+        live but showing it to W4 would invite redundant further updates.
         """
-        return self.status in (StateNodeStatus.ACTIVE,)
+        return self.status in (StateNodeStatus.ACTIVE, StateNodeStatus.OPEN)
+
+    @property
+    def is_terminal(self) -> bool:
+        """Whether this node's status is terminal and cannot be updated further."""
+        return self.status in TERMINAL_STATUSES_BY_TYPE[self.type]
 
     def apply_update(self, turn: str, new_status: StateNodeStatus) -> None:
-        """Record a status change, validating it is legal for this node's type."""
+        """Record a status change, validating it is legal for this node's type.
+
+        Rejects updates to nodes already in a terminal status. Section 3.3.1:
+        "apply_w4 checks sn.status IN TERMINAL_STATUSES[sn.type] before
+        allowing any update, and rejects the update if already terminal."
+        """
+        if self.is_terminal:
+            raise ValueError(
+                f"state node '{self.id}' is already in terminal status "
+                f"'{self.status}' — no further updates are allowed"
+            )
         allowed = VALID_STATUSES_BY_TYPE[self.type]
         if new_status not in allowed:
             raise ValueError(
@@ -98,7 +147,7 @@ class StateNode(BaseModel):
 
         Most relations do not change status. ``resolves`` is the one exception
         and is handled by the caller (W4 emits an explicit ``updates`` entry
-        alongside it), so this method deliberately does *not* mutate status -
+        alongside it), so this method deliberately does *not* mutate status —
         keeping one and only one code path that can change it.
         """
         self.relations.append(StateNodeRelationRef(turn=turn, relation=relation))

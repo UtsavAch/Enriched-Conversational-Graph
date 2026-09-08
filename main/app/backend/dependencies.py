@@ -38,20 +38,36 @@ def get_embedder() -> Embedder:
 
 @functools.lru_cache(maxsize=1)
 def get_llm_client() -> LLMClient:
-    """Real client if an API key is present, stub otherwise.
+    """Select the LLM client based on available credentials.
 
-    Falling back to the stub rather than failing at startup is deliberate: the
-    read-only inspection endpoints - which are the whole of task 5.2 - do not
-    need a model at all. Requiring an API key to look at an already-built graph
-    would be a pointless barrier for a reviewer or a supervisor.
+    Priority: OpenAI-compatible endpoint (GM_OPENAI_BASE_URL) > Anthropic API
+    key > StubLLMClient fallback. Falling back to the stub rather than failing
+    at startup is deliberate: the read-only inspection endpoints do not need a
+    model at all, and requiring an API key to inspect an already-built graph
+    would be a pointless barrier for a reviewer or supervisor.
     """
+    s = get_settings()
+    if s.models.openai_base_url:
+        from core.llm.client import OpenAICompatClient  # noqa: PLC0415
+
+        logger.info(
+            "Using OpenAI-compatible endpoint: %s model=%s",
+            s.models.openai_base_url,
+            s.models.extraction_model,
+        )
+        return OpenAICompatClient(
+            model=s.models.extraction_model,
+            base_url=s.models.openai_base_url,
+            api_key=s.models.openai_api_key,
+        )
     if os.environ.get("ANTHROPIC_API_KEY"):
         from core.llm.client import AnthropicClient  # noqa: PLC0415
 
-        return AnthropicClient(get_settings().models.extraction_model)
+        return AnthropicClient(s.models.extraction_model)
     logger.warning(
-        "ANTHROPIC_API_KEY not set - using StubLLMClient. "
-        "Read-only endpoints work fully; live chat will return empty answers."
+        "Neither GM_OPENAI_BASE_URL nor ANTHROPIC_API_KEY is set — using "
+        "StubLLMClient. Read-only endpoints work fully; live chat will return "
+        "empty answers."
     )
     return StubLLMClient()
 

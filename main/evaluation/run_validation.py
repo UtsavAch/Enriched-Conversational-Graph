@@ -74,9 +74,28 @@ def main() -> None:
     parser.add_argument("--conversation", required=True)
     parser.add_argument("--gold", required=True, type=Path)
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument(
+        "--profile",
+        choices=[
+            "default",
+            "recency_only",
+            "baseline_semantic",
+            "baseline_hierarchical",
+            "pragmatic_only",
+            "enriched",
+        ],
+        default=None,
+        help=(
+            "Context profile used during ingestion, recorded in the report for "
+            "traceability. Does not re-run the pipeline; use "
+            "scripts/ingest_conversation.py --profile to build under a specific profile."
+        ),
+    )
     args = parser.parse_args()
 
     report = validate(args.conversation, args.gold)
+    if args.profile:
+        report["profile"] = args.profile
     out = args.out or REPORTS_DIR / f"{args.conversation}_validation.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")

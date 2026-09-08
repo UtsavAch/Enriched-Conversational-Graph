@@ -30,11 +30,30 @@ import logging
 import os
 from pathlib import Path
 
-from core.config import Settings
+from core.config import (
+    ANSWER_PROFILE,
+    BASELINE_HIERARCHICAL_PROFILE,
+    BASELINE_SEMANTIC_PROFILE,
+    ENRICHED_PROFILE,
+    PRAGMATIC_ONLY_PROFILE,
+    RECENCY_ONLY_PROFILE,
+    Settings,
+)
 from core.llm.client import StubLLMClient
 from core.llm.embeddings import build_embedder
 from core.persistence import JsonConversationRepository
 from core.pipeline import TurnPipeline
+
+#: Named profiles selectable from the CLI via ``--profile``.
+#: These reproduce the five Task 4.4 conditions without code changes.
+NAMED_PROFILES = {
+    "default": ANSWER_PROFILE,
+    "recency_only": RECENCY_ONLY_PROFILE,
+    "baseline_semantic": BASELINE_SEMANTIC_PROFILE,
+    "baseline_hierarchical": BASELINE_HIERARCHICAL_PROFILE,
+    "pragmatic_only": PRAGMATIC_ONLY_PROFILE,
+    "enriched": ENRICHED_PROFILE,
+}
 
 logger = logging.getLogger("ingest")
 
@@ -65,20 +84,40 @@ def load_turns(path: Path) -> list[dict]:
 
 
 def build_client(settings: Settings):
-    """Real client if a key is set, stub otherwise - with a loud warning.
+    """Select the LLM client based on available credentials.
 
-    The warning matters: a silent fall back to the stub produces a graph with
+    Priority order:
+    1. OpenAI-compatible endpoint (GM_OPENAI_BASE_URL): uses the configured local
+       SLM (Ollama, vLLM, LM Studio). This is the path for Phase 4 multi-model
+       comparison. Set GM_EXTRACTION_MODEL to the model name (e.g. "mistral").
+    2. Anthropic API (ANTHROPIC_API_KEY): the cloud default.
+    3. StubLLMClient: offline / plumbing-test fallback, with a loud warning.
+
+    The warning matters: a silent fall-back to the stub produces a graph with
     nodes and no edges, which looks like a classifier failure rather than a
-    missing API key. That is an hour of confused debugging waiting to happen.
+    missing API key.
     """
+    if settings.models.openai_base_url:
+        from core.llm.client import OpenAICompatClient  # noqa: PLC0415
+
+        logger.info(
+            "Using OpenAI-compatible endpoint: %s model=%s",
+            settings.models.openai_base_url,
+            settings.models.extraction_model,
+        )
+        return OpenAICompatClient(
+            model=settings.models.extraction_model,
+            base_url=settings.models.openai_base_url,
+            api_key=settings.models.openai_api_key,
+        )
     if os.environ.get("ANTHROPIC_API_KEY"):
         from core.llm.client import AnthropicClient  # noqa: PLC0415
 
         return AnthropicClient(settings.models.extraction_model)
     logger.warning(
-        "ANTHROPIC_API_KEY is not set. Using StubLLMClient: the graph will have "
-        "nodes but NO extracted entities, edges or state nodes. This is a "
-        "plumbing test, not a real ingest."
+        "Neither GM_OPENAI_BASE_URL nor ANTHROPIC_API_KEY is set. Using "
+        "StubLLMClient: the graph will have nodes but NO extracted entities, "
+        "edges or state nodes. This is a plumbing test, not a real ingest."
     )
     return StubLLMClient()
 
@@ -94,11 +133,30 @@ def main() -> None:
         help="Only create nodes and embeddings. Null baseline / fast smoke test.",
     )
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--profile",
+        choices=list(NAMED_PROFILES.keys()),
+        default="default",
+        help=(
+            "Context profile for retrieval during ingestion. "
+            "The five named profiles reproduce Task 4.4 ablation conditions. "
+            "Default: 'default' (same as 'enriched' / ANSWER_PROFILE)."
+        ),
+    )
+    parser.add_argument(
+        "--strategy",
+        choices=["multi_call", "combined_call"],
+        default=None,
+        help="Extraction strategy. Overrides the default in PipelineConfig.",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
     settings = Settings()
+    settings.answer_profile = NAMED_PROFILES[args.profile]
+    if args.strategy is not None:
+        settings.pipeline.strategy = args.strategy
     repo = JsonConversationRepository()
     if repo.exists(args.conversation_id):
         if not args.overwrite:

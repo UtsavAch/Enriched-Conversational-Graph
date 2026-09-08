@@ -15,15 +15,40 @@ For each candidate, choose exactly one label:
 
 DIRECTION IS LOAD-BEARING. The label describes the NEW turn relative to the
 CANDIDATE. If the new turn asks about a detail of what the candidate discussed,
-that is subcase, not supercase.
+that is subcase (NEW is more specific), not supercase.
 
 Emit no_relation freely. A graph where everything connects to everything carries
 no information.
 
-Return strict JSON only, no preamble, no markdown fences:
-{{"edges": [{{"target": "<candidate id>", "relation": "<label>"}}, ...]}}
+Note: the new turn's answer, and any candidate's answer, may contain bracketed
+markers like [N_3]. These are citation/provenance markers — classify against the
+candidate list given below, never against an ID that only appears inside bracket
+text.
 
-Omit no_relation pairs from the output entirely rather than listing them.
+Return strict JSON only, no preamble, no markdown fences:
+{{"<candidate_id>": "<label>", ...}}
+
+Include every candidate id in the output. Use "no_relation" for pairs with no
+meaningful topical connection.
+
+FEW-SHOT EXAMPLE:
+
+NEW:
+Q: "Can you summarize the schema decisions in the Phase 1-2 report so far?"
+A: "Sure — we're adding five pragmatic edge types while staying within the
+    bounded per-turn cost constraint [N_1], defaulting new nodes to resolved
+    unless they're a question, and we still haven't settled whether W2 and W3
+    need a fixed order."
+
+CANDIDATES:
+- [N_1] Sets the goal (enriched schema) and constraint (bounded per-turn cost).
+- [N_2] Five pragmatic edge types are proposed: revises, contradicts, resolves, depends_on, references.
+- [N_4] Sets the default epistemic_status rule: open for questions, resolved otherwise.
+
+→ {{"N_1": "no_relation", "N_2": "supercase", "N_4": "supercase"}}
+(NEW is a summary spanning both the edge-type decision and the default-status decision,
+so it is a supercase of each individually. N_1 sets up the project goal/constraint
+but is not itself one of the things being summarized.)
 
 === USER ===
 NEW TURN:

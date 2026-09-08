@@ -18,19 +18,39 @@ Choose exactly one label per candidate:
 - no_relation - none of the above.
 
 DISTINGUISHING THE HARD CASES:
-- revises vs contradicts: revises is cooperative refinement by the same line of
-  reasoning; contradicts is disagreement. "Let us simplify that rule further" is
-  revises. "I think that is overengineered" is contradicts.
+- revises vs contradicts: revises is cooperative refinement along the same line
+  of reasoning; contradicts is disagreement. "Let us simplify that rule further"
+  is revises. "I think that is overengineered" is contradicts.
 - depends_on vs references: if removing the candidate would make the new turn
   incoherent, it is depends_on. If it would merely lose a pointer, it is
   references.
 - resolves requires that the candidate actually posed something open. A
   confident answer to a question nobody asked is not resolves.
 
-Return strict JSON only, no preamble, no markdown fences:
-{{"edges": [{{"target": "<candidate id>", "relation": "<label>"}}, ...]}}
+Note: the new turn's answer, or a candidate's answer, may contain bracketed
+markers like [N_6]. These are citation markers — judge the discourse relation
+from the actual content, the same way you would if the bracket were not there.
 
-Omit no_relation pairs. Most pairs will have no relation; that is expected.
+Return strict JSON only, no preamble, no markdown fences:
+{{"<candidate_id>": "<label>", ...}}
+
+Include every candidate id in the output. Most pairs will have no_relation;
+that is expected.
+
+FEW-SHOT EXAMPLE:
+
+NEW:
+Q: "Have you thought it through?"
+A: "Yes — each of the five maps to something the thesis needs distinctly [N_6]:
+    contradicts surfaces disputes explicitly, and depends_on lets retrieval find
+    prerequisite context. I'd keep all five."
+
+CANDIDATES:
+- [N_2] Five pragmatic edge types are proposed: revises, contradicts, resolves, depends_on, references.
+- [N_6] Pushback: five pragmatic edge types may be overengineered relative to two.
+
+→ {{"N_2": "resolves", "N_6": "resolves"}}
+([N_6] in NEW's answer is a citation marker. N_6 the candidate turn is the classification target.)
 
 === USER ===
 NEW TURN:

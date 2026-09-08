@@ -1,4 +1,4 @@
-"""Every enum here corresponds directly to a field.. Keeping them as enums rather than
+"""Every enum here corresponds directly to a field. Keeping them as enums rather than
 free strings means an LLM extraction call that hallucinates a label fails loudly
 at parse time instead of silently polluting the graph.
 
@@ -66,7 +66,8 @@ class EpistemicStatus(StrEnum):
 
 class HierarchicalRelation(StrEnum):
     """
-    Topic-structure relations.
+    Topic-structure relations. Labels describe the NEW turn relative to the CANDIDATE.
+    subcase: NEW is more specific. supercase: NEW is more general. same_level: parallel.
     """
 
     SUBCASE = "subcase"
@@ -76,7 +77,7 @@ class HierarchicalRelation(StrEnum):
 
 class PragmaticRelation(StrEnum):
     """
-    Pragmatic relations.
+    Pragmatic relations — what the new turn DOES to the earlier one.
     """
 
     REVISES = "revises"
@@ -87,7 +88,7 @@ class PragmaticRelation(StrEnum):
 
 
 class StateNodeType(StrEnum):
-    """State-nodes"""
+    """State-node categories. Section 3.3 of the Phase 1-2 report."""
 
     GOAL = "goal"
     DECISION = "decision"
@@ -98,60 +99,65 @@ class StateNodeType(StrEnum):
 class StateNodeStatus(StrEnum):
     """Lifecycle status of a state node.
 
-    Not every status is valid for every type; see ``VALID_STATUSES_BY_TYPE``.
+    Status values are type-specific — see ``VALID_STATUSES_BY_TYPE``.
+    Terminal statuses (those that block further updates) are listed in
+    ``TERMINAL_STATUSES_BY_TYPE``. Default initial status per type is in
+    ``DEFAULT_STATUS_BY_TYPE``.
+
+    Section 3.3.1 of the Phase 1-2 report.
     """
 
-    ACTIVE = "active"
-    ACHIEVED = "achieved"
-    ABANDONED = "abandoned"
-    REVISED = "revised"
-    SUPERSEDED = "superseded"
-    SATISFIED = "satisfied"
-    VIOLATED = "violated"
-    RESOLVED = "resolved"
+    ACTIVE = "active"       # goal, decision, constraint: starting status
+    OPEN = "open"           # open_question: starting status
+    ACHIEVED = "achieved"   # goal: terminal
+    ABANDONED = "abandoned" # goal: terminal
+    REVISED = "revised"     # decision, constraint: non-terminal (can repeat)
+    REVERTED = "reverted"   # decision: terminal
+    LIFTED = "lifted"       # constraint: terminal
+    RESOLVED = "resolved"   # open_question: terminal
 
 
-#: Which statuses each state-node type may legally take.
-#: Enforced in ``StateNode`` validation so a bad W4 output is rejected at parse
-#: time rather than producing a state node in an impossible state.
+#: Which statuses each state-node type may legally take. Enforced by
+#: ``StateNode`` so a bad W4 response is rejected at parse time.
 VALID_STATUSES_BY_TYPE: dict[StateNodeType, frozenset[StateNodeStatus]] = {
     StateNodeType.GOAL: frozenset(
-        {
-            StateNodeStatus.ACTIVE,
-            StateNodeStatus.ACHIEVED,
-            StateNodeStatus.ABANDONED,
-            StateNodeStatus.REVISED,
-        }
+        {StateNodeStatus.ACTIVE, StateNodeStatus.ACHIEVED, StateNodeStatus.ABANDONED}
     ),
     StateNodeType.DECISION: frozenset(
-        {
-            StateNodeStatus.ACTIVE,
-            StateNodeStatus.REVISED,
-            StateNodeStatus.SUPERSEDED,
-        }
+        {StateNodeStatus.ACTIVE, StateNodeStatus.REVISED, StateNodeStatus.REVERTED}
     ),
     StateNodeType.CONSTRAINT: frozenset(
-        {
-            StateNodeStatus.ACTIVE,
-            StateNodeStatus.SATISFIED,
-            StateNodeStatus.VIOLATED,
-            StateNodeStatus.REVISED,
-        }
+        {StateNodeStatus.ACTIVE, StateNodeStatus.LIFTED, StateNodeStatus.REVISED}
     ),
     StateNodeType.OPEN_QUESTION: frozenset(
-        {
-            StateNodeStatus.ACTIVE,
-            StateNodeStatus.RESOLVED,
-            StateNodeStatus.ABANDONED,
-        }
+        {StateNodeStatus.OPEN, StateNodeStatus.RESOLVED}
     ),
+}
+
+#: Terminal statuses block further updates on that node. Section 3.3.1.
+TERMINAL_STATUSES_BY_TYPE: dict[StateNodeType, frozenset[StateNodeStatus]] = {
+    StateNodeType.GOAL: frozenset(
+        {StateNodeStatus.ACHIEVED, StateNodeStatus.ABANDONED}
+    ),
+    StateNodeType.DECISION: frozenset({StateNodeStatus.REVERTED}),
+    StateNodeType.CONSTRAINT: frozenset({StateNodeStatus.LIFTED}),
+    StateNodeType.OPEN_QUESTION: frozenset({StateNodeStatus.RESOLVED}),
+}
+
+#: Correct starting status for each state-node type. Section 5.7, DEFAULT_STATUS_BY_TYPE.
+DEFAULT_STATUS_BY_TYPE: dict[StateNodeType, StateNodeStatus] = {
+    StateNodeType.GOAL: StateNodeStatus.ACTIVE,
+    StateNodeType.DECISION: StateNodeStatus.ACTIVE,
+    StateNodeType.CONSTRAINT: StateNodeStatus.ACTIVE,
+    StateNodeType.OPEN_QUESTION: StateNodeStatus.OPEN,
 }
 
 
 class StateRelation(StrEnum):
     """
     How an interaction relates to an existing state node (W4 ``relates``).
-    ``RESOLVES`` is the only one that may change the target's status.
+    ``RESOLVES`` is the only one that also changes the target's status.
+    Section 3.4.2 of the Phase 1-2 report.
     """
 
     SUPPORTS = "supports"
@@ -162,8 +168,8 @@ class StateRelation(StrEnum):
 
 class EntityType(StrEnum):
     """
-    Entity categories.
-    This list may need to be revised for deployments in other domains.
+    Entity categories. This list may need revision for domains other than
+    research conversations. Section 3.2 of the Phase 1-2 report.
     """
 
     PERSON = "person"
@@ -180,8 +186,9 @@ class EntityType(StrEnum):
 class Granularity(StrEnum):
     """
     How much of an interaction node to inject into context.
+    Section 3.6 — three compression tiers.
     """
 
-    FULL = "full"          # question + answer
-    SUMMARY = "summary"    # one-sentence summary
-    REFERENCE = "reference"  # a few words
+    FULL = "full"          # question + answer verbatim
+    SUMMARY = "summary"    # one-sentence paraphrase (W5)
+    REFERENCE = "reference"  # live-rendered pointer or W5 fallback phrase

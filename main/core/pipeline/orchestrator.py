@@ -4,31 +4,32 @@ This is where the whole system meets. Sequence for one turn:
 
     1. assemble context      (recency + semantic + graph + state + documents)
     2. generate the answer   (R2)
-    3. create the node, embed it                     (EMBED)
-    4. select edge candidates                        (R1)
-    5. run extraction                                (W1-W5)
-    6. apply results to the graph, commit
+    3. create the node stub
+    4. run extraction        (three-wave concurrent; see below)
+    5. apply results to the graph, commit
 
-Steps 1-3 are on the user's critical path. Steps 4-6 are memory maintenance and
-are deferred until after the answer is returned - that deferral is one of the
-two mechanisms keeping per-turn cost bounded (thesis section 3.3).
+Steps 1-3 are on the user's critical path. Step 4 runs three waves of
+concurrent calls per section 5.7 of the Phase 1-2 report:
 
-TWO KNOWN GAPS, both stated rather than hidden:
+    Wave 1: EMBED + W1 + W5 start immediately (need only the raw turn).
+    Wave 2: W4 starts as soon as EMBED completes.
+    Wave 3: W2 + W3 start once both EMBED and W1 have completed.
 
-* **Concurrency.** The design says W2/W3/W4/W5 fire concurrently, so wall-clock
-  cost is the slowest call, not their sum. This implementation runs them
-  *sequentially*. That is a deliberate first step - correctness before latency -
-  but it means the latency figures in the Phase 2 report are not yet met by the
-  code. ``AsyncTurnPipeline`` is the intended fix; see the note at the bottom.
-* **Turn serialisation.** The design assumes the next turn cannot start until
-  this turn's graph write completes. Nothing here enforces that. It holds
-  trivially for batch ingestion (single-threaded) but not for a live app with
-  concurrent users. Flagged in the Phase 2 report as an open item.
+Wall-clock cost is the slowest wave, not the sum of all calls. This is one
+of the two mechanisms keeping per-turn cost bounded (thesis section 3.3).
+
+Turn serialisation note: the design assumes the next turn cannot start
+until this turn's answer and graph write are both complete. Nothing here
+enforces that. It holds trivially for batch ingestion (single-threaded)
+but not for a live app with concurrent users. Flagged in the Phase 2 report
+as an open item.
 """
 
 from __future__ import annotations
 
+import concurrent.futures
 import logging
+import threading
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -38,6 +39,7 @@ from core.llm.embeddings import Embedder
 from core.llm.prompts import PromptLibrary, prompts as default_prompts
 from core.pipeline.base import CallCost, TurnCost
 from core.pipeline.steps import (
+    CombinedExtraction,
     ExtractedEntity,
     W1EntityAndSpeechAct,
     W2HierarchicalEdges,
@@ -49,20 +51,39 @@ from core.retrieval.candidate_selection import select_edge_candidates
 from core.retrieval.context_assembly import AssembledContext, ContextAssembler
 from core.schema.conversation import ConversationGraph
 from core.schema.entity import Entity
-from core.schema.enums import QUESTION_SPEECH_ACTS, EpistemicStatus, PragmaticRelation
+from core.schema.enums import (
+    DEFAULT_STATUS_BY_TYPE,
+    QUESTION_SPEECH_ACTS,
+    EpistemicStatus,
+    PragmaticRelation,
+)
 from core.schema.interaction import EpistemicEvent, InteractionNode
 
 logger = logging.getLogger(__name__)
 
 
-#: Which pragmatic relation, arriving at a node, changes that node's status.
-#: Kept as data rather than an if-chain so the policy is visible in one place
-#: and an ablation can swap it out.
-STATUS_EFFECT: dict[PragmaticRelation, EpistemicStatus] = {
-    PragmaticRelation.REVISES: EpistemicStatus.SUPERSEDED,
-    PragmaticRelation.CONTRADICTS: EpistemicStatus.CONTESTED,
-    PragmaticRelation.RESOLVES: EpistemicStatus.RESOLVED,
-}
+#: Labels that can change a target node's epistemic_status. depends_on and
+#: references are absent: they have no status effect. Section 3.5.
+EPISTEMIC_TRIGGER_LABELS: frozenset[str] = frozenset({"revises", "resolves", "contradicts"})
+
+
+def resolve_new_status(current: EpistemicStatus, label: str) -> EpistemicStatus:
+    """Implement section 3.5's state-dependent epistemic-status transition table.
+
+    revises always supersedes, regardless of current status.
+    superseded is terminal: resolves and contradicts cannot change it.
+    resolves clears open or contested alike.
+    contradicts sets contested from any non-superseded status.
+    """
+    if label == "revises":
+        return EpistemicStatus.SUPERSEDED
+    if current == EpistemicStatus.SUPERSEDED:
+        return EpistemicStatus.SUPERSEDED
+    if label == "resolves":
+        return EpistemicStatus.RESOLVED
+    if label == "contradicts":
+        return EpistemicStatus.CONTESTED
+    return current
 
 
 @dataclass
@@ -108,7 +129,6 @@ class TurnPipeline:
         self.client = client
         self.embedder = embedder
         self.library = library or default_prompts
-        self.assembler = assembler or ContextAssembler(embedder)
 
         cfg: PipelineConfig = self.settings.pipeline
         self.w1 = W1EntityAndSpeechAct(client, cfg, self.library)
@@ -116,6 +136,8 @@ class TurnPipeline:
         self.w3 = W3PragmaticEdges(client, cfg, self.library)
         self.w4 = W4StateNodes(client, cfg, self.library)
         self.w5 = W5Compression(client, cfg, self.library)
+        self.combined = CombinedExtraction(client, cfg, self.library)
+        self.assembler = assembler or ContextAssembler(embedder)
 
     # -- public API ----------------------------------------------------------
 
@@ -154,7 +176,7 @@ class TurnPipeline:
             answer, gen_cost = self._generate_answer(question, context)
             cost.calls.append(gen_cost)
 
-        # 3. Node + embedding ------------------------------------------------
+        # 3. Node stub (embedding is Wave 1 of extraction below) -------------
         node = InteractionNode(
             id=graph.next_id("N"),
             conversation_id=graph.meta.conversation_id,
@@ -165,15 +187,18 @@ class TurnPipeline:
             grounded_by=[i.node_id for i in context.documents],
         )
         cost.turn_id = node.id
-        node.embedding = self.embedder.embed([node.text_for_embedding()])[0]
         node.citations = self._extract_citations(answer, graph)
 
         if not extract:
+            node.embedding = self.embedder.embed([node.text_for_embedding()])[0]
             graph.interactions[node.id] = node
             return TurnResult(node=node, context=context, cost=cost, errors=errors)
 
         # 4-5. Extraction ----------------------------------------------------
-        self._run_extraction(graph, node, cost, errors)
+        if self.settings.pipeline.strategy == "combined_call":
+            self._run_combined_extraction(graph, node, cost, errors)
+        else:
+            self._run_extraction(graph, node, cost, errors)
 
         # 6. Commit ----------------------------------------------------------
         graph.interactions[node.id] = node
@@ -219,25 +244,170 @@ class TurnPipeline:
         cost: TurnCost,
         errors: list[str],
     ) -> None:
-        """Run W1-W5 and fold their results into the node and the graph.
+        """Three-wave concurrent extraction. Section 5.7 of the Phase 1-2 report.
 
-        Ordering here reflects the *data* dependencies, not an assumption that
-        order matters for correctness elsewhere: W1 must finish before W2/W3
-        because candidate selection needs the node's embedding and W1's entity
-        list. W2 and W3 have no dependency on each other (confirmed by testing;
-        see the worked example, N_8) and could run in parallel.
+        Wave 1: EMBED + W1 + W5 fire immediately; each needs only the raw turn.
+        Wave 2: W4 fires as soon as EMBED completes.
+        Wave 3: W2 + W3 fire once both EMBED and W1 have completed; they then
+                run in parallel with each other.
+
+        All graph writes are serialised through a single lock so the graph
+        never sees a partial update from a concurrent wave.
         """
-        kwargs = {"question": node.question, "answer": node.answer}
+        lock = threading.Lock()
+        embed_done = threading.Event()
+        w1_done = threading.Event()
 
-        # W1
-        r1 = self.w1.run(**kwargs)
-        cost.calls.append(r1.cost)
-        if r1.ok:
-            node.speech_act = r1.data.speech_act
-            node.named_entities = self._merge_entities(graph, node, r1.data.entities)
-        else:
-            errors.append(f"W1: {r1.error}")
+        kw = {"question": node.question, "answer": node.answer}
 
+        # ---- Wave 1 --------------------------------------------------------
+
+        def embed_task() -> None:
+            node.embedding = self.embedder.embed([node.text_for_embedding()])[0]
+            embed_done.set()
+
+        def w1_task() -> None:
+            r = self.w1.run(**kw)
+            with lock:
+                cost.calls.append(r.cost)
+                if r.ok:
+                    node.speech_act = r.data.speech_act
+                    node.named_entities = self._merge_entities(graph, node, r.data.entities)
+                else:
+                    errors.append(f"W1: {r.error}")
+                node.epistemic_status = (
+                    EpistemicStatus.OPEN
+                    if node.speech_act in QUESTION_SPEECH_ACTS
+                    else EpistemicStatus.RESOLVED
+                )
+                node.epistemic_history = [
+                    EpistemicEvent(
+                        caused_by=node.id, trigger="creation", status=node.epistemic_status
+                    )
+                ]
+            w1_done.set()
+
+        def w5_task() -> None:
+            r = self.w5.run(**kw)
+            with lock:
+                cost.calls.append(r.cost)
+                if r.ok:
+                    node.summary = r.data.summary or None
+                    node.reference = r.data.reference or None
+                else:
+                    errors.append(f"W5: {r.error}")
+
+        # ---- Wave 2 --------------------------------------------------------
+
+        def w4_task() -> None:
+            embed_done.wait()
+            open_state = graph.open_state_nodes()
+            r = self.w4.run(open_state_nodes=open_state, **kw)
+            with lock:
+                cost.calls.append(r.cost)
+                if r.ok:
+                    self._apply_state_nodes(graph, node, r.data)
+                else:
+                    errors.append(f"W4: {r.error}")
+
+        # ---- Wave 3 --------------------------------------------------------
+
+        def w2_w3_task() -> None:
+            embed_done.wait()
+            w1_done.wait()
+            candidates = select_edge_candidates(graph, node, self.settings.edge_profile)
+            if not candidates:
+                return
+
+            def inner_w2() -> None:
+                r = self.w2.run(candidates=candidates, **kw)
+                with lock:
+                    cost.calls.append(r.cost)
+                    if r.ok:
+                        node.hierarchical_edges = r.data
+                        for edge in r.data:
+                            tgt = graph.interactions.get(edge.target)
+                            if tgt is not None:
+                                tgt.recurrence_count += 1
+                    else:
+                        errors.append(f"W2: {r.error}")
+
+            def inner_w3() -> None:
+                r = self.w3.run(candidates=candidates, **kw)
+                with lock:
+                    cost.calls.append(r.cost)
+                    if r.ok:
+                        node.pragmatic_edges = r.data
+                        for edge in r.data:
+                            tgt = graph.interactions.get(edge.target)
+                            if tgt is not None:
+                                tgt.recurrence_count += 1
+                    else:
+                        errors.append(f"W3: {r.error}")
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as inner_ex:
+                for fut in concurrent.futures.as_completed(
+                    [inner_ex.submit(inner_w2), inner_ex.submit(inner_w3)]
+                ):
+                    try:
+                        fut.result()
+                    except Exception as exc:
+                        with lock:
+                            errors.append(f"W2/W3 failed: {exc}")
+
+            with lock:
+                self._propagate_epistemic_status(graph, node)
+
+        # ---- Dispatch ------------------------------------------------------
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
+            wave_futs = [
+                ex.submit(embed_task),
+                ex.submit(w1_task),
+                ex.submit(w5_task),
+                ex.submit(w4_task),
+                ex.submit(w2_w3_task),
+            ]
+            for fut in concurrent.futures.as_completed(wave_futs):
+                try:
+                    fut.result()
+                except Exception as exc:
+                    with lock:
+                        errors.append(f"extraction task failed: {exc}")
+
+    def _run_combined_extraction(
+        self,
+        graph: ConversationGraph,
+        node: InteractionNode,
+        cost: TurnCost,
+        errors: list[str],
+    ) -> None:
+        """Single combined call returning all W1-W5 outputs at once.
+
+        The alternative to _run_extraction, selected by strategy="combined_call".
+        Section 5.2 of the Phase 1-2 report. Candidate selection requires the
+        node embedding, so embedding must precede the LLM call.
+        """
+        node.embedding = self.embedder.embed([node.text_for_embedding()])[0]
+        open_state = graph.open_state_nodes()
+        candidates = select_edge_candidates(graph, node, self.settings.edge_profile)
+
+        r = self.combined.run(
+            question=node.question,
+            answer=node.answer,
+            candidates=candidates,
+            open_state_nodes=open_state,
+        )
+        cost.calls.append(r.cost)
+        if not r.ok:
+            errors.append(f"COMBINED: {r.error}")
+            return
+
+        result = r.data
+
+        # Apply W1
+        node.speech_act = result.w1.speech_act
+        node.named_entities = self._merge_entities(graph, node, result.w1.entities)
         node.epistemic_status = (
             EpistemicStatus.OPEN
             if node.speech_act in QUESTION_SPEECH_ACTS
@@ -247,43 +417,28 @@ class TurnPipeline:
             EpistemicEvent(caused_by=node.id, trigger="creation", status=node.epistemic_status)
         ]
 
-        # R1: candidate selection (no model call)
-        candidates = select_edge_candidates(graph, node, self.settings.edge_profile)
+        # Apply W2
+        node.hierarchical_edges = result.hierarchical_edges
+        for edge in result.hierarchical_edges:
+            tgt = graph.interactions.get(edge.target)
+            if tgt is not None:
+                tgt.recurrence_count += 1
 
-        # W2 / W3 - independent of each other
-        if candidates:
-            r2 = self.w2.run(candidates=candidates, **kwargs)
-            cost.calls.append(r2.cost)
-            if r2.ok:
-                node.hierarchical_edges = r2.data
-            else:
-                errors.append(f"W2: {r2.error}")
+        # Apply W3
+        node.pragmatic_edges = result.pragmatic_edges
+        for edge in result.pragmatic_edges:
+            tgt = graph.interactions.get(edge.target)
+            if tgt is not None:
+                tgt.recurrence_count += 1
 
-            r3 = self.w3.run(candidates=candidates, **kwargs)
-            cost.calls.append(r3.cost)
-            if r3.ok:
-                node.pragmatic_edges = r3.data
-                self._propagate_epistemic_status(graph, node)
-            else:
-                errors.append(f"W3: {r3.error}")
+        # Apply W4
+        self._apply_state_nodes(graph, node, result.w4)
 
-        # W4
-        open_state = graph.open_state_nodes()
-        r4 = self.w4.run(open_state_nodes=open_state, **kwargs)
-        cost.calls.append(r4.cost)
-        if r4.ok:
-            self._apply_state_nodes(graph, node, r4.data)
-        else:
-            errors.append(f"W4: {r4.error}")
+        # Apply W5
+        node.summary = result.w5.summary or None
+        node.reference = result.w5.reference or None
 
-        # W5
-        r5 = self.w5.run(**kwargs)
-        cost.calls.append(r5.cost)
-        if r5.ok:
-            node.summary = r5.data.summary or None
-            node.reference = r5.data.reference or None
-        else:
-            errors.append(f"W5: {r5.error}")
+        self._propagate_epistemic_status(graph, node)
 
     def _merge_entities(
         self, graph: ConversationGraph, node: InteractionNode, extracted: list[ExtractedEntity]
@@ -321,25 +476,26 @@ class TurnPipeline:
     def _propagate_epistemic_status(
         self, graph: ConversationGraph, node: InteractionNode
     ) -> None:
-        """Update earlier nodes' status based on this turn's pragmatic edges.
+        """Back-propagate epistemic status via section 3.5's transition table.
 
-        This is what makes the memory *self-correcting*: when a turn revises an
-        earlier decision, the earlier node is marked superseded, so retrieval can
-        tell the agent "this used to be true". Without it, the graph accumulates
-        stale claims with nothing marking them stale.
+        Always appends to epistemic_history for full provenance, even when the
+        status did not change. Only writes epistemic_status when it actually
+        differs from the current value. superseded is terminal: resolves and
+        contradicts cannot change it.
         """
         for edge in node.pragmatic_edges:
-            effect = STATUS_EFFECT.get(edge.relation)
-            target = graph.interactions.get(edge.target)
-            if effect is None or target is None:
+            label = edge.relation.value
+            if label not in EPISTEMIC_TRIGGER_LABELS:
                 continue
-            target.epistemic_status = effect
+            target = graph.interactions.get(edge.target)
+            if target is None:
+                continue
+            new_status = resolve_new_status(target.epistemic_status, label)
+            if new_status != target.epistemic_status:
+                target.epistemic_status = new_status
             target.epistemic_history.append(
-                EpistemicEvent(
-                    caused_by=node.id, trigger=edge.relation.value, status=effect
-                )
+                EpistemicEvent(caused_by=node.id, trigger=label, status=new_status)
             )
-            target.recurrence_count += 1
 
     def _apply_state_nodes(
         self, graph: ConversationGraph, node: InteractionNode, result: Any
@@ -352,6 +508,7 @@ class TurnPipeline:
                 conversation_id=graph.meta.conversation_id,
                 type=create.state_type,
                 label=create.label,
+                status=DEFAULT_STATUS_BY_TYPE[create.state_type],
                 creation_turn=node.id,
             )
             sn.embedding = self.embedder.embed([sn.label])[0]
@@ -387,18 +544,3 @@ class TurnPipeline:
 
         found = re.findall(r"\[(N_\d+)\]", answer or "")
         return [cid for cid in dict.fromkeys(found) if cid in graph.interactions]
-
-
-# ---------------------------------------------------------------------------
-# Not implemented yet, on purpose
-# ---------------------------------------------------------------------------
-#
-# ``AsyncTurnPipeline`` - the concurrent variant. W2, W3, W4 and W5 have no data
-# dependency on one another, so they can be fired together with asyncio.gather,
-# making wall-clock cost the slowest call rather than the sum of five.
-#
-# It is deliberately NOT written yet, for a research reason: the Phase 2 latency
-# estimates *assume* genuine concurrency, and the report flags that assumption as
-# unverified. Writing the async version before measuring the sequential one would
-# mean never having the baseline number that shows concurrency mattered. Measure
-# first (``scripts/ingest_conversation.py`` reports per-turn cost), then optimise.

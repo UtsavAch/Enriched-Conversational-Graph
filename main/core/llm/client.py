@@ -146,6 +146,65 @@ class AnthropicClient:
         )
 
 
+class OpenAICompatClient:
+    """OpenAI-compatible client for local SLMs (Ollama, vLLM, LM Studio, etc.).
+
+    Any endpoint that speaks the OpenAI chat-completions API can be used here:
+    set GM_OPENAI_BASE_URL to the server root (e.g. ``http://localhost:11434/v1``
+    for Ollama) and GM_OPENAI_API_KEY if the server requires one.
+
+    This is the primary path for running extraction with a local SLM instead
+    of Anthropic, which is required for the Phase 4 multi-provider comparison.
+    Section 5.2 of the Phase 1-2 report.
+    """
+
+    def __init__(
+        self,
+        model: str,
+        base_url: str,
+        api_key: str = "ollama",
+        timeout_s: float = 60.0,
+    ):
+        try:
+            from openai import OpenAI  # noqa: PLC0415
+        except ImportError as exc:
+            raise LLMError(
+                "the 'openai' package is required for OpenAICompatClient; "
+                "install it with: pip install openai"
+            ) from exc
+        self.model = model
+        self._client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout_s)
+
+    def complete(
+        self, system: str, user: str, *, max_tokens: int = 1024, temperature: float = 0.0
+    ) -> LLMResponse:
+        import time  # noqa: PLC0415
+
+        t0 = time.perf_counter()
+        try:
+            resp = self._client.chat.completions.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+            )
+        except Exception as exc:
+            raise LLMError(f"completion failed: {exc}") from exc
+
+        text = resp.choices[0].message.content or ""
+        usage = resp.usage
+        return LLMResponse(
+            text=text,
+            input_tokens=usage.prompt_tokens if usage else 0,
+            output_tokens=usage.completion_tokens if usage else 0,
+            model=self.model,
+            latency_s=time.perf_counter() - t0,
+        )
+
+
 @dataclass
 class StubLLMClient:
     """Deterministic client for tests, demos, and offline development.

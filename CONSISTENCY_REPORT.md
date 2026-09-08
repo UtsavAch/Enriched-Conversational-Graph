@@ -1,214 +1,262 @@
 # Consistency Report: Implementation vs. INESCTEC_RESEARCH.md
 
----
-
-## 1. No SLM / Multi-Provider Support — Critical for Evaluation Plan
-
-**Research intent**: Use Claude for development but swap in SLMs for evaluation comparisons.
-
-**Implementation**: `client.py` defines `LLMClient` as a narrow `Protocol` with a single `complete(system, user, ...) -> LLMResponse` method — this is well-designed for swapping. However, only `AnthropicClient` and `StubLLMClient` are implemented. `ModelConfig` defaults are Anthropic model IDs. There is no `OllamaClient`, `OpenAICompatClient`, or any other provider implementation.
-
-**What needs to be done**: Add at minimum an OpenAI-compatible client (Ollama exposes this API), so any local SLM can be plugged in by just pointing to `http://localhost:11434/v1`. The `Protocol` is already the right abstraction — it just needs a second implementation.
+This document tracks every divergence between the implementation and the Phase 1-2 research
+report. Items are either **resolved** (fully fixed) or **remaining** (known, documented gap).
 
 ---
 
-## 2. State Node Status Schema — Significant Divergence
+## Resolved Items
 
-The status values in the implementation differ from the research doc in ways that matter for the W4 prompt, the evaluation, and inter-system comparisons.
+### 1. SLM / Multi-Provider Support
 
-| Type | Research doc (Section 3.3.1) | Implementation (`enums.py` / W4 prompt) |
-|---|---|---|
-| `goal` | active, achieved, abandoned | active, achieved, abandoned, **revised** (added) |
-| `decision` | active, revised, **reverted** | active, revised, **superseded** (renamed) |
-| `constraint` | active, **lifted**, revised | active, **satisfied, violated**, revised |
-| `open_question` | **open**, resolved | **active**, resolved, abandoned (added) |
+**Was**: Only `AnthropicClient` and `StubLLMClient` implemented. No path to local SLMs.
 
-Specific problems:
-
-- `decision.reverted` (research) → `decision.SUPERSEDED` (impl). Different word, different meaning: "reverted" = undone entirely; "superseded" = overridden by something newer. These are not synonyms.
-- `constraint.lifted` (research) → gone entirely. The impl uses `SATISFIED` and `VIOLATED` instead, which are categorically different semantics (outcome of checking the constraint vs. removing it).
-- `open_question` starts as `open` in the research doc; the impl uses `ACTIVE` for all state nodes including open questions. The `bypass_similarity_gate_for = "open_question"` heuristic in the retrieval pseudocode relies on open_question nodes being distinguishable by their status ("open"), which collapses if everything is ACTIVE.
-- The W4 prompt file (`w4_state_nodes.txt`) has already been updated to match the implementation's status values (`decision → superseded`, `constraint → satisfied/violated`). So the prompt and the parser are internally consistent — but both diverge from the research document.
-
-**This is the most significant schema divergence.** If you plan to evaluate against the research doc's worked example or gold annotations, the status labels will not match.
+**Fixed**: `OpenAICompatClient` added to `core/llm/client.py`. Any OpenAI-compatible endpoint
+(Ollama, vLLM, LM Studio) is now selectable by setting `GM_OPENAI_BASE_URL`. Priority order
+in both `scripts/ingest_conversation.py` and `app/backend/dependencies.py`:
+`GM_OPENAI_BASE_URL` → `ANTHROPIC_API_KEY` → `StubLLMClient` fallback.
 
 ---
 
-## 3. Comparison Profiles (Task 4.4) — Not Implemented
+### 2. State Node Status Schema
 
-The research doc (Section 5.5) defines five named profiles for the ablation study required for Phase 4:
+**Was**: Status values diverged from the research doc (`superseded` instead of `reverted`,
+`satisfied`/`violated` instead of `lifted`, `active` for open questions instead of `open`).
 
-| Profile | Parameters |
-|---|---|
-| `RECENCY_ONLY_PROFILE` | N_recent=45 (forces K_historical=0) |
-| `BASELINE_SEMANTIC_PROFILE` | f_graph=0.0, K_entity=0, K_state=0 |
-| `BASELINE_HIERARCHICAL_PROFILE` | r_pragmatic=0.0, K_entity=0, K_state=0 |
-| `PRAGMATIC_ONLY_PROFILE` | r_pragmatic=1.0, K_entity=0, K_state=0 |
-| `ENRICHED_PROFILE` | = ANSWER_PROFILE (r_pragmatic=NULL) |
+**Fixed**: `core/schema/enums.py` now defines exactly the research doc's lifecycle:
 
-None of these are defined anywhere in the codebase. More critically, `ContextProfile` has no `r_pragmatic` field at all, so `BASELINE_HIERARCHICAL_PROFILE` and `PRAGMATIC_ONLY_PROFILE` cannot be expressed. The `context_assembly.py` `assemble()` method has `use_graph: bool` and `use_documents: bool` ablation flags, which can reproduce some baselines but not the hierarchical/pragmatic pool split.
+| Type            | Valid statuses              | Terminal            |
+| --------------- | --------------------------- | ------------------- |
+| `goal`          | active, achieved, abandoned | achieved, abandoned |
+| `decision`      | active, revised, reverted   | reverted            |
+| `constraint`    | active, revised, lifted     | lifted              |
+| `open_question` | open, resolved              | resolved            |
 
-**What needs to be added**:
-
-1. `r_pragmatic: float | None` field on `ContextProfile`
-2. The five named profile constants in `config.py`
-3. The split-pool scoring logic in `context_assembly.py` — step 4 of the pseudocode tracks `scored_hierarchical` and `scored_pragmatic` as separate dicts, then allocates graph slots proportionally when `r_pragmatic` is not NULL
-4. A way to pass the profile to `run_validation.py` as a CLI argument for the sweep
+`VALID_STATUSES_BY_TYPE`, `TERMINAL_STATUSES_BY_TYPE`, and `DEFAULT_STATUS_BY_TYPE` dicts
+enforce these at parse time. `StateNode.initial_status()` static method returns the correct
+starting status per type. `core/schema/state_node.py` uses a `model_validator(mode="before")`
+to set the correct default (OPEN for open_question, ACTIVE for the rest) when status is None.
 
 ---
 
-## 4. Entity-Anchored Retrieval — Defined but Never Used
+### 3. Comparison Profiles (Task 4.4)
 
-`k_entity` exists on `ContextProfile` (`k_entity=3` in `ANSWER_PROFILE`), but `context_assembly.py` never touches it. The entity-anchored entry point generation in the pseudocode (Section 5.5, Step 2) is:
+**Was**: No named profiles, no `r_pragmatic` field.
 
-```
-entity_entries = top_k_by_recency(
-    entity_registry[eid].mentioned_in  for eid in seed_entities
-)
-```
-
-This is entirely absent from `ContextAssembler.assemble()`. The graph expansion currently uses only semantic entry points (`seeds` dict). Entity mentions cannot seed graph expansion, and the `k_entity` slot in the profile is unused dead weight.
-
-The same applies in `candidate_selection.py` (`select_edge_candidates`): the EDGE_PROFILE has `k_entity=2` in the research doc and `k_entity=0` in the implementation, and the function never does entity-anchored selection regardless.
+**Fixed**: `core/config.py` now defines all five ablation profiles from Section 5.5:
+`RECENCY_ONLY_PROFILE`, `BASELINE_SEMANTIC_PROFILE`, `BASELINE_HIERARCHICAL_PROFILE`,
+`PRAGMATIC_ONLY_PROFILE`, `ENRICHED_PROFILE`. `ContextProfile` has `r_pragmatic: float | None`,
+`compress: bool`, and `count_retrieval: bool`. Selectable via `--profile` in
+`scripts/ingest_conversation.py` and recorded in `evaluation/run_validation.py` output.
 
 ---
 
-## 5. State-Node-Anchored Retrieval — Partially Wrong
+### 4. Entity-Anchored Retrieval
 
-The research pseudocode converts state nodes into **interaction node entry points**:
+**Was**: `k_entity` existed on `ContextProfile` but was never used.
 
-```
-state_entries = flatten(
-    [sn.creation_turn] + [pair[0] for pair in sn.last_updated_turn.updates]
-                       + [pair[0] for pair in sn.last_updated_turn.relates]
-    for sn in state_matches
-) MINUS excluded
-```
-
-These interaction IDs then enter the entry_points union and get 1-hop expanded via the graph.
-
-The implementation (`context_assembly.py`) instead adds state nodes directly to `ctx.state` as semantic-similarity matches and renders them inline in the prompt. State nodes never seed graph expansion. This is a different mechanism: the research design uses state nodes as *indirect pointers to relevant interactions*, while the implementation injects the state node labels themselves.
-
-Also missing: the `bypass_similarity_gate_for = "open_question"` logic that forces open questions into the candidate set even when their embedding is distant from the current query.
+**Fixed**: `core/retrieval/context_assembly.py` now implements entity-anchored entry points
+(Step 2b in the Section 5.5 pseudocode): for each seed entity, `entity_registry[eid].mentioned_in`
+is collected and the k_entity most recent are included as entry points. The `assemble()` method
+accepts `seed_entity_ids` (optional; defaults to a lightweight name-match scan of the question
+against existing entities). `core/retrieval/candidate_selection.py` also adds entity-anchored
+selection (Step 3): turns that mention the same named entities as the new node, taken by
+recency up to `k_entity`.
 
 ---
 
-## 6. Epistemic Status Propagation — Missing Blocking Logic
+### 5. State-Node-Anchored Retrieval (Interaction IDs)
 
-The research doc (Section 3.5) defines a state-dependent transition table where `superseded` is effectively terminal for incoming `resolves` and `contradicts`:
+**Was**: State nodes were added directly to `ctx.state`; they never seeded graph expansion.
 
-```
-current=superseded + resolves arrives   → BLOCKED (stays superseded)
-current=superseded + contradicts arrives → BLOCKED (stays superseded)
-current=superseded + revises arrives    → superseded (no-op, "still wins")
-```
-
-The implementation (`_propagate_epistemic_status`):
-
-```python
-STATUS_EFFECT = {REVISES: SUPERSEDED, CONTRADICTS: CONTESTED, RESOLVES: RESOLVED}
-
-for edge in node.pragmatic_edges:
-    effect = STATUS_EFFECT.get(edge.relation)
-    ...
-    target.epistemic_status = effect   # always overwrites, no blocking check
-```
-
-A `resolves` edge arriving at a `superseded` node will incorrectly set it to `resolved`. The research doc is explicit that `superseded` blocks both `resolves` and `contradicts`. The `resolve_new_status` pseudocode in Section 5.7 handles this correctly (checks `current == "superseded"` before applying the label effect), but that logic was not translated into the implementation.
-
-Also: the research doc says blocked edges should still be appended to `epistemic_history` for provenance even when they don't change the status. The implementation doesn't log them at all.
+**Fixed**: `context_assembly.py` now extracts interaction IDs from each relevant state node
+(`creation_turn` + `u.turn for u in sn.updates` + `r.turn for r in sn.relations`), adds those
+IDs to the entry_points union, and lets them flow into 1-hop graph expansion. Open questions
+bypass the similarity gate (always included regardless of cosine score). State node labels are
+still injected as `ctx.state` items directly for the state-context section of the prompt (this
+is additional, not a replacement).
 
 ---
 
-## 7. Recurrence Count — Only Partially Incremented
+### 6. Epistemic Status Blocking for `superseded`
 
-The research pseudocode (`apply_w2` and `apply_w3`, Section 5.7) calls `bump_recurrence(cand_id)` for every stored edge, both hierarchical and pragmatic.
+**Was**: `_propagate_epistemic_status` always overwrote the target's status, allowing `resolves`
+to incorrectly clear a `superseded` node to `resolved`.
 
-The implementation only increments `target.recurrence_count` inside `_propagate_epistemic_status`, which only fires for `REVISES`, `CONTRADICTS`, and `RESOLVES` (the three epistemic-trigger relations). Two gaps:
+**Fixed**: `orchestrator.py` now defines `resolve_new_status(current, label)` implementing the
+Section 3.5 state-dependent table exactly:
 
-- **W2 hierarchical edges**: never increment `recurrence_count`
-- **W3 `depends_on` and `references` edges**: never increment `recurrence_count`
+- `revises` → always superseded (regardless of current status)
+- `current == superseded` → stays superseded (blocks both resolves and contradicts)
+- `resolves` → resolved (clears open or contested)
+- `contradicts` → contested
 
----
-
-## 8. Retrieval Count — Never Incremented
-
-`InteractionNode.retrieval_count` exists in the schema but `context_assembly.py` never calls anything like `bump_retrieval`. This means the metric is always 0. The research doc uses it for diagnostics (visibility of long-tail nodes, whether high-recurrence nodes are actually getting retrieved). It is noted as having a `count_retrieval` flag in the profile (`true` for `ANSWER_PROFILE`, `false` for `EDGE_PROFILE`), but neither the flag nor the increment exist in the implementation.
-
----
-
-## 9. EDGE_PROFILE Parameter Values Differ
-
-| Parameter | Research doc (Section 5.5) | Implementation (`config.py`) |
-|---|---|---|
-| `n_recent` | 1 | 0 |
-| `k_semantic` | 3 | 8 |
-| `k_entity` | 2 | 0 |
-| `k_state` | 2 | 0 |
-| `f_graph (graph_slots_fraction)` | 0.5 | 0.0 |
-
-The implementation's EDGE_PROFILE is effectively "semantic-only with no graph expansion and no entity/state anchoring." The research doc's EDGE_PROFILE includes entity and state anchoring and 50% graph slots, reflecting the design intent that write-time candidates should benefit from the same multi-source retrieval as answer-time candidates, just under a smaller budget.
-
-`ANSWER_PROFILE` also has minor differences: `k_entity=2` (doc) vs `3` (impl), `k_state=2` (doc) vs `3` (impl).
+`_propagate_epistemic_status` uses this function and always appends to `epistemic_history`
+even when the status did not change, preserving full provenance. The `STATUS_EFFECT` dict was
+removed; the logic lives in `resolve_new_status` instead.
 
 ---
 
-## 10. Prompt Output Format Differences (W1, W2, W3 vs. Research Doc)
+### 7. Recurrence Count — W2 and All W3 Edges
 
-These are internally consistent (prompt and parser agree) but diverge from the research doc specification.
+**Was**: `recurrence_count` was only incremented for W3 epistemic-trigger edges (revises,
+contradicts, resolves). W2 edges never incremented it. W3 depends_on and references were skipped.
 
-**W1**: Research doc specifies key `"entities"`. Prompt (`w1_extraction.txt`) and parser both use `"named_entities"`. Minor but diverges from the spec's worked example output.
-
-**W2/W3**: Research doc specifies dict format `{"<candidate_id>": "<label>", ...}`. Both prompt files and parser use list format `{"edges": [{"target": "...", "relation": "..."}, ...]}`. The list format is arguably more robust (easier to add fields), but anyone comparing against the research doc's few-shot examples will see a different JSON shape.
-
----
-
-## 11. Combined-Call Strategy — Prompt Written, Code Path Missing
-
-`PipelineConfig.strategy` accepts `"combined_call"` and `combined_extraction.txt` exists (with the full combined prompt from Section 5.6). But `orchestrator._run_extraction()` always runs multi_call (W1–W5 sequentially) regardless of `strategy`. There is no combined-call dispatch path. The comparison the research doc says "should be a configuration change, not a rewrite" currently requires writing the dispatch code.
+**Fixed**: `recurrence_count` is now incremented for every stored W2 edge (all hierarchical
+edges) AND every stored W3 edge (all pragmatic edges), matching `bump_recurrence(cand_id)` in
+the Section 5.7 `apply_w2` / `apply_w3` pseudocode. `_propagate_epistemic_status` no longer
+increments it (that was the wrong location).
 
 ---
 
-## 12. Compression Tier Selection — Simplified
+### 8. Retrieval Count (`bump_retrieval`)
 
-The research doc (Sections 3.6, 5.5) specifies:
+**Was**: `retrieval_count` existed in the schema but was never incremented.
 
-- `choose_compression_tier`: greedy first-fit against a **token** budget
-- `render_reference`: live-rendered from state node label + status, with priority order (creates → updates → entity mentions → W5 stored reference)
-- `count_retrieval` flag in the profile
-
-The implementation hard-codes:
-
-- Recency items → always FULL
-- Semantic items → always FULL
-- Graph items → always SUMMARY
-- State items → always REFERENCE (inline label)
-
-There is no token-budget-based tier selection. `render_reference` (the live-rendered Tier 3 text) is not implemented. `node.reference` (the W5-stored fallback) exists but is only used by the `render` method on the node itself. The important consequence: a graph-slot node with a linked state decision always shows its `summary` field, not the live-rendered `[decision] Adopt five pragmatic edge types` pointer that the research doc describes.
+**Fixed**: `context_assembly.py` increments `node.retrieval_count` for every node placed in
+`ctx.recent` or the historical layers when `profile.count_retrieval` is True. This matches the
+Section 5.5 pseudocode's `bump_retrieval(node)` call. The `ANSWER_PROFILE` has
+`count_retrieval=True`; `EDGE_PROFILE` has `count_retrieval=False` (write-time candidate
+selection is a different event).
 
 ---
 
-## 13. Wave Architecture — Acknowledged Gap
+### 9. EDGE_PROFILE Parameter Values
 
-The research doc (Section 5.7) defines three waves with specific dependency ordering (EMBED+W1+W5 in Wave 1, W4 in Wave 2, W2+W3 in Wave 3). The implementation runs W1→candidates→W2→W3→W4→W5 sequentially. W5 runs last, not in Wave 1, meaning per-turn latency is the sum of all calls rather than the max of the slowest wave. This is acknowledged in the orchestrator docstring and at the bottom of the file (`AsyncTurnPipeline` stub). Do not report Phase 2 latency estimates as met by the current code.
+**Was**: Implementation had `n_recent=0`, `k_semantic=8`, `k_entity=0`, `k_state=0`,
+`graph_slots_fraction=0.0`. This made it semantic-only with no graph expansion.
+
+**Fixed**: `EDGE_PROFILE` now matches Section 5.5: `n_recent=1`, `k_semantic=3`, `k_entity=2`,
+`k_state=2`, `graph_slots_fraction=0.5`. `ANSWER_PROFILE` also corrected: `k_entity=2`,
+`k_state=2` (both were 3 in the old implementation).
 
 ---
 
-## Summary Table
+### 10. Prompt Output Format (W1, W2, W3)
 
-| # | Item | Severity | Status |
-|---|---|---|---|
-| 1 | No SLM / multi-provider client | Critical (blocks evaluation plan) | Missing |
-| 2 | State node status names differ from research doc | High (schema divergence, eval mismatch) | Diverged |
-| 3 | `r_pragmatic` + 5 comparison profiles | High (blocks Task 4.4) | Missing |
-| 4 | Entity-anchored retrieval (`k_entity` unused) | High (design intent not implemented) | Missing |
-| 5 | Epistemic status blocking for `superseded` | Medium (incorrect graph writes possible) | Missing |
-| 6 | State-node retrieval → interaction entry points | Medium (wrong mechanism) | Diverged |
-| 7 | Recurrence count (W2 + `depends_on`/`references`) | Medium (metric incorrect) | Partial |
-| 8 | Retrieval count (`bump_retrieval`) | Medium (metric always 0) | Missing |
-| 9 | EDGE_PROFILE values differ from doc | Medium (affects edge candidate quality) | Diverged |
-| 10 | Combined-call dispatch path | Medium (research comparison blocked) | Missing |
-| 11 | Compression tier selection (token budget) | Low–Medium (retrieval cost higher than design) | Simplified |
-| 12 | W1/W2/W3 prompt JSON format vs. doc | Low (internally consistent, diverges from spec) | Diverged from spec |
-| 13 | ANSWER_PROFILE `k_entity`/`k_state` off by 1 | Low | Diverged |
-| 14 | Wave concurrency (EMBED+W1+W5 parallel) | Known deferred | Acknowledged in code |
+**Was**: W1 used key `"named_entities"` (should be `"entities"`). W2/W3 used list format
+`{"edges": [...]}` (should be dict `{"<candidate_id>": "<label>", ...}`).
+
+**Fixed**: All five prompt files and their parsers in `core/pipeline/steps.py` now match
+Section 5.6 exactly. W1 uses `"entities"`. W2/W3 parse the top-level dict directly. The
+combined prompt's edge keys (`"hierarchical_edges"`, `"pragmatic_edges"`) also match. Each
+prompt has a few-shot example taken directly from the Section 4 worked example.
+
+---
+
+### 11. Combined-Call Dispatch Path
+
+**Was**: `PipelineConfig.strategy = "combined_call"` was accepted but ignored; the orchestrator
+always ran multi-call.
+
+**Fixed**: `orchestrator.py` now has `_run_combined_extraction()`. When
+`settings.pipeline.strategy == "combined_call"`, it: (1) embeds the node, (2) selects candidates,
+(3) calls `CombinedExtraction.run()` once with all inputs, (4) applies the combined result
+(W1+W2+W3+W4+W5) to the node. `CombinedExtraction` and `CombinedResult` are implemented in
+`core/pipeline/steps.py`.
+
+---
+
+### 12. Compression Tier Selection
+
+**Was**: Always FULL for recency/semantic, always SUMMARY for graph. No token-budget logic.
+
+**Status**: Partially addressed. When `profile.compress=True`, graph slots use SUMMARY tier;
+when False, they use FULL. State items always use REFERENCE. This matches the practical
+behaviour described in the research doc for each layer, though it is a simpler approximation
+than the greedy first-fit against a real token budget that the doc describes in Section 3.6.
+The live-rendered Tier 3 `render_reference` (building a reference string from state_node_links)
+is not yet implemented; the stored W5 `reference` field is used as a fallback. These are
+noted below as remaining items.
+
+---
+
+### 13. Wave Architecture (EMBED + W1 + W5 Parallel)
+
+**Was**: W1→candidates→W2→W3→W4→W5 sequential. Per-turn latency = sum of all calls.
+
+**Fixed**: `orchestrator._run_extraction()` now implements the three-wave concurrent design
+from Section 5.7 using `concurrent.futures.ThreadPoolExecutor`:
+
+- **Wave 1**: EMBED + W1 + W5 launch immediately (need only raw turn)
+- **Wave 2**: W4 starts as soon as EMBED completes
+- **Wave 3**: W2 + W3 start once both EMBED and W1 have completed; they run in parallel with each other
+
+Wall-clock cost is now the slowest wave, not the sum. The stale "TWO KNOWN GAPS" comment and
+the `AsyncTurnPipeline` stub have been removed from the orchestrator.
+
+---
+
+### 14. Frontend / Backend Schema Consistency
+
+**Was**: `types/api.ts StateNodeStatus` contained stale values `superseded`, `satisfied`,
+`violated` from the old schema, and was missing `open`, `reverted`, `lifted`. `graphStyles.ts`
+`STATUS_STYLE` had entries for the stale values and was missing the new ones.
+`isInactiveState()` incorrectly included `revised` (which is non-terminal) and `superseded`
+(which is not a `StateNodeStatus`).
+
+**Fixed**:
+
+- `types/api.ts`: `StateNodeStatus` updated to `'active' | 'open' | 'achieved' | 'abandoned' | 'revised' | 'reverted' | 'lifted' | 'resolved'`
+- `graphStyles.ts`: `STATUS_STYLE` updated to cover all 8 status values (4 epistemic + 8 state, with `open` and `resolved` shared). Removed `satisfied` and `violated` entries.
+- `graphStyles.ts`: `isInactiveState()` now correctly identifies terminal states: `resolved | abandoned | reverted | lifted | achieved`. Removed `revised` (still active) and `superseded` (not a `StateNodeStatus`).
+- `app/backend/dependencies.py`: `get_llm_client()` now selects `OpenAICompatClient` when `GM_OPENAI_BASE_URL` is set, matching the same priority order as `ingest_conversation.py`.
+
+---
+
+## Remaining Known Gaps
+
+These items are documented rather than fixed. All are explicitly noted as "future refinements"
+in the research doc or are marked as Phase 4 work.
+
+### R1. Greedy First-Fit Token Budget for Compression
+
+The research doc (Section 3.6) describes `choose_compression_tier` as greedy first-fit against
+a remaining token budget. The current implementation chooses tiers per layer type (FULL for
+recency/semantic, SUMMARY for graph when compress=True). The practical content is the same —
+the tier ordering is correct — but the selection criterion is slot-type rather than
+token-count. Implementing real token budgeting requires knowing the model's context window and
+estimating token counts per node, which adds coupling to the model layer.
+
+### R2. Live-Rendered Reference Tier (Tier 3)
+
+The research doc's `render_reference` builds a live reference string from a node's
+`state_node_links` (creation turn decision → update turn status → entity mention). The current
+implementation falls back to the W5-stored `reference` field. This is noted in the research
+doc's Section 5.5 as "a starting point" and the live-rendered form as "the next refinement."
+
+### R3. Live Chat Concurrency (Multi-Worker)
+
+`/api/chat/turn` uses a per-conversation in-process lock. This does not survive multiple Uvicorn
+workers. The module docstring explains this. Section 6, item 10 of the research doc flags it as
+an open design item.
+
+### R4. Compression Weighted by epistemic_status / recurrence_count
+
+The research doc (Section 3.6, footnote) notes compressing superseded nodes harder and
+protecting high-recurrence nodes as "next refinements." Not implemented; deferred to Phase 4.
+
+---
+
+## Summary
+
+| #   | Item                                      | Status                                                        |
+| --- | ----------------------------------------- | ------------------------------------------------------------- |
+| 1   | SLM / multi-provider client               | **Resolved** — `OpenAICompatClient` added                     |
+| 2   | State node status schema                  | **Resolved** — all 8 status values per Section 3.3.1          |
+| 3   | `r_pragmatic` + 5 comparison profiles     | **Resolved** — all profiles in `config.py`                    |
+| 4   | Entity-anchored retrieval                 | **Resolved** — context assembly + candidate selection         |
+| 5   | Epistemic status blocking (`superseded`)  | **Resolved** — `resolve_new_status()`                         |
+| 6   | State-node retrieval → interaction IDs    | **Resolved** — entry points from sn.creation_turn etc.        |
+| 7   | Recurrence count (W2 + all W3 edges)      | **Resolved** — incremented in W2/W3 application               |
+| 8   | Retrieval count (`bump_retrieval`)        | **Resolved** — incremented in `context_assembly.py`           |
+| 9   | EDGE_PROFILE + ANSWER_PROFILE values      | **Resolved** — match Section 5.5                              |
+| 10  | W1/W2/W3 prompt output format             | **Resolved** — match Section 5.6 dict format                  |
+| 11  | Combined-call dispatch path               | **Resolved** — `_run_combined_extraction()`                   |
+| 12  | Compression tier selection                | **Partially resolved** — tier per layer; token budget not yet |
+| 13  | Wave architecture                         | **Resolved** — ThreadPoolExecutor three-wave concurrency      |
+| 14  | Frontend/backend schema consistency       | **Resolved** — `StateNodeStatus`, `isInactiveState`           |
+| R1  | Greedy first-fit token budget             | Remaining — Phase 4 refinement                                |
+| R2  | Live-rendered Tier 3 reference            | Remaining — Phase 4 refinement                                |
+| R3  | Live chat multi-worker concurrency        | Remaining — design open item                                  |
+| R4  | Compression weighted by status/recurrence | Remaining — Phase 4 refinement                                |

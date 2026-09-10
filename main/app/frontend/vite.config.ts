@@ -11,12 +11,21 @@ import { resolve } from "node:path";
  * Because the proxy rewrites nothing, every fetch in the app can use a plain
  * relative '/api/...' path. No environment-specific base URL, no CORS in dev,
  * and no code that behaves differently depending on how it was started.
+ *
+ * `base` is `/static/` for the build only, not dev: app/backend/main.py mounts
+ * the built bundle at `/static`, so the generated index.html's script and
+ * link tags must point at `/static/assets/...`, not the root-relative
+ * `/assets/...` Vite emits by default - otherwise they 404 once FastAPI, not
+ * Vite, is the one serving them. Dev keeps the default `/` base: the Vite dev
+ * server itself is what's serving the page at http://localhost:5173/, and a
+ * `/static/` base there would just as wrongly 404 everything Vite serves.
  */
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
   resolve: {
     alias: { "@": resolve(__dirname, "./src") },
   },
+  base: command === "build" ? "/static/" : "/",
   server: {
     port: 5173,
     proxy: {
@@ -30,4 +39,4 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: true,
   },
-});
+}));

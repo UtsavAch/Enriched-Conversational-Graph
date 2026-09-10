@@ -1,34 +1,53 @@
 import { useState } from 'react';
-import { useHealth, useSendTurn } from '@/api/queries';
+import { ApiError } from '@/api/client';
+import { useCreateConversation, useHealth } from '@/api/queries';
 import { useUiStore } from '@/store/uiStore';
 import { Button } from '@/components/Button';
 import { Dialog } from '@/components/Dialog';
 
 /**
+ * Turn a topic into a slug preview, purely for the "will be saved as" hint.
+ * Mirrors the backend's `_slugify` closely enough to be a useful preview —
+ * the server has final say (and appends `_2`, `_3`, ... on collision), so
+ * this never needs to be authoritative, just close.
+ */
+function previewId(topic: string): string {
+  const slug = topic.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return (slug || 'conversation').slice(0, 40);
+}
+
+/**
  * Create a conversation.
  *
- * There is no dedicated "create conversation" endpoint — the chat endpoint
- * creates one on first turn. That is a deliberate backend choice (an empty
- * conversation has no research value), so this dialog explains the CLI route
- * when live chat is disabled rather than offering an action that cannot work.
+ * Topic only — no id to invent, no first message. The backend slugifies the
+ * topic into a unique id (see `_unique_conversation_id`); creation and
+ * chatting are deliberately separate steps, so send the first message from
+ * the composer once the conversation exists, not here. That gap is what
+ * makes document selection (the Documents panel) meaningful for a turn that
+ * hasn't happened yet — scope documents first, then the *first* message is
+ * already retrieval-scoped instead of silently defaulting to the entire
+ * global document corpus.
+ *
+ * Creation itself needs no LLM call, so it works even with live chat
+ * disabled; only sending messages afterward needs GM_ENABLE_CHAT=1, which the
+ * composer already explains on its own.
  */
 export function NewConversationDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data: health } = useHealth();
   const setConversation = useUiStore((s) => s.setConversation);
-  const sendTurn = useSendTurn();
+  const create = useCreateConversation();
 
-  const [id, setId] = useState('');
-  const [firstMessage, setFirstMessage] = useState('');
+  const [topic, setTopic] = useState('');
 
   const chatEnabled = health?.chat_enabled ?? false;
-  const cleanId = id.trim().replace(/\s+/g, '_');
-  const canCreate = chatEnabled && cleanId.length > 0 && firstMessage.trim().length > 0;
+  const cleanTopic = topic.trim();
+  const canCreate = cleanTopic.length > 0;
 
   const handleCreate = async () => {
     if (!canCreate) return;
-    await sendTurn.mutateAsync({ conversationId: cleanId, question: firstMessage.trim() });
-    setConversation(cleanId);
-    setId(''); setFirstMessage('');
+    const result = await create.mutateAsync(cleanTopic);
+    setConversation(result.conversation_id);
+    setTopic('');
     onClose();
   };
 
@@ -40,51 +59,38 @@ export function NewConversationDialog({ open, onClose }: { open: boolean; onClos
       footer={
         <>
           <Button onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={handleCreate} disabled={!canCreate || sendTurn.isPending}>
-            {sendTurn.isPending ? 'Creating…' : 'Create'}
+          <Button variant="primary" onClick={handleCreate} disabled={!canCreate || create.isPending}>
+            {create.isPending ? 'Creating…' : 'Create'}
           </Button>
         </>
       }
     >
-      {!chatEnabled ? (
+      <div className="field-group">
+        <label htmlFor="new-conv-topic">Topic</label>
+        <input
+          id="new-conv-topic" value={topic} autoComplete="off"
+          onChange={(e) => setTopic(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && canCreate) handleCreate(); }}
+          placeholder="What this conversation is about"
+        />
+        <span className="field-hint">
+          {cleanTopic ? <>Saved as <code>{previewId(cleanTopic)}</code> (a number is appended if that id is already taken).</>
+            : 'The conversation id is generated from this — no need to invent one.'}
+        </span>
+      </div>
+
+      {!chatEnabled && (
         <p className="field-hint" style={{ lineHeight: 1.65 }}>
-          Creating a conversation from the app needs live chat, which is off on this server.
-          <br /><br />
-          Start the server with <code>GM_ENABLE_CHAT=1</code> to enable it, or build a graph
-          from a transcript instead:
-          <br />
-          <code style={{ display: 'block', marginTop: 6, fontSize: 'var(--text-xs)' }}>
-            python -m scripts.ingest_conversation transcript.json --conversation-id my_id
-          </code>
+          Live chat is off on this server — you can create the conversation and
+          select its documents now, but sending messages needs the server
+          restarted with <code>GM_ENABLE_CHAT=1</code>.
         </p>
-      ) : (
-        <>
-          <div className="field-group">
-            <label htmlFor="new-conv-id">Conversation ID</label>
-            <input
-              id="new-conv-id" value={id} autoComplete="off"
-              onChange={(e) => setId(e.target.value)}
-              placeholder="phase3_planning"
-            />
-            <span className="field-hint">Used in file paths and URLs. Spaces become underscores.</span>
-          </div>
+      )}
 
-          <div className="field-group">
-            <label htmlFor="new-conv-msg">First message</label>
-            <input
-              id="new-conv-msg" value={firstMessage}
-              onChange={(e) => setFirstMessage(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && canCreate) handleCreate(); }}
-              placeholder="What should we work on?"
-            />
-          </div>
-
-          {sendTurn.isError && (
-            <p className="field-hint" style={{ color: 'var(--c-constraint)' }}>
-              {(sendTurn.error as Error).message}
-            </p>
-          )}
-        </>
+      {create.isError && (
+        <p className="field-hint" style={{ color: 'var(--c-constraint)' }}>
+          {(create.error as ApiError).detail || (create.error as Error).message}
+        </p>
       )}
     </Dialog>
   );

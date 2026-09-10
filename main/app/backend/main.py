@@ -11,6 +11,14 @@ The app is a *thin* layer. It contains no extraction logic, no retrieval logic,
 no schema knowledge beyond the view-model adapter. Everything it does, it does by
 calling ``core``. That is what keeps the system the thesis evaluates and the
 system a supervisor is shown from drifting apart.
+
+Serving the frontend this way (rather than ``npm run dev``'s own server) only
+works after a production build exists: run ``npm run build`` in
+``app/frontend`` first. Until then ``FRONTEND_DIR`` (``frontend/dist``) does
+not exist, and `/` and `/static` are simply not registered - the API still
+works, there is just nothing to serve at `/`. For day-to-day frontend
+development, use ``npm run dev`` instead (see ``app/frontend/vite.config.ts``),
+which proxies `/api` to this server and needs no build step.
 """
 
 from __future__ import annotations
@@ -33,7 +41,12 @@ from core import __version__
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
-FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+# The *built* bundle, not the source tree: `npm run build` (see
+# app/frontend/vite.config.ts) writes hashed assets referencing themselves as
+# `/static/assets/...` into `frontend/dist/`. Serving `frontend/` itself would
+# instead hand out the dev-time index.html, which loads `/src/main.tsx`
+# directly - raw TypeScript a browser cannot execute without Vite's transform.
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 app = FastAPI(
     title="Graph-Augmented Conversational Memory",

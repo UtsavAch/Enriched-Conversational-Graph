@@ -1,9 +1,12 @@
 import { useRef, useState } from "react";
 import { ApiError } from "@/api/client";
 import {
+  useConversationDocuments,
   useDeleteDocument,
+  useDeselectConversationDocument,
   useDocumentSearch,
   useDocuments,
+  useSelectConversationDocument,
   useUploadDocument,
 } from "@/api/queries";
 import { Button } from "@/components/Button";
@@ -25,18 +28,30 @@ export function DocumentsPanel({
   conversationId: string | null;
 }) {
   const { data: documents, isLoading } = useDocuments();
+  const { data: selectedDocs } = useConversationDocuments(conversationId);
   const upload = useUploadDocument(conversationId);
   const remove = useDeleteDocument();
+  const select = useSelectConversationDocument(conversationId);
+  const deselect = useDeselectConversationDocument(conversationId);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const { data: hits, isFetching } = useDocumentSearch(query, searching);
 
+  const selectedIds = new Set(selectedDocs?.map((d) => d.id));
+  const hasExplicitScope = Boolean(selectedDocs?.length);
+
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) await upload.mutateAsync(file).catch(() => {});
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const toggleSelection = (sourceId: string, checked: boolean) => {
+    if (!conversationId) return;
+    if (checked) select.mutate(sourceId);
+    else deselect.mutate(sourceId);
   };
 
   return (
@@ -47,10 +62,15 @@ export function DocumentsPanel({
         PDFs and text files retrieved alongside the conversation memory, on
         their own context budget.
       </p>
-      {conversationId && (
+      {conversationId ? (
         <p className="field-note">
-          Uploads here are also archived into <code>{conversationId}</code>'s
-          documents folder.
+          {hasExplicitScope
+            ? "Retrieval for this conversation is scoped to the checked documents below."
+            : "No documents selected yet — retrieval falls back to searching every document. Check one below to scope retrieval to it."}
+        </p>
+      ) : (
+        <p className="field-note">
+          Open a conversation to choose which documents ground its answers.
         </p>
       )}
 
@@ -91,6 +111,21 @@ export function DocumentsPanel({
         <ul className="doc-list">
           {documents.map((doc) => (
             <li key={doc.id} className="doc-item">
+              <label
+                className="doc-select"
+                title={
+                  conversationId
+                    ? "Scope this conversation's retrieval to this document"
+                    : "Open a conversation to select documents for it"
+                }
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(doc.id)}
+                  disabled={!conversationId}
+                  onChange={(e) => toggleSelection(doc.id, e.target.checked)}
+                />
+              </label>
               <div className="doc-main">
                 <span className="doc-title">{doc.title}</span>
                 <span className="doc-meta">

@@ -89,6 +89,28 @@ def _conversation_export(graph: ConversationGraph) -> list[dict[str, Any]]:
     ]
 
 
+def _conversation_docs_dir(conversation_id: str, root: Path | str) -> Path:
+    if "/" in conversation_id or conversation_id.startswith("."):
+        raise ValueError(f"unsafe conversation id: {conversation_id!r}")
+    return Path(root) / conversation_id / "documents"
+
+
+def _write_conversation_document_entry(
+    docs_dir: Path, source: DocumentSource, filename: str | None
+) -> None:
+    manifest_path = docs_dir / "manifest.json"
+    manifest = _read_json(manifest_path, {})
+    manifest[source.id] = {
+        "id": source.id,
+        "title": source.title,
+        "source_type": source.source_type,
+        "filename": filename,
+        "n_chunks": source.n_chunks,
+        "ingested_at": source.ingested_at,
+    }
+    _atomic_write_json(manifest_path, manifest)
+
+
 def attach_document_to_conversation(
     conversation_id: str,
     path: Path,
@@ -97,16 +119,21 @@ def attach_document_to_conversation(
 ) -> Path:
     """Copy an ingested file into ``conversation_id``'s ``documents/`` folder.
 
+    Used when a document is freshly uploaded *through* a conversation - the
+    file itself is still around to copy. For an already-ingested document
+    being added to a conversation without re-uploading, see
+    ``reference_document_in_conversation``.
+
     Archival only: ``data/documents/`` (chunks + embeddings) stays the sole
     store retrieval reads from - this just makes the conversation directory
     self-contained by keeping a copy of what actually grounded it, alongside a
     small manifest. Re-attaching the same source overwrites its manifest entry
-    and re-copies the file.
+    and re-copies the file. The manifest doubles as the record of which
+    documents this conversation's retrieval is scoped to - see
+    ``get_conversation_document_ids``.
     """
-    if "/" in conversation_id or conversation_id.startswith("."):
-        raise ValueError(f"unsafe conversation id: {conversation_id!r}")
     path = Path(path)
-    docs_dir = Path(root) / conversation_id / "documents"
+    docs_dir = _conversation_docs_dir(conversation_id, root)
     docs_dir.mkdir(parents=True, exist_ok=True)
 
     # Use source.title rather than path.name: for an API upload, path is a
@@ -116,18 +143,65 @@ def attach_document_to_conversation(
     dest = docs_dir / f"{source.id}_{safe_title}{path.suffix}"
     shutil.copy2(path, dest)
 
+    _write_conversation_document_entry(docs_dir, source, dest.name)
+    return dest
+
+
+def reference_document_in_conversation(
+    conversation_id: str,
+    source: DocumentSource,
+    root: Path | str = CONVERSATIONS_DIR,
+) -> None:
+    """Scope an already-ingested global document to this conversation, without
+    copying a file - there may not even be one available locally any more.
+
+    This is the "select an existing document" path: the document was ingested
+    once (via upload or the CLI) and now a *different* conversation wants its
+    retrieval scoped to include it too. Retrieval treats this identically to
+    an uploaded-and-attached document - both just add an id to the manifest
+    that ``get_conversation_document_ids`` reads.
+    """
+    docs_dir = _conversation_docs_dir(conversation_id, root)
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    _write_conversation_document_entry(docs_dir, source, filename=None)
+
+
+def unreference_document_in_conversation(
+    conversation_id: str,
+    source_id: str,
+    root: Path | str = CONVERSATIONS_DIR,
+) -> None:
+    """Remove a document's reference from a conversation (uploaded or selected).
+
+    Deletes the archived copy too, if this conversation has one - a selected
+    (not uploaded) reference has no local copy, so there is nothing beyond the
+    manifest entry to remove. Does nothing if the conversation never
+    referenced this document (no manifest, or no matching entry).
+    """
+    docs_dir = _conversation_docs_dir(conversation_id, root)
     manifest_path = docs_dir / "manifest.json"
     manifest = _read_json(manifest_path, {})
-    manifest[source.id] = {
-        "id": source.id,
-        "title": source.title,
-        "source_type": source.source_type,
-        "filename": dest.name,
-        "n_chunks": source.n_chunks,
-        "ingested_at": source.ingested_at,
-    }
+    entry = manifest.pop(source_id, None)
+    if entry is None:
+        return
+    if entry.get("filename"):
+        (docs_dir / entry["filename"]).unlink(missing_ok=True)
     _atomic_write_json(manifest_path, manifest)
-    return dest
+
+
+def get_conversation_document_ids(
+    conversation_id: str,
+    root: Path | str = CONVERSATIONS_DIR,
+) -> list[str]:
+    """Every document id (uploaded or selected) currently referenced by this
+    conversation. Empty if the conversation has never attached or selected
+    any - callers should treat that as "no explicit scope", not "no documents
+    exist". Used to scope RAG retrieval - see
+    ``ContextAssembler._add_document_context``.
+    """
+    docs_dir = _conversation_docs_dir(conversation_id, root)
+    manifest = _read_json(docs_dir / "manifest.json", {})
+    return list(manifest.keys())
 
 
 class JsonConversationRepository:

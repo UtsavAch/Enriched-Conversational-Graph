@@ -26,6 +26,8 @@ export const keys = {
   graphStats: (id: string) => ["graph", id, "stats"] as const,
   documents: ["documents"] as const,
   documentSearch: (q: string) => ["documents", "search", q] as const,
+  conversationDocuments: (id: string) =>
+    ["conversations", id, "documents"] as const,
 };
 
 /** Server capabilities. Determines whether the composer is usable. */
@@ -42,6 +44,14 @@ export function useConversations() {
   return useQuery({
     queryKey: keys.conversations,
     queryFn: api.conversations.list,
+  });
+}
+
+export function useCreateConversation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (title: string) => api.conversations.create(title),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.conversations }),
   });
 }
 
@@ -103,7 +113,17 @@ export function useUploadDocument(conversationId?: string | null) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (file: File) => api.documents.upload(file, conversationId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: keys.documents }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: keys.documents });
+      // Uploading through a conversation also scopes that conversation's
+      // retrieval to the new document (see the backend's attach step) — keep
+      // the selection list in sync so it shows up as selected immediately.
+      if (conversationId) {
+        qc.invalidateQueries({
+          queryKey: keys.conversationDocuments(conversationId),
+        });
+      }
+    },
   });
 }
 
@@ -112,5 +132,38 @@ export function useDeleteDocument() {
   return useMutation({
     mutationFn: (sourceId: string) => api.documents.remove(sourceId),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.documents }),
+  });
+}
+
+/** Documents the given conversation's retrieval is currently scoped to. */
+export function useConversationDocuments(conversationId: string | null) {
+  return useQuery({
+    queryKey: keys.conversationDocuments(conversationId ?? ""),
+    queryFn: () => api.conversations.documents.list(conversationId!),
+    enabled: Boolean(conversationId),
+  });
+}
+
+export function useSelectConversationDocument(conversationId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (sourceId: string) =>
+      api.conversations.documents.select(conversationId!, sourceId),
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: keys.conversationDocuments(conversationId ?? ""),
+      }),
+  });
+}
+
+export function useDeselectConversationDocument(conversationId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (sourceId: string) =>
+      api.conversations.documents.deselect(conversationId!, sourceId),
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: keys.conversationDocuments(conversationId ?? ""),
+      }),
   });
 }

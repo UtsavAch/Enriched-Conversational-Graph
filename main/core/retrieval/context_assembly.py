@@ -176,7 +176,7 @@ class ContextAssembler:
         # k_historical drops to zero here. Skip all graph/semantic work.
         if k_historical <= 0:
             self._add_state_context(ctx, graph, query_vec, profile)
-            self._add_document_context(ctx, question, profile)
+            self._add_document_context(ctx, question, profile, graph.meta.conversation_id)
             return ctx
 
         by_id: dict[str, InteractionNode] = {n.id: n for n in interactions}
@@ -309,7 +309,7 @@ class ContextAssembler:
         self._add_state_context(ctx, graph, query_vec, profile)
 
         # ---- External documents (separate budget) ---------------------------
-        self._add_document_context(ctx, question, profile)
+        self._add_document_context(ctx, question, profile, graph.meta.conversation_id)
 
         return ctx
 
@@ -433,10 +433,31 @@ class ContextAssembler:
         ctx: AssembledContext,
         question: str,
         profile: ContextProfile,
+        conversation_id: str,
     ) -> None:
+        """Retrieve document chunks, scoped to what this conversation actually
+        references (uploaded or explicitly selected - see
+        ``get_conversation_document_ids``).
+
+        A conversation with no references at all falls back to searching the
+        whole global corpus - this is what keeps old, batch-ingested
+        conversations (never wired to any particular document) working
+        unchanged. Once a conversation has at least one reference, retrieval
+        is scoped strictly to that set, which is both the relevance fix (no
+        unrelated PDF wins a slot on a coincidental match) and, since
+        ``SimpleRagRetriever`` filters before scoring, a real reduction in how
+        many chunks get cosine-scored per query.
+        """
         if self.rag is None or not profile.k_documents:
             return
-        chunks: list[RetrievedChunk] = self.rag.retrieve(question, k=profile.k_documents)
+        from core.persistence.json_repository import (  # noqa: PLC0415
+            get_conversation_document_ids,
+        )
+
+        source_ids = get_conversation_document_ids(conversation_id) or None
+        chunks: list[RetrievedChunk] = self.rag.retrieve(
+            question, k=profile.k_documents, source_ids=source_ids
+        )
         ctx.documents = [
             ContextItem(rc.chunk.id, rc.render(), "document", rc.score)
             for rc in chunks

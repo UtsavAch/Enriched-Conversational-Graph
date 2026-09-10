@@ -5,6 +5,9 @@ from core.persistence.json_repository import (
     JsonConversationRepository,
     JsonDocumentRepository,
     attach_document_to_conversation,
+    get_conversation_document_ids,
+    reference_document_in_conversation,
+    unreference_document_in_conversation,
 )
 
 __all__ = [
@@ -13,4 +16,7 @@ __all__ = [
     "JsonConversationRepository",
     "JsonDocumentRepository",
     "attach_document_to_conversation",
+    "get_conversation_document_ids",
+    "reference_document_in_conversation",
+    "unreference_document_in_conversation",
 ]

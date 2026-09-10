@@ -7,6 +7,11 @@ Layout on disk::
         interactions.json  {"N_1": {...}, ...}
         entities.json      {"E_1": {...}, ...}
         state_nodes.json   {"SN_1": {...}, ...}
+        conversation.json  [ {"id", "timestamp", "turns": [...]}, ... ] - derived,
+                            see ``_conversation_export``
+        documents/          only present once a document has been attached to
+            manifest.json    this conversation - see ``attach_document_to_conversation``
+            {DOC_id}_{filename}
 
     data/documents/
         sources.json                  {"DOC_1": {...}, ...}
@@ -19,6 +24,11 @@ moving them to a sidecar ``.npy`` is a change confined to this file.
 
 Writes are atomic (write to a temp file, then ``os.replace``) so an interrupted
 run cannot leave a half-written JSON that fails to parse on next load.
+
+``data/documents/`` remains the single source of truth for retrieval (chunks +
+embeddings, possibly shared across conversations) - see the design note in
+``core/schema/document.py``. The per-conversation ``documents/`` folder is a
+separate, purely archival copy so a conversation directory is self-contained.
 """
 
 from __future__ import annotations
@@ -57,6 +67,67 @@ def _read_json(path: Path, default: Any) -> Any:
         return default
     with path.open(encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def _conversation_export(graph: ConversationGraph) -> list[dict[str, Any]]:
+    """Render ``graph`` in the raw ingest-input shape (see ``worked_example/``).
+
+    Purely a read view over ``interactions`` - the InteractionNode is the
+    source of truth for question/answer text, so this is regenerated on every
+    save and can never drift out of sync with ``interactions.json``.
+    """
+    return [
+        {
+            "id": node.id,
+            "timestamp": node.timestamp,
+            "turns": [
+                {"speaker": "user", "text": node.question},
+                {"speaker": "assistant", "text": node.answer},
+            ],
+        }
+        for node in graph.ordered_interactions()
+    ]
+
+
+def attach_document_to_conversation(
+    conversation_id: str,
+    path: Path,
+    source: DocumentSource,
+    root: Path | str = CONVERSATIONS_DIR,
+) -> Path:
+    """Copy an ingested file into ``conversation_id``'s ``documents/`` folder.
+
+    Archival only: ``data/documents/`` (chunks + embeddings) stays the sole
+    store retrieval reads from - this just makes the conversation directory
+    self-contained by keeping a copy of what actually grounded it, alongside a
+    small manifest. Re-attaching the same source overwrites its manifest entry
+    and re-copies the file.
+    """
+    if "/" in conversation_id or conversation_id.startswith("."):
+        raise ValueError(f"unsafe conversation id: {conversation_id!r}")
+    path = Path(path)
+    docs_dir = Path(root) / conversation_id / "documents"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use source.title rather than path.name: for an API upload, path is a
+    # temp file with a random name (e.g. "tmpXY9f2a.pdf"), while source.title
+    # is the human-readable original filename stem.
+    safe_title = source.title.replace("/", "_").strip() or source.id
+    dest = docs_dir / f"{source.id}_{safe_title}{path.suffix}"
+    shutil.copy2(path, dest)
+
+    manifest_path = docs_dir / "manifest.json"
+    manifest = _read_json(manifest_path, {})
+    manifest[source.id] = {
+        "id": source.id,
+        "title": source.title,
+        "source_type": source.source_type,
+        "filename": dest.name,
+        "n_chunks": source.n_chunks,
+        "ingested_at": source.ingested_at,
+    }
+    _atomic_write_json(manifest_path, manifest)
+    return dest
 
 
 class JsonConversationRepository:
@@ -124,6 +195,7 @@ class JsonConversationRepository:
             d / "state_nodes.json",
             {k: v.model_dump(mode="json") for k, v in graph.state_nodes.items()},
         )
+        _atomic_write_json(d / "conversation.json", _conversation_export(graph))
 
     def delete(self, conversation_id: str) -> None:
         shutil.rmtree(self._dir(conversation_id), ignore_errors=True)

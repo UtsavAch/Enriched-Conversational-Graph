@@ -8,14 +8,37 @@
   cursor: pointer;
   user-select: none;
   background: var(--panel);
-  transition: opacity 0.15s, transform 0.08s;
+  transition:
+    opacity 0.15s,
+    transform 0.08s;
 }
-.chip:has(:focus-visible) { outline: var(--focus-ring); outline-offset: 2px; }
-.chip:active { transform: scale(0.97); }
-.chip-off { opacity: 0.36; }
+.chip:has(:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+.chip:active {
+  transform: scale(0.97);
+}
+.chip-off {
+  opacity: 0.36;
+}
 
-.chip-swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
-.chip-swatch-dot { border-radius: 50%; }
-.chip-swatch-diamond { transform: rotate(45deg); border-radius: 2px; }
+.chip-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.chip-swatch-dot {
+  border-radius: 50%;
+}
+.chip-swatch-diamond {
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
 
-.chip-label { font-size: var(--text-sm); color: var(--ink); white-space: nowrap; }
+.chip-label {
+  font-size: var(--text-sm);
+  color: var(--ink);
+  white-space: nowrap;
+}

@@ -46,7 +46,7 @@ def get_turns(
         {
             "id": n.id,
             "turn_index": n.turn_index,
-            "date": n.date,
+            "timestamp": n.timestamp,
             "question": n.question,
             "answer": n.answer,
             "speech_act": n.speech_act.value,

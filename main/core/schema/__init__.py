@@ -10,7 +10,7 @@ whenever a field is added, removed, or changes meaning, and add a note to
 ``core/persistence/README.md`` describing how to migrate.
 """
 
-SCHEMA_VERSION = "0.3.0"
+SCHEMA_VERSION = "0.4.0"
 
 from core.schema.conversation import ConversationGraph, ConversationMeta  # noqa: E402
 from core.schema.document import DocumentChunk, DocumentSource  # noqa: E402

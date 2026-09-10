@@ -1,13 +1,20 @@
-import { Badge } from '@/components/Badge';
-import { STATUS_STYLE } from '@/lib/graphStyles';
-import { humanize } from '@/lib/format';
-import type { GraphView, InteractionNodeView } from '@/types/api';
-import { EpistemicTimeline } from './EpistemicTimeline';
+import { Badge } from "@/components/Badge";
+import { STATUS_STYLE } from "@/lib/graphStyles";
+import { formatDateTime, humanize } from "@/lib/format";
+import type { GraphView, InteractionNodeView } from "@/types/api";
+import { EpistemicTimeline } from "./EpistemicTimeline";
 
-export function InteractionDetail({ node, graph }: { node: InteractionNodeView; graph: GraphView }) {
+export function InteractionDetail({
+  node,
+  graph,
+}: {
+  node: InteractionNodeView;
+  graph: GraphView;
+}) {
   const status = STATUS_STYLE[node.epistemic_status];
-  const entityNames = node.named_entities
-    .map((id) => graph.entities.find((e) => e.id === id)?.name ?? id);
+  const entityNames = node.named_entities.map(
+    (id) => graph.entities.find((e) => e.id === id)?.name ?? id,
+  );
 
   return (
     <>
@@ -18,8 +25,12 @@ export function InteractionDetail({ node, graph }: { node: InteractionNodeView; 
         <Badge bg="var(--c-interaction-soft)" fg="var(--c-interaction)">
           {humanize(node.speech_act)}
         </Badge>
-        <Badge bg={status.bg} fg={status.fg}>{node.epistemic_status}</Badge>
-        {node.date && <Badge>{node.date}</Badge>}
+        <Badge bg={status.bg} fg={status.fg}>
+          {node.epistemic_status}
+        </Badge>
+        {node.timestamp && (
+          <Badge title={node.timestamp}>{formatDateTime(node.timestamp)}</Badge>
+        )}
       </div>
 
       <div className="qa-block">
@@ -37,7 +48,9 @@ export function InteractionDetail({ node, graph }: { node: InteractionNodeView; 
           {/* Naming the compression tier matters: this is the string that gets
               injected when a graph entry wins a context slot, so seeing it is
               seeing what the agent will actually read. */}
-          <span className="field-note">injected when this turn is reached via graph expansion</span>
+          <span className="field-note">
+            injected when this turn is reached via graph expansion
+          </span>
         </Field>
       )}
       {node.reference && <Field label="Reference">{node.reference}</Field>}
@@ -46,7 +59,14 @@ export function InteractionDetail({ node, graph }: { node: InteractionNodeView; 
         <Field label="Entities mentioned">
           <div className="tag-row">
             {entityNames.map((name) => (
-              <Badge key={name} bg="var(--c-entity-soft)" fg="var(--c-entity)" mono={false}>{name}</Badge>
+              <Badge
+                key={name}
+                bg="var(--c-entity-soft)"
+                fg="var(--c-entity)"
+                mono={false}
+              >
+                {name}
+              </Badge>
             ))}
           </div>
         </Field>
@@ -56,7 +76,9 @@ export function InteractionDetail({ node, graph }: { node: InteractionNodeView; 
         <Field label="Grounded by">
           <div className="tag-row">
             {node.grounded_by.map((id) => (
-              <Badge key={id} bg="var(--neutral-soft)" fg="var(--ink-soft)">{id}</Badge>
+              <Badge key={id} bg="var(--neutral-soft)" fg="var(--ink-soft)">
+                {id}
+              </Badge>
             ))}
           </div>
           {/* Stating the separation in the UI keeps ADR-002 visible: document
@@ -69,7 +91,9 @@ export function InteractionDetail({ node, graph }: { node: InteractionNodeView; 
 
       <Field label="Retrieval / recurrence">
         {node.retrieval_count} / {node.recurrence_count}
-        <span className="field-note">how often this turn has been re-surfaced by the memory</span>
+        <span className="field-note">
+          how often this turn has been re-surfaced by the memory
+        </span>
       </Field>
 
       {node.epistemic_history.length > 1 && (
@@ -81,7 +105,13 @@ export function InteractionDetail({ node, graph }: { node: InteractionNodeView; 
   );
 }
 
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="field">
       <p className="field-label">{label}</p>

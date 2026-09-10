@@ -18,9 +18,9 @@ on. The frontend stays a renderer.
 Output shape matches the existing prototype exactly::
 
     {
-      "interaction_nodes": [ {id, date, question, answer, summary, ...}, ... ],
-      "entities":          [ {id, type, name, mentioned_in}, ... ],
-      "state_nodes":       [ {id, type, label, status, creation_turn}, ... ],
+      "interaction_nodes": [ {id, timestamp, question, answer, summary, ...}, ... ],
+      "entities":          [ {id, type, name, mentioned_in, timestamp}, ... ],
+      "state_nodes":       [ {id, type, label, status, creation_turn, timestamp}, ... ],
       "edges":             [ {source, target, label, group}, ... ]
     }
 """
@@ -40,7 +40,7 @@ def build_graph_view(graph: ConversationGraph) -> dict[str, Any]:
     interaction_nodes = [
         {
             "id": n.id,
-            "date": n.date or "",
+            "timestamp": n.timestamp,
             "turn_index": n.turn_index,
             "question": n.question,
             "answer": n.answer,
@@ -68,6 +68,7 @@ def build_graph_view(graph: ConversationGraph) -> dict[str, Any]:
             "type": e.type.value,
             "name": e.name,
             "mentioned_in": e.mentioned_in,
+            "timestamp": e.timestamp,
         }
         for e in graph.entities.values()
     ]
@@ -80,6 +81,7 @@ def build_graph_view(graph: ConversationGraph) -> dict[str, Any]:
             "status": sn.status.value,
             "creation_turn": sn.creation_turn,
             "last_updated_turn": sn.last_updated_turn,
+            "timestamp": sn.timestamp,
         }
         for sn in graph.state_nodes.values()
     ]

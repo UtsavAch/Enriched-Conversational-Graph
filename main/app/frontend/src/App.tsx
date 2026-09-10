@@ -122,7 +122,9 @@ export default function App() {
 
           <div className="side-body">
             {sidePanel === "inspector" && <InspectorPanel graph={graph.data} />}
-            {sidePanel === "documents" && <DocumentsPanel />}
+            {sidePanel === "documents" && (
+              <DocumentsPanel conversationId={conversationId} />
+            )}
             {sidePanel === "health" && <GraphHealthPanel />}
           </div>
         </aside>

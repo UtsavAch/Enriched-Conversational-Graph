@@ -8,6 +8,8 @@ same entity.
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from pydantic import BaseModel, Field
 
 from core.schema.enums import EntityType
@@ -15,7 +17,7 @@ from core.schema.enums import EntityType
 
 class Entity(BaseModel):
     """A named entity, deduplicated across the whole conversation.
-    An entity is created once and then *referenced* on each later mention by ``mentioned_in``. 
+    An entity is created once and then *referenced* on each later mention by ``mentioned_in``.
     It is never regenerated.
     """
 
@@ -23,6 +25,10 @@ class Entity(BaseModel):
     conversation_id: str
     type: EntityType
     name: str = Field(..., description="Surface form as first mentioned.")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="ISO 8601 timestamp of the turn that first created this entity.",
+    )
     mentioned_in: list[str] = Field(
         default_factory=list, description="Interaction node ids mentioning this entity."
     )

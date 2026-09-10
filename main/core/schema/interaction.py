@@ -7,6 +7,7 @@ produced for it).
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
@@ -94,7 +95,12 @@ class InteractionNode(BaseModel):
     id: str = Field(..., description="Stable id, convention 'N_<n>'.")
     conversation_id: str
     turn_index: int = Field(..., ge=0, description="0-based position in the conversation.")
-    date: str | None = Field(None, description="ISO date, if the corpus provides one.")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="ISO 8601 creation timestamp (UTC). Set by the pipeline when "
+        "the turn is processed, unless a raw ingest source supplies its own "
+        "(e.g. a corpus conversation's recorded date).",
+    )
 
     question: str = Field(..., description="The user's turn. Not model-produced.")
     answer: str = Field(..., description="The assistant's turn. Produced by R2.")

@@ -29,15 +29,20 @@
  * rendering rather than SVG — a change confined to the view components, because
  * this hook only produces positions.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation,
-  forceX, forceY,
-  type Simulation, type SimulationNodeDatum,
-} from 'd3-force';
-import { scaleTime } from 'd3-scale';
-import { timeParse } from 'd3-time-format';
-import type { EdgeView, GraphNodeDatum } from '@/types/api';
+  forceCenter,
+  forceCollide,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
+  forceX,
+  forceY,
+  type Simulation,
+  type SimulationNodeDatum,
+} from "d3-force";
+import { scaleTime } from "d3-scale";
+import type { EdgeView, GraphNodeDatum } from "@/types/api";
 
 /**
  * A node once D3 has attached position and velocity to it.
@@ -47,37 +52,48 @@ import type { EdgeView, GraphNodeDatum } from '@/types/api';
  * distributes over the union, so narrowing on `kind` still works downstream —
  * which is the whole reason the union exists.
  */
-export type SimNode = GraphNodeDatum & SimulationNodeDatum & {
-  /** Only present for interaction nodes; drives the timeline x position. */
-  dateValue?: number;
-};
+export type SimNode = GraphNodeDatum &
+  SimulationNodeDatum & {
+    /** Only present for interaction nodes; drives the timeline x position. */
+    dateValue?: number;
+  };
 
 /** An edge after `forceLink` has replaced the id strings with node references. */
-export interface SimEdge extends Omit<EdgeView, 'source' | 'target'> {
+export interface SimEdge extends Omit<EdgeView, "source" | "target"> {
   source: SimNode;
   target: SimNode;
 }
 
-export interface Positioned { id: string; x: number; y: number; }
+export interface Positioned {
+  id: string;
+  x: number;
+  y: number;
+}
 
-const parseDate = timeParse('%Y-%m-%d');
+/** `timestamp` is a full ISO 8601 datetime (or, for corpus-sourced turns, a
+ *  bare `YYYY-MM-DD`); `Date` parses both natively, unlike a fixed d3 format. */
+function parseTimestamp(iso: string | undefined): number | undefined {
+  if (!iso) return undefined;
+  const t = new Date(iso).getTime();
+  return Number.isNaN(t) ? undefined : t;
+}
 
 /** Node radius. Interaction nodes scale with how often the memory has
  *  re-surfaced them — retrieval + recurrence — which makes heavily-reused turns
  *  visually prominent. Capped so one hot node cannot dominate the layout. */
 export function nodeRadius(n: GraphNodeDatum): number {
-  if (n.kind === 'interaction') {
+  if (n.kind === "interaction") {
     const use = (n.data.recurrence_count ?? 0) + (n.data.retrieval_count ?? 0);
     return 12 + Math.min(10, use);
   }
-  return n.kind === 'entity' ? 10 : 12;
+  return n.kind === "entity" ? 10 : 12;
 }
 
 /** Link distance by edge group. Mentions pull tighter so entities cluster near
  *  the turns that mention them, rather than drifting to the rim. */
 function linkDistance(e: SimEdge): number {
-  if (e.group === 'mention') return 55;
-  if (e.group === 'state_link') return 72;
+  if (e.group === "mention") return 55;
+  if (e.group === "state_link") return 72;
   return 90;
 }
 
@@ -86,10 +102,16 @@ interface Options {
   edges: EdgeView[];
   width: number;
   height: number;
-  mode: 'graph' | 'timeline';
+  mode: "graph" | "timeline";
 }
 
-export function useForceSimulation({ nodes, edges, width, height, mode }: Options) {
+export function useForceSimulation({
+  nodes,
+  edges,
+  width,
+  height,
+  mode,
+}: Options) {
   /**
    * D3 mutates the objects it is given, so the simulation's copies must be
    * distinct from the query cache's objects. Cloning here keeps the cached
@@ -97,11 +119,12 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
    * x/y/vx/vy fields and equality checks elsewhere would misbehave.
    */
   const simNodes = useMemo<SimNode[]>(
-    () => nodes.map((n) =>
-      n.kind === 'interaction'
-        ? { ...n, dateValue: parseDate(n.data.date)?.getTime() }
-        : { ...n },
-    ),
+    () =>
+      nodes.map((n) =>
+        n.kind === "interaction"
+          ? { ...n, dateValue: parseTimestamp(n.data.timestamp) }
+          : { ...n },
+      ),
     [nodes],
   );
 
@@ -119,12 +142,18 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
     nodesRef.current = simNodes;
 
     const sim = forceSimulation<SimNode>(simNodes)
-      .force('link', forceLink<SimNode, SimEdge>(simEdges as unknown as SimEdge[])
-        .id((d) => d.id)
-        .distance(linkDistance)
-        .strength(0.55))
-      .force('charge', forceManyBody().strength(-280))
-      .force('collide', forceCollide<SimNode>().radius((d) => nodeRadius(d) + 14));
+      .force(
+        "link",
+        forceLink<SimNode, SimEdge>(simEdges as unknown as SimEdge[])
+          .id((d) => d.id)
+          .distance(linkDistance)
+          .strength(0.55),
+      )
+      .force("charge", forceManyBody().strength(-280))
+      .force(
+        "collide",
+        forceCollide<SimNode>().radius((d) => nodeRadius(d) + 14),
+      );
 
     simRef.current = sim;
 
@@ -143,7 +172,9 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
 
     // Stop the render loop once the layout settles. A static graph should not
     // burn a frame budget forever.
-    sim.on('end', () => { running = false; });
+    sim.on("end", () => {
+      running = false;
+    });
 
     return () => {
       running = false;
@@ -167,7 +198,7 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
     const sim = simRef.current;
     if (!sim || !width || !height) return;
 
-    if (mode === 'timeline' && timeScale) {
+    if (mode === "timeline" && timeScale) {
       /**
        * Timeline mode pins interactions to their date on the x axis and
        * separates the other kinds vertically: state nodes above the dialogue,
@@ -175,21 +206,30 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
        * turn sequence, which is what the timeline exists to show.
        */
       sim
-        .force('center', null)
-        .force('x', forceX<SimNode>((d) =>
-          d.kind === 'interaction' && d.dateValue !== undefined
-            ? timeScale(d.dateValue) : width / 2,
-        ).strength((d) => (d.kind === 'interaction' ? 0.9 : 0.04)))
-        .force('y', forceY<SimNode>((d) =>
-          d.kind === 'interaction' ? height / 2
-            : d.kind === 'state' ? height / 2 - 140
-            : height / 2 + 140,
-        ).strength((d) => (d.kind === 'interaction' ? 0.35 : 0.18)));
+        .force("center", null)
+        .force(
+          "x",
+          forceX<SimNode>((d) =>
+            d.kind === "interaction" && d.dateValue !== undefined
+              ? timeScale(d.dateValue)
+              : width / 2,
+          ).strength((d) => (d.kind === "interaction" ? 0.9 : 0.04)),
+        )
+        .force(
+          "y",
+          forceY<SimNode>((d) =>
+            d.kind === "interaction"
+              ? height / 2
+              : d.kind === "state"
+                ? height / 2 - 140
+                : height / 2 + 140,
+          ).strength((d) => (d.kind === "interaction" ? 0.35 : 0.18)),
+        );
     } else {
       sim
-        .force('x', null)
-        .force('y', null)
-        .force('center', forceCenter(width / 2, height / 2));
+        .force("x", null)
+        .force("y", null)
+        .force("center", forceCenter(width / 2, height / 2));
     }
 
     sim.alpha(0.9).restart();
@@ -204,9 +244,13 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
     };
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     frameRef.current = requestAnimationFrame(loop);
-    sim.on('end', () => { running = false; });
+    sim.on("end", () => {
+      running = false;
+    });
 
-    return () => { running = false; };
+    return () => {
+      running = false;
+    };
   }, [mode, timeScale, width, height]);
 
   /**
@@ -216,13 +260,18 @@ export function useForceSimulation({ nodes, edges, width, height, mode }: Option
    * layout permanently, and the user's intent when dragging is almost always to
    * look at something, not to fix its position.
    */
-  const dragNode = (id: string, x: number, y: number, phase: 'start' | 'move' | 'end') => {
+  const dragNode = (
+    id: string,
+    x: number,
+    y: number,
+    phase: "start" | "move" | "end",
+  ) => {
     const sim = simRef.current;
     const node = nodesRef.current.find((n) => n.id === id);
     if (!sim || !node) return;
 
-    if (phase === 'start') sim.alphaTarget(0.25).restart();
-    if (phase === 'end') {
+    if (phase === "start") sim.alphaTarget(0.25).restart();
+    if (phase === "end") {
       sim.alphaTarget(0);
       node.fx = null;
       node.fy = null;

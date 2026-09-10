@@ -15,17 +15,17 @@
  * Query keys are hierarchical (`['graph', id]`) so that invalidating `['graph']`
  * clears every conversation at once when that is what is wanted.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from './endpoints';
-import type { GraphView } from '@/types/api';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "./endpoints";
+import type { GraphView } from "@/types/api";
 
 export const keys = {
-  health: ['health'] as const,
-  conversations: ['conversations'] as const,
-  graph: (id: string) => ['graph', id] as const,
-  graphStats: (id: string) => ['graph', id, 'stats'] as const,
-  documents: ['documents'] as const,
-  documentSearch: (q: string) => ['documents', 'search', q] as const,
+  health: ["health"] as const,
+  conversations: ["conversations"] as const,
+  graph: (id: string) => ["graph", id] as const,
+  graphStats: (id: string) => ["graph", id, "stats"] as const,
+  documents: ["documents"] as const,
+  documentSearch: (q: string) => ["documents", "search", q] as const,
 };
 
 /** Server capabilities. Determines whether the composer is usable. */
@@ -47,7 +47,7 @@ export function useConversations() {
 
 export function useGraph(conversationId: string | null) {
   return useQuery({
-    queryKey: keys.graph(conversationId ?? ''),
+    queryKey: keys.graph(conversationId ?? ""),
     queryFn: () => api.graph.get(conversationId!),
     enabled: Boolean(conversationId),
   });
@@ -55,7 +55,7 @@ export function useGraph(conversationId: string | null) {
 
 export function useGraphStats(conversationId: string | null) {
   return useQuery({
-    queryKey: keys.graphStats(conversationId ?? ''),
+    queryKey: keys.graphStats(conversationId ?? ""),
     queryFn: () => api.graph.stats(conversationId!),
     enabled: Boolean(conversationId),
   });
@@ -84,8 +84,13 @@ export function useDocumentSearch(query: string, enabled: boolean) {
 export function useSendTurn() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ conversationId, question }: { conversationId: string; question: string }) =>
-      api.chat.turn(conversationId, question),
+    mutationFn: ({
+      conversationId,
+      question,
+    }: {
+      conversationId: string;
+      question: string;
+    }) => api.chat.turn(conversationId, question),
     onSuccess: (data, vars) => {
       qc.setQueryData<GraphView>(keys.graph(vars.conversationId), data.graph);
       qc.invalidateQueries({ queryKey: keys.graphStats(vars.conversationId) });
@@ -94,10 +99,10 @@ export function useSendTurn() {
   });
 }
 
-export function useUploadDocument() {
+export function useUploadDocument(conversationId?: string | null) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (file: File) => api.documents.upload(file),
+    mutationFn: (file: File) => api.documents.upload(file, conversationId),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.documents }),
   });
 }

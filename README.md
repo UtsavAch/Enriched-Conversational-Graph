@@ -12,9 +12,17 @@ The design document is `INESCTEC_RESEARCH.md` — consult it for schema decision
 uv sync
 
 # Run FastAPI dev server (from project root)
-cd main && uvicorn app.backend.main:app --reload
+cd main && uv run --project .. uvicorn app.backend.main:app --reload
 # http://127.0.0.1:8000 — API at /api, frontend SPA at /
 ```
+
+**Use `uv run` (or activate `.venv` first), never a bare `uvicorn`/`python` command.**
+If `uvicorn` (or `python3`) resolves to something other than this project's
+`.venv` — a conda base env, a different venv, system Python — the server will
+start and *look* fine, but every project dependency (pypdf, anthropic,
+sentence-transformers, ...) will silently be missing, producing confusing
+`ModuleNotFoundError`s on whichever code path happens to need them first. Check
+with `which uvicorn` — it should point inside this repo's `.venv/bin/`.
 
 ### Frontend (TypeScript + React + Vite)
 
@@ -35,6 +43,8 @@ python -m scripts.ingest_conversation data/raw/conversation.json --conversation-
 # With combined LLM call instead of 5 separate calls
 python -m scripts.ingest_conversation data/raw/conversation.json --conversation-id <id> --strategy combined_call
 python -m scripts.ingest_document papers/doc.pdf --title "Title"
+# Also archive a copy into a conversation's documents/ folder (retrieval stays global either way)
+python -m scripts.ingest_document papers/doc.pdf --title "Title" --conversation-id <id>
 python -m scripts.export_graph_snapshot <conversation_id> --out snapshot.json
 ```
 
@@ -61,7 +71,7 @@ Nothing in `app`, `scripts`, or `evaluation` is imported by `core`. No layer imp
 
 - **`schema/`** — Domain models with no internal dependencies: `ConversationGraph`, `InteractionNode` (one Q/A pair with edges and epistemic state), `Entity`, `StateNode`, and edge enums. Everything else builds on these.
 - **`llm/`** — Anthropic Claude client, embedding models (hashing default, sentence-transformers optional), and prompt templates for each of the 5 extraction tasks.
-- **`persistence/`** — JSON-backed repositories for `ConversationGraph` and documents.
+- **`persistence/`** — JSON-backed repositories for `ConversationGraph` and documents. Each conversation directory (`data/conversations/{id}/`) holds `meta.json`, `interactions.json`, `entities.json`, `state_nodes.json`, a derived `conversation.json` (raw Q/A turns in the ingest-input shape — regenerated from `interactions.json` on every save, so it can't drift), and, once a document has been attached, a `documents/` folder (`manifest.json` + a copy of each attached file) — purely archival; retrieval always reads from the shared `data/documents/` corpus.
 - **`graph/`** — In-memory graph store and traversal/expansion queries.
 - **`retrieval/`** — Budget-based context assembly combining recency, semantic similarity, graph expansion, state nodes, and RAG document chunks. Also contains `rag/` for PDF chunking and cosine top-k retrieval.
 - **`pipeline/`** — `TurnPipeline` in `orchestrator.py` processes one dialogue turn end-to-end. `steps.py` defines the 5 extraction steps (W1–W5).

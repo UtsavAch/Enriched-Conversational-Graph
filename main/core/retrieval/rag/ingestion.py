@@ -40,7 +40,9 @@ def load_pdf(path: Path) -> PageIterator:
 
     A PDF with no text layer (a scan) yields empty strings. That is reported by
     the caller rather than silently producing zero chunks, because "I ingested
-    it and got nothing" is a confusing failure to debug.
+    it and got nothing" is a confusing failure to debug. Text-only, on purpose:
+    no OCR, no image extraction - a scanned PDF needs to be OCR'd elsewhere
+    before ingestion.
     """
     try:
         from pypdf import PdfReader  # noqa: PLC0415
@@ -85,13 +87,23 @@ class DocumentIngestor:
         self.config = config or RagConfig()
 
     def ingest(
-        self, path: Path | str, *, title: str | None = None, metadata: dict | None = None
+        self,
+        path: Path | str,
+        *,
+        title: str | None = None,
+        metadata: dict | None = None,
+        conversation_id: str | None = None,
     ) -> DocumentSource:
         """Ingest one file. Returns the stored ``DocumentSource``.
 
         Raises ``ValueError`` for an unsupported extension or a file that
         produced no usable text, rather than storing an empty source that would
         silently never match anything.
+
+        ``conversation_id``: when given, also copies ``path`` into that
+        conversation's ``documents/`` folder (see
+        ``attach_document_to_conversation``). Purely archival - retrieval keeps
+        reading from the global ``data/documents/`` store regardless.
         """
         path = Path(path)
         if not path.exists():
@@ -119,7 +131,7 @@ class DocumentIngestor:
         if not spans:
             raise ValueError(
                 f"'{path.name}' produced no text chunks. If it is a scanned PDF "
-                "it has no text layer and needs OCR before ingestion."
+                "it has no text layer - OCR it elsewhere first, then ingest the result."
             )
 
         source_id = self.repository.next_source_id()
@@ -146,4 +158,13 @@ class DocumentIngestor:
         )
         self.repository.add_source(source, chunks)
         logger.info("ingested %s as %s (%d chunks)", path.name, source_id, len(chunks))
+
+        if conversation_id:
+            from core.persistence.json_repository import (  # noqa: PLC0415
+                attach_document_to_conversation,
+            )
+
+            attach_document_to_conversation(conversation_id, path, source)
+            logger.info("attached %s to conversation '%s'", source_id, conversation_id)
+
         return source

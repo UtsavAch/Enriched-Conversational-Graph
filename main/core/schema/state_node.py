@@ -13,6 +13,7 @@ Section 3.3 of the Phase 1-2 report.
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
@@ -56,6 +57,10 @@ class StateNode(BaseModel):
         None, description="Embedding of ``label``, for state-node retrieval."
     )
     creation_turn: str = Field(..., description="Interaction id that created this.")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="ISO 8601 timestamp of the turn that created this state node.",
+    )
 
     # Status defaults are type-specific — see DEFAULT_STATUS_BY_TYPE.
     # Do not hardcode ACTIVE here in calls; use StateNode.initial_status(type).

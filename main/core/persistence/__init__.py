@@ -4,6 +4,7 @@ from core.persistence.base import ConversationRepository, DocumentRepository
 from core.persistence.json_repository import (
     JsonConversationRepository,
     JsonDocumentRepository,
+    attach_document_to_conversation,
 )
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "DocumentRepository",
     "JsonConversationRepository",
     "JsonDocumentRepository",
+    "attach_document_to_conversation",
 ]

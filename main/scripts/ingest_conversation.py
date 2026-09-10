@@ -12,6 +12,9 @@ Input format - a list of interactions, each with turns::
     ]
 
 Also accepts the flatter ``[{"question": ..., "answer": ..., "date": ...}]``.
+Either shape may use ``"timestamp"`` instead of ``"date"`` (this is what
+``conversation.json``, exported by the persistence layer, uses) - both are
+read, ``"timestamp"`` taking precedence if a record has both.
 
 Because the answers are already present, this runs the pipeline with answer
 generation SKIPPED - only extraction runs. That is the right mode for building a
@@ -62,11 +65,12 @@ logger = logging.getLogger("ingest")
 
 
 def load_turns(path: Path) -> list[dict]:
-    """Normalise either supported input shape into ``{question, answer, date}``."""
+    """Normalise either supported input shape into ``{question, answer, timestamp}``."""
     raw = json.loads(path.read_text(encoding="utf-8"))
     turns: list[dict] = []
 
     for item in raw:
+        timestamp = item.get("timestamp") or item.get("date")
         if "turns" in item:
             user = next(
                 (t["text"] for t in item["turns"] if t.get("speaker") != "assistant"), ""
@@ -74,13 +78,13 @@ def load_turns(path: Path) -> list[dict]:
             assistant = next(
                 (t["text"] for t in item["turns"] if t.get("speaker") == "assistant"), ""
             )
-            turns.append({"question": user, "answer": assistant, "date": item.get("date")})
+            turns.append({"question": user, "answer": assistant, "timestamp": timestamp})
         else:
             turns.append(
                 {
                     "question": item.get("question", ""),
                     "answer": item.get("answer", ""),
-                    "date": item.get("date"),
+                    "timestamp": timestamp,
                 }
             )
     return [t for t in turns if t["question"] or t["answer"]]
@@ -182,7 +186,7 @@ def main() -> None:
             graph,
             turn["question"],
             answer=turn["answer"],
-            date=turn["date"],
+            timestamp=turn["timestamp"],
             extract=not args.no_extract,
         )
         total_calls += result.cost.n_calls

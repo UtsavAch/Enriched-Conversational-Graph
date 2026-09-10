@@ -31,6 +31,7 @@ import concurrent.futures
 import logging
 import threading
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any
 
 from core.config import PipelineConfig, Settings
@@ -147,7 +148,7 @@ class TurnPipeline:
         question: str,
         *,
         answer: str | None = None,
-        date: str | None = None,
+        timestamp: str | None = None,
         extract: bool = True,
     ) -> TurnResult:
         """Add one turn to ``graph``.
@@ -158,6 +159,11 @@ class TurnPipeline:
             Supply this when ingesting an existing conversation, to skip answer
             generation. Leave ``None`` for live use, where the pipeline
             generates the answer from assembled context.
+        timestamp:
+            ISO 8601 creation timestamp. Supply this when replaying a corpus
+            that records its own turn dates; leave ``None`` for live use, where
+            the pipeline stamps the turn with the current time - a real
+            timestamp, not a guess, is the only thing that belongs here.
         extract:
             ``False`` runs only steps 1-3, producing a node with an embedding
             and no structure. Useful as a null baseline and for fast smoke tests.
@@ -177,11 +183,12 @@ class TurnPipeline:
             cost.calls.append(gen_cost)
 
         # 3. Node stub (embedding is Wave 1 of extraction below) -------------
+        node_timestamp = timestamp or datetime.now(timezone.utc).isoformat()
         node = InteractionNode(
             id=graph.next_id("N"),
             conversation_id=graph.meta.conversation_id,
             turn_index=turn_index,
-            date=date,
+            timestamp=node_timestamp,
             question=question,
             answer=answer,
             grounded_by=[i.node_id for i in context.documents],
@@ -463,6 +470,7 @@ class TurnPipeline:
                     type=item.type,
                     name=item.name,
                     mentioned_in=[node.id],
+                    timestamp=node.timestamp,
                 )
                 graph.entities[entity.id] = entity
                 by_name[key] = entity
@@ -510,6 +518,7 @@ class TurnPipeline:
                 label=create.label,
                 status=DEFAULT_STATUS_BY_TYPE[create.state_type],
                 creation_turn=node.id,
+                timestamp=node.timestamp,
             )
             sn.embedding = self.embedder.embed([sn.label])[0]
             graph.state_nodes[sn.id] = sn

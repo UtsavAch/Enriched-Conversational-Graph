@@ -83,7 +83,7 @@ export type EpistemicEvent = [string, string, EpistemicStatus];
 
 export interface InteractionNodeView {
   id: string;
-  date: string;
+  timestamp: string;
   turn_index: number;
   question: string;
   answer: string;
@@ -109,6 +109,7 @@ export interface EntityView {
   type: EntityType;
   name: string;
   mentioned_in: string[];
+  timestamp: string;
 }
 
 export interface StateNodeView {
@@ -118,6 +119,7 @@ export interface StateNodeView {
   status: StateNodeStatus;
   creation_turn: string;
   last_updated_turn: string;
+  timestamp: string;
 }
 
 export interface EdgeView {

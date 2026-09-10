@@ -22,6 +22,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="+", type=Path)
     parser.add_argument("--title", default=None, help="Only valid with a single file.")
+    parser.add_argument(
+        "--conversation-id",
+        default=None,
+        help="Also copy each file into this conversation's documents/ folder. "
+        "The document still joins the global retrieval corpus either way.",
+    )
     parser.add_argument("--preview", default=None, help="Run a test query after ingest.")
     args = parser.parse_args()
 
@@ -35,7 +41,9 @@ def main() -> None:
         raise SystemExit("--title only makes sense with a single file")
 
     for path in args.paths:
-        source = ingestor.ingest(path, title=args.title)
+        source = ingestor.ingest(
+            path, title=args.title, conversation_id=args.conversation_id
+        )
         print(f"{source.id}  {source.title}  ({source.n_chunks} chunks)  <- {path.name}")
 
     if args.preview:

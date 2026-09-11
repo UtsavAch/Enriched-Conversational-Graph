@@ -19,7 +19,11 @@ from app.backend.dependencies import (
     get_ingestor,
     get_rag_retriever,
 )
-from core.persistence import JsonDocumentRepository
+from core.persistence import (
+    JsonDocumentRepository,
+    document_usage_map,
+    find_conversations_referencing_document,
+)
 from core.retrieval.rag import DocumentIngestor, SimpleRagRetriever
 
 logger = logging.getLogger(__name__)
@@ -31,7 +35,19 @@ router = APIRouter(prefix="/api/documents", tags=["documents"])
 def list_documents(
     repo: JsonDocumentRepository = Depends(get_document_repository),
 ) -> list[dict]:
-    return [s.model_dump(mode="json") for s in repo.list_sources()]
+    """Every global document, each tagged with which conversations use it.
+
+    ``used_by`` lets the UI grey out deletion for an in-use document instead
+    of only failing after the click - the DELETE route below is the real
+    guard either way, this is just the proactive hint.
+    """
+    usage = document_usage_map()
+    out = []
+    for s in repo.list_sources():
+        d = s.model_dump(mode="json")
+        d["used_by"] = usage.get(s.id, [])
+        out.append(d)
+    return out
 
 
 @router.post("/upload")
@@ -115,6 +131,23 @@ def delete_document(
     repo: JsonDocumentRepository = Depends(get_document_repository),
     retriever: SimpleRagRetriever = Depends(get_rag_retriever),
 ) -> dict:
+    """Delete a global document - refused while any conversation has a claim on it.
+
+    Deleting it out from under a conversation that depends on it would
+    silently break that conversation's retrieval, and worse, invalidate the
+    provenance of any past answer that already cited it. Deselecting is
+    deliberately *not* enough to clear this - a deselected document's archive
+    stays in the conversation's folder precisely so its evaluation record
+    survives (see ``find_conversations_referencing_document``). The only fix
+    is deleting the conversations that still hold it.
+    """
+    referencing = find_conversations_referencing_document(source_id)
+    if referencing:
+        raise HTTPException(
+            409,
+            f"'{source_id}' is still held by: {', '.join(referencing)}. "
+            "Deselecting won't release it - delete those conversations first.",
+        )
     repo.delete_source(source_id)
     retriever.refresh()
     return {"deleted": source_id}

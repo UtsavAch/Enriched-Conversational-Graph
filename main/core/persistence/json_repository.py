@@ -196,21 +196,25 @@ def unreference_document_in_conversation(
     source_id: str,
     root: Path | str = CONVERSATIONS_DIR,
 ) -> None:
-    """Remove a document's reference from a conversation (uploaded or selected).
+    """Remove a document from this conversation's *retrieval scope* only.
 
-    Deletes the archived copy too, if this conversation has one - a selected
-    (not uploaded) reference has no local copy, so there is nothing beyond the
-    manifest entry to remove. Does nothing if the conversation never
-    referenced this document (no manifest, or no matching entry).
+    Deliberately does not delete the archived copy, if this conversation has
+    one. Deselecting stops the document from being used in future turns, but
+    the conversation may already contain answers whose provenance depends on
+    it (``InteractionNode.grounded_by``), and this corpus is meant to be
+    evaluated as a whole later - erasing the archive on deselect would quietly
+    corrupt that record. The archived copy, and this conversation's claim on
+    the document for deletion purposes (see
+    ``find_conversations_referencing_document``), only go away if the
+    conversation itself is deleted. Does nothing if the conversation never
+    referenced this document.
     """
     docs_dir = _conversation_docs_dir(conversation_id, root)
     manifest_path = docs_dir / "manifest.json"
     manifest = _read_json(manifest_path, {})
-    entry = manifest.pop(source_id, None)
-    if entry is None:
+    if source_id not in manifest:
         return
-    if entry.get("filename"):
-        (docs_dir / entry["filename"]).unlink(missing_ok=True)
+    del manifest[source_id]
     _atomic_write_json(manifest_path, manifest)
 
 
@@ -226,6 +230,62 @@ def get_conversation_document_ids(
     docs_dir = _conversation_docs_dir(conversation_id, root)
     manifest = _read_json(docs_dir / "manifest.json", {})
     return list(manifest.keys())
+
+
+def document_usage_map(root: Path | str = CONVERSATIONS_DIR) -> dict[str, list[str]]:
+    """Map every document id to the conversation ids currently scoped to it.
+
+    One pass over every conversation's manifest, rather than one scan per
+    document - used both to block deleting a document conversations still
+    depend on and to show "used by" against each document in the list.
+    """
+    root = Path(root)
+    usage: dict[str, list[str]] = {}
+    if not root.exists():
+        return usage
+    for conv_dir in sorted(root.iterdir()):
+        if not conv_dir.is_dir():
+            continue
+        manifest = _read_json(conv_dir / "documents" / "manifest.json", {})
+        for source_id in manifest:
+            usage.setdefault(source_id, []).append(conv_dir.name)
+    return usage
+
+
+def find_conversations_referencing_document(
+    source_id: str,
+    root: Path | str = CONVERSATIONS_DIR,
+) -> list[str]:
+    """Conversations with any claim at all on ``source_id`` - empty if none.
+
+    Two signals, unioned:
+
+    * a live manifest entry - the document is in the conversation's current
+      retrieval scope;
+    * an archived file matching ``{source_id}_*`` in the conversation's
+      ``documents/`` folder - evidence the conversation once had it, kept
+      even after a deselect (see ``unreference_document_in_conversation``).
+
+    Deliberately stricter than ``document_usage_map`` (which only reflects
+    live selection, for the UI's "used by" hint): this is the delete guard,
+    and deselecting a document must not be a way to make it deletable out from
+    under a conversation whose past answers may still depend on it for
+    provenance. The only thing that clears a conversation's claim here is
+    deleting the conversation itself.
+    """
+    root = Path(root)
+    if not root.exists():
+        return []
+    referencing = []
+    for conv_dir in sorted(root.iterdir()):
+        if not conv_dir.is_dir():
+            continue
+        docs_dir = conv_dir / "documents"
+        manifest = _read_json(docs_dir / "manifest.json", {})
+        has_archived_file = docs_dir.exists() and any(docs_dir.glob(f"{source_id}_*"))
+        if source_id in manifest or has_archived_file:
+            referencing.append(conv_dir.name)
+    return referencing
 
 
 class JsonConversationRepository:

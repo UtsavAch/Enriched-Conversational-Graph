@@ -29,5 +29,5 @@ dist/
 .vite/
 
 #data files
-documents/
-conversations/
+main/data/documents/
+main/data/conversations/

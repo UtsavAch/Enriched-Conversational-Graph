@@ -73,6 +73,12 @@ export function DocumentsPanel({
           Open a conversation to choose which documents ground its answers.
         </p>
       )}
+      <p className="field-note">
+        Deleting a document is blocked while any conversation still has it —
+        past or present. Unchecking it isn't enough to free it up; that
+        conversation has to be deleted first, since its answers may still rely
+        on it for provenance.
+      </p>
 
       <input
         ref={fileRef}
@@ -130,11 +136,20 @@ export function DocumentsPanel({
                 <span className="doc-title">{doc.title}</span>
                 <span className="doc-meta">
                   {doc.id} · {doc.n_chunks} chunks · {doc.source_type}
+                  {Boolean(doc.used_by?.length) && (
+                    <> · used by {doc.used_by!.join(", ")}</>
+                  )}
                 </span>
               </div>
               <button
                 className="doc-remove"
                 aria-label={`Remove ${doc.title}`}
+                disabled={Boolean(doc.used_by?.length)}
+                title={
+                  doc.used_by?.length
+                    ? `Held by ${doc.used_by.join(", ")} — deselecting won't release it, delete those conversations first`
+                    : undefined
+                }
                 onClick={() => remove.mutate(doc.id)}
               >
                 ×
@@ -142,6 +157,12 @@ export function DocumentsPanel({
             </li>
           ))}
         </ul>
+      )}
+
+      {remove.isError && (
+        <p className="health-note health-warn">
+          {(remove.error as ApiError).detail || (remove.error as Error).message}
+        </p>
       )}
 
       {Boolean(documents?.length) && (

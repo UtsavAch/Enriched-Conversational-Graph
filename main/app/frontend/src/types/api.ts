@@ -195,6 +195,9 @@ export interface DocumentSource {
   n_chunks: number;
   ingested_at: string;
   metadata: Record<string, string>;
+  /** Conversations currently scoped to this document — only present on the
+   *  global `/api/documents` list, not the per-conversation scoped one. */
+  used_by?: string[];
 }
 
 export interface DocumentSearchHit {

@@ -55,6 +55,25 @@ export function useCreateConversation() {
   });
 }
 
+/**
+ * Delete a conversation. The backend removes its whole directory in one go
+ * (interactions, entities, state nodes, its documents folder — everything),
+ * so the only cleanup needed here is dropping now-meaningless cached queries
+ * for that id, rather than leaving them to be refetched into 404s.
+ */
+export function useDeleteConversation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.conversations.remove(id),
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: keys.conversations });
+      qc.removeQueries({ queryKey: keys.graph(id) });
+      qc.removeQueries({ queryKey: keys.graphStats(id) });
+      qc.removeQueries({ queryKey: keys.conversationDocuments(id) });
+    },
+  });
+}
+
 export function useGraph(conversationId: string | null) {
   return useQuery({
     queryKey: keys.graph(conversationId ?? ""),

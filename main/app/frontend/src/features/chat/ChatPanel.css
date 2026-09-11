@@ -126,12 +126,11 @@
 
 /* Three dots while the pipeline runs. The only non-user-triggered motion in
    the app, and it earns its place: it is the sole signal that work is
-   happening during a multi-second extraction. */
-.bubble-thinking {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
+   happening during a multi-second extraction. Row layout for the dots +
+   phase label lives here, on `.dots-status`, rather than on the pending
+   bubble itself — the bubble stays a plain block so `.bubble-tag`
+   ("assistant") stacks above the content, same as the finished bubble,
+   instead of sitting beside it while a turn is still pending. */
 .dots {
   display: inline-flex;
   gap: 3px;

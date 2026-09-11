@@ -107,7 +107,7 @@ function Pending({
         <span className="bubble-tag">you</span>
         {question}
       </div>
-      <div className="bubble bubble-a bubble-thinking">
+      <div className="bubble bubble-a">
         <span className="bubble-tag">assistant</span>
         {partialAnswer ? (
           <span className="stream-text">

@@ -184,7 +184,12 @@ class ContextAssembler:
         # k_historical drops to zero here. Skip all graph/semantic work.
         if k_historical <= 0:
             self._add_state_context(ctx, graph, query_vec, profile)
-            if on_phase is not None and self.rag is not None and profile.k_documents:
+            if (
+                on_phase is not None
+                and self.rag is not None
+                and profile.k_documents
+                and self._has_scoped_documents(graph.meta.conversation_id)
+            ):
                 on_phase("retrieving_documents")
             self._add_document_context(ctx, question, profile, graph.meta.conversation_id)
             return ctx
@@ -319,7 +324,12 @@ class ContextAssembler:
         self._add_state_context(ctx, graph, query_vec, profile)
 
         # ---- External documents (separate budget) ---------------------------
-        if on_phase is not None and self.rag is not None and profile.k_documents:
+        if (
+            on_phase is not None
+            and self.rag is not None
+            and profile.k_documents
+            and self._has_scoped_documents(graph.meta.conversation_id)
+        ):
             on_phase("retrieving_documents")
         self._add_document_context(ctx, question, profile, graph.meta.conversation_id)
 
@@ -439,6 +449,22 @@ class ContextAssembler:
                     Granularity.REFERENCE.value,
                 )
             )
+
+    @staticmethod
+    def _has_scoped_documents(conversation_id: str) -> bool:
+        """Whether this conversation has any document explicitly scoped to it.
+
+        Gates the ``retrieving_documents`` progress event so it does not fire
+        on every turn just because the app-wide retriever exists and the
+        profile's ``k_documents`` is nonzero - both true for most profiles
+        regardless of whether *this* conversation ever selected a document.
+        Mirrors the real scoping check in ``_add_document_context`` below.
+        """
+        from core.persistence.json_repository import (  # noqa: PLC0415
+            get_conversation_document_ids,
+        )
+
+        return bool(get_conversation_document_ids(conversation_id))
 
     def _add_document_context(
         self,

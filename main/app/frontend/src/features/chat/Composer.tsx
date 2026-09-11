@@ -1,6 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { useHealth, useSendTurn } from '@/api/queries';
-import { useUiStore } from '@/store/uiStore';
+import { useEffect, useRef, useState } from "react";
+import { useHealth } from "@/api/queries";
+import { useUiStore } from "@/store/uiStore";
+
+interface Props {
+  /** True for the whole span of an in-flight streamed turn — answer text plus
+   *  the "updating memory" tail, not just until the answer finishes. */
+  streaming: boolean;
+  streamError: string | null;
+  onSend: (
+    conversationId: string,
+    question: string,
+  ) => Promise<string | undefined>;
+}
 
 /**
  * Message input.
@@ -8,43 +19,45 @@ import { useUiStore } from '@/store/uiStore';
  * Three distinct disabled reasons, each with its own message. A single greyed
  * box that does not say why is the thing that makes people file bugs.
  */
-export function Composer() {
+export function Composer({ streaming, streamError, onSend }: Props) {
   const { data: health } = useHealth();
   const conversationId = useUiStore((s) => s.conversationId);
   const selectNode = useUiStore((s) => s.selectNode);
-  const sendTurn = useSendTurn();
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const chatEnabled = health?.chat_enabled ?? false;
-  const busy = sendTurn.isPending;
-  const disabled = !conversationId || !chatEnabled || busy;
+  const disabled = !conversationId || !chatEnabled || streaming;
 
-  const placeholder = !conversationId ? 'Select a conversation first'
-    : !chatEnabled ? 'Live chat is disabled on this server'
-    : busy ? 'Working…'
-    : 'Ask something…';
+  const placeholder = !conversationId
+    ? "Select a conversation first"
+    : !chatEnabled
+      ? "Live chat is disabled on this server"
+      : streaming
+        ? "Working…"
+        : "Ask something…";
 
-  const note = !chatEnabled && conversationId
-    ? 'Restart the server with GM_ENABLE_CHAT=1 to send messages.'
-    : null;
+  const note =
+    !chatEnabled && conversationId
+      ? "Restart the server with GM_ENABLE_CHAT=1 to send messages."
+      : null;
 
   // Grow with content, up to a ceiling.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
-    el.style.height = 'auto';
+    el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
   }, [value]);
 
   const submit = async () => {
     const question = value.trim();
     if (!question || disabled || !conversationId) return;
-    setValue('');
+    setValue("");
     try {
-      const result = await sendTurn.mutateAsync({ conversationId, question });
+      const nodeId = await onSend(conversationId, question);
       // Select the new node so the graph and inspector jump straight to it.
-      if (result.turn?.node_id) selectNode(result.turn.node_id);
+      if (nodeId) selectNode(nodeId);
     } catch {
       // Restore the text so a failed send does not lose what was typed.
       setValue(question);
@@ -62,7 +75,10 @@ export function Composer() {
           placeholder={placeholder}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void submit(); }
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              void submit();
+            }
           }}
           aria-label="Message"
         />
@@ -79,8 +95,8 @@ export function Composer() {
       </div>
 
       {note && <p className="composer-note">{note}</p>}
-      {sendTurn.isError && (
-        <p className="composer-note composer-error">{(sendTurn.error as Error).message}</p>
+      {streamError && (
+        <p className="composer-note composer-error">{streamError}</p>
       )}
     </div>
   );

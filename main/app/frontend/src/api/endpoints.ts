@@ -4,9 +4,8 @@
  * One function per endpoint, each returning a typed result. Components never
  * build a URL, so renaming a route is a change here and nowhere else.
  */
-import { http } from "./client";
+import { http, streamSSE } from "./client";
 import type {
-  ChatResponse,
   ConversationSummary,
   DocumentSearchHit,
   DocumentSource,
@@ -25,8 +24,8 @@ export const api = {
     list: () => http.get<ConversationSummary[]>("/api/conversations"),
     /** Creates an empty conversation from a topic — no first turn, no id to
      *  invent: the backend slugifies `title` into a unique id and returns it.
-     *  Send the first message separately via `chat.turn`, once documents (if
-     *  any) have been scoped to it. */
+     *  Send the first message separately from the composer (see
+     *  `useChatStream`), once documents (if any) have been scoped to it. */
     create: (title: string) =>
       http.post<{ conversation_id: string; title: string | null }>(
         "/api/conversations",
@@ -61,12 +60,13 @@ export const api = {
   },
 
   chat: {
-    /** `answer` is only supplied when ingesting an existing turn. */
-    turn: (conversation_id: string, question: string, answer?: string) =>
-      http.post<ChatResponse>("/api/chat/turn", {
-        conversation_id,
+    /** Streams one turn as Server-Sent Events — see `useChatStream`, its only
+     *  caller, for how the event sequence (phase markers, `answer_delta`,
+     *  `done`/`error`) is consumed. */
+    turnStream: (conversationId: string, question: string) =>
+      streamSSE("/api/chat/turn/stream", {
+        conversation_id: conversationId,
         question,
-        answer,
       }),
   },
 

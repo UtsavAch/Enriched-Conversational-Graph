@@ -65,7 +65,7 @@ export default function App() {
       <GraphToolbar />
 
       <main className="workspace">
-        <ChatPanel graph={graph.data} pendingQuestion={null} />
+        <ChatPanel graph={graph.data} />
 
         {!conversationId ? (
           <div className="canvas-placeholder">

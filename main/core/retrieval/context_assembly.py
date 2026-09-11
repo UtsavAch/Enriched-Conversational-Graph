@@ -29,7 +29,7 @@ Algorithm (section 5.5 of the Phase 1-2 report):
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from core.config import (
     HIERARCHICAL_EDGE_STRENGTH,
@@ -134,6 +134,7 @@ class ContextAssembler:
         *,
         up_to_turn: int | None = None,
         seed_entity_ids: list[str] | None = None,
+        on_phase: Callable[[str], None] | None = None,
     ) -> AssembledContext:
         """Assemble context for ``question``.
 
@@ -148,6 +149,11 @@ class ContextAssembler:
             Entity ids to use as anchors for entity-anchored retrieval. When
             ``None`` (default), the question text is scanned for entity names
             in the graph as a lightweight substitute.
+        on_phase:
+            Optional callback fired with a coarse phase name ("retrieving_context",
+            "retrieving_documents") as each stage starts - purely a UI progress
+            hint for live chat streaming, never called during batch ingestion or
+            evaluation. Does not change what is retrieved.
         """
         ctx = AssembledContext()
         interactions = graph.ordered_interactions()
@@ -156,6 +162,8 @@ class ContextAssembler:
         if not interactions and self.rag is None:
             return ctx
 
+        if on_phase is not None:
+            on_phase("retrieving_context")
         query_vec = self.embedder.embed([question])[0]
 
         # ---- Step 1: Recency layer -------------------------------------------
@@ -176,6 +184,8 @@ class ContextAssembler:
         # k_historical drops to zero here. Skip all graph/semantic work.
         if k_historical <= 0:
             self._add_state_context(ctx, graph, query_vec, profile)
+            if on_phase is not None and self.rag is not None and profile.k_documents:
+                on_phase("retrieving_documents")
             self._add_document_context(ctx, question, profile, graph.meta.conversation_id)
             return ctx
 
@@ -309,6 +319,8 @@ class ContextAssembler:
         self._add_state_context(ctx, graph, query_vec, profile)
 
         # ---- External documents (separate budget) ---------------------------
+        if on_phase is not None and self.rag is not None and profile.k_documents:
+            on_phase("retrieving_documents")
         self._add_document_context(ctx, question, profile, graph.meta.conversation_id)
 
         return ctx

@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { Badge } from "@/components/Badge";
 import { STATUS_STYLE } from "@/lib/graphStyles";
 import { formatDateTime, humanize } from "@/lib/format";
-import type { InteractionNodeView } from "@/types/api";
+import type { ChatStreamPhase, InteractionNodeView } from "@/types/api";
 
 interface Props {
   turn: InteractionNodeView;
@@ -73,8 +73,31 @@ const TurnCardBase = forwardRef<HTMLDivElement, Props>(
 );
 TurnCardBase.displayName = "TurnCard";
 
-/** Optimistic placeholder shown while the pipeline runs. */
-function Pending({ question }: { question: string }) {
+const PHASE_LABEL: Record<ChatStreamPhase, string> = {
+  thinking: "Thinking…",
+  retrieving_context: "Retrieving candidates…",
+  retrieving_documents: "Retrieving documents…",
+  generating_answer: "Writing…",
+  updating_memory: "Adding to memory graph…",
+};
+
+/**
+ * Optimistic placeholder shown while a turn streams in: the user's message
+ * appears immediately, then either a phase label (before the first token) or
+ * the live answer text (once tokens start arriving). Never shows anything
+ * from the extraction calls or the model's internal reasoning — `phase` only
+ * ever takes one of the coarse names in `PHASE_LABEL`, and `partialAnswer` is
+ * exactly the final-answer text streamed by `POST /api/chat/turn/stream`.
+ */
+function Pending({
+  question,
+  phase,
+  partialAnswer,
+}: {
+  question: string;
+  phase: ChatStreamPhase;
+  partialAnswer: string;
+}) {
   return (
     <div className="turn turn-pending">
       <div className="turn-meta">
@@ -86,12 +109,25 @@ function Pending({ question }: { question: string }) {
       </div>
       <div className="bubble bubble-a bubble-thinking">
         <span className="bubble-tag">assistant</span>
-        <span className="dots">
-          <i />
-          <i />
-          <i />
-        </span>
+        {partialAnswer ? (
+          <span className="stream-text">
+            {partialAnswer}
+            <span className="stream-cursor" aria-hidden />
+          </span>
+        ) : (
+          <span className="dots-status">
+            <span className="dots">
+              <i />
+              <i />
+              <i />
+            </span>
+            {PHASE_LABEL[phase]}
+          </span>
+        )}
       </div>
+      {phase === "updating_memory" && partialAnswer && (
+        <p className="turn-footer-note">Adding to memory graph…</p>
+      )}
     </div>
   );
 }

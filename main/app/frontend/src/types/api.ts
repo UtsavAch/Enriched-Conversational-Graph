@@ -236,6 +236,21 @@ export interface ChatResponse {
   graph: GraphView;
 }
 
+/**
+ * Coarse progress phases the streamed chat endpoint reports — mirrors the
+ * event names `POST /api/chat/turn/stream` actually sends (see
+ * `TurnPipeline.process_turn`'s `on_event`, `core/pipeline/orchestrator.py`).
+ * `retrieving_context`/`retrieving_documents` are only sent when that work is
+ * actually happening, so a UI must tolerate skipping straight from
+ * `thinking` to `generating_answer`.
+ */
+export type ChatStreamPhase =
+  | "thinking"
+  | "retrieving_context"
+  | "retrieving_documents"
+  | "generating_answer"
+  | "updating_memory";
+
 // ── graph rendering (client-side only) ────────────────────────────────────
 
 /**

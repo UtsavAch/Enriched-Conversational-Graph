@@ -32,10 +32,10 @@ import logging
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Callable
 
 from core.config import PipelineConfig, Settings
-from core.llm.client import LLMClient, LLMError
+from core.llm.client import LLMClient, LLMError, StreamingLLMClient
 from core.llm.embeddings import Embedder
 from core.llm.prompts import PromptLibrary, prompts as default_prompts
 from core.pipeline.base import CallCost, TurnCost
@@ -66,6 +66,13 @@ logger = logging.getLogger(__name__)
 #: Labels that can change a target node's epistemic_status. depends_on and
 #: references are absent: they have no status effect. Section 3.5.
 EPISTEMIC_TRIGGER_LABELS: frozenset[str] = frozenset({"revises", "resolves", "contradicts"})
+
+#: Fired with a coarse phase name and a small data dict, purely as a live-chat
+#: UI progress hint - see ``process_turn``'s ``on_event`` parameter. Never
+#: called during batch ingestion or evaluation, and never carries anything
+#: from the extraction calls (W1-W5 stay opaque to it; only the answer
+#: generation call's own text is ever forwarded, via "answer_delta").
+OnEvent = Callable[[str, dict[str, Any]], None]
 
 
 def resolve_new_status(current: EpistemicStatus, label: str) -> EpistemicStatus:
@@ -150,6 +157,7 @@ class TurnPipeline:
         answer: str | None = None,
         timestamp: str | None = None,
         extract: bool = True,
+        on_event: OnEvent | None = None,
     ) -> TurnResult:
         """Add one turn to ``graph``.
 
@@ -167,19 +175,31 @@ class TurnPipeline:
         extract:
             ``False`` runs only steps 1-3, producing a node with an embedding
             and no structure. Useful as a null baseline and for fast smoke tests.
+        on_event:
+            Optional callback for live-chat progress: fired with a coarse
+            phase name and a small data dict at a handful of points (context
+            retrieval, streamed answer text, extraction start). ``None`` for
+            every non-interactive caller (batch ingestion, evaluation) -
+            nothing here changes what gets stored, only what gets reported
+            while it's being produced.
         """
         cost = TurnCost(turn_id="")
         errors: list[str] = []
         turn_index = len(graph.interactions)
 
         # 1. Context ---------------------------------------------------------
+        self._emit(on_event, "thinking")
         context = self.assembler.assemble(
-            graph, question, self.settings.answer_profile, up_to_turn=turn_index
+            graph,
+            question,
+            self.settings.answer_profile,
+            up_to_turn=turn_index,
+            on_phase=(lambda phase: self._emit(on_event, phase)) if on_event else None,
         )
 
         # 2. Answer ----------------------------------------------------------
         if answer is None:
-            answer, gen_cost = self._generate_answer(question, context)
+            answer, gen_cost = self._generate_answer(question, context, on_event)
             cost.calls.append(gen_cost)
 
         # 3. Node stub (embedding is Wave 1 of extraction below) -------------
@@ -202,6 +222,7 @@ class TurnPipeline:
             return TurnResult(node=node, context=context, cost=cost, errors=errors)
 
         # 4-5. Extraction ----------------------------------------------------
+        self._emit(on_event, "updating_memory")
         if self.settings.pipeline.strategy == "combined_call":
             self._run_combined_extraction(graph, node, cost, errors)
         else:
@@ -213,7 +234,14 @@ class TurnPipeline:
 
     # -- internals -----------------------------------------------------------
 
-    def _generate_answer(self, question: str, context: AssembledContext) -> tuple[str, CallCost]:
+    @staticmethod
+    def _emit(on_event: OnEvent | None, phase: str, **data: Any) -> None:
+        if on_event is not None:
+            on_event(phase, data)
+
+    def _generate_answer(
+        self, question: str, context: AssembledContext, on_event: OnEvent | None = None
+    ) -> tuple[str, CallCost]:
         system, user = self.library.render(
             "answer_generation",
             question=question,
@@ -224,13 +252,25 @@ class TurnPipeline:
             document_context=context.render_section("document"),
             recent_context=context.render_section("recent"),
         )
+        stream_it = on_event is not None and isinstance(self.client, StreamingLLMClient)
         try:
-            response = self.client.complete(
-                system=system,
-                user=user,
-                max_tokens=1024,
-                temperature=self.settings.pipeline.answer_temperature,
-            )
+            if stream_it:
+                completion = self.client.complete_stream(
+                    system=system,
+                    user=user,
+                    max_tokens=1024,
+                    temperature=self.settings.pipeline.answer_temperature,
+                )
+                for delta in completion:
+                    self._emit(on_event, "answer_delta", text=delta)
+                response = completion.final()
+            else:
+                response = self.client.complete(
+                    system=system,
+                    user=user,
+                    max_tokens=1024,
+                    temperature=self.settings.pipeline.answer_temperature,
+                )
         except LLMError as exc:
             logger.error("answer generation failed: %s", exc)
             return ("", CallCost(step="R2", failed=True))

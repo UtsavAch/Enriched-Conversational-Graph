@@ -17,7 +17,6 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./endpoints";
-import type { GraphView } from "@/types/api";
 
 export const keys = {
   health: ["health"] as const,
@@ -99,32 +98,6 @@ export function useDocumentSearch(query: string, enabled: boolean) {
     queryKey: keys.documentSearch(query),
     queryFn: () => api.documents.search(query),
     enabled: enabled && query.trim().length > 0,
-  });
-}
-
-/**
- * Send a turn.
- *
- * The response already contains the full updated graph, so it is written
- * straight into the cache with `setQueryData` rather than triggering a refetch.
- * That removes a round trip and, more importantly, removes the window in which
- * the chat panel shows the new turn but the graph does not.
- */
-export function useSendTurn() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      conversationId,
-      question,
-    }: {
-      conversationId: string;
-      question: string;
-    }) => api.chat.turn(conversationId, question),
-    onSuccess: (data, vars) => {
-      qc.setQueryData<GraphView>(keys.graph(vars.conversationId), data.graph);
-      qc.invalidateQueries({ queryKey: keys.graphStats(vars.conversationId) });
-      qc.invalidateQueries({ queryKey: keys.conversations });
-    },
   });
 }
 

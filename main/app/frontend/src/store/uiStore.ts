@@ -17,7 +17,12 @@ import { create } from "zustand";
 import type { EdgeGroup, NodeKind } from "@/types/api";
 
 export type ViewMode = "graph" | "timeline";
-export type SidePanel = "inspector" | "documents" | "health";
+export type SidePanel =
+  | "inspector"
+  | "documents"
+  | "health"
+  | "entities"
+  | "states";
 
 interface UiState {
   conversationId: string | null;

@@ -1,0 +1,57 @@
+.state-nodes {
+  display: flex;
+  flex-direction: column;
+}
+
+.state-node-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.state-node-item {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  padding: var(--sp-2) var(--sp-3);
+}
+.state-node-item.active {
+  border-color: var(--c-interaction);
+  background: var(--bg-grid);
+}
+
+.state-node-main {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.state-node-label {
+  display: block;
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 5px;
+}
+.state-node-meta {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-faint);
+  margin-top: 2px;
+}
+
+.state-node-turns {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: var(--sp-2);
+}

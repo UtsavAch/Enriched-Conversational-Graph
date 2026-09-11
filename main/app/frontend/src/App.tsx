@@ -8,6 +8,8 @@ import { GraphToolbar } from "@/features/graph/GraphToolbar";
 import { InspectorPanel } from "@/features/inspector/InspectorPanel";
 import { DocumentsPanel } from "@/features/documents/DocumentsPanel";
 import { GraphHealthPanel } from "@/features/health/GraphHealthPanel";
+import { EntitiesPanel } from "@/features/entities/EntitiesPanel";
+import { StateNodesPanel } from "@/features/state-nodes/StateNodesPanel";
 import { EmptyState, ErrorState, Spinner } from "@/components/States";
 import "./App.css";
 
@@ -103,7 +105,15 @@ export default function App() {
 
         <aside className="side-panel">
           <nav className="side-tabs" role="tablist">
-            {(["inspector", "documents", "health"] as const).map((tab) => (
+            {(
+              [
+                "inspector",
+                "entities",
+                "states",
+                "documents",
+                "health",
+              ] as const
+            ).map((tab) => (
               <button
                 key={tab}
                 role="tab"
@@ -113,15 +123,21 @@ export default function App() {
               >
                 {tab === "inspector"
                   ? "Inspect"
-                  : tab === "documents"
-                    ? "Documents"
-                    : "Health"}
+                  : tab === "entities"
+                    ? "Entities"
+                    : tab === "states"
+                      ? "States"
+                      : tab === "documents"
+                        ? "Documents"
+                        : "Health"}
               </button>
             ))}
           </nav>
 
           <div className="side-body">
             {sidePanel === "inspector" && <InspectorPanel graph={graph.data} />}
+            {sidePanel === "entities" && <EntitiesPanel graph={graph.data} />}
+            {sidePanel === "states" && <StateNodesPanel graph={graph.data} />}
             {sidePanel === "documents" && (
               <DocumentsPanel conversationId={conversationId} />
             )}

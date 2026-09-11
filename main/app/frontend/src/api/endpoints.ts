@@ -36,8 +36,8 @@ export const api = {
       http.delete<{ deleted: string }>(`/api/conversations/${enc(id)}`),
     documents: {
       /** Documents this conversation's retrieval is scoped to (uploaded or
-       *  selected). Empty means "no explicit scope" — retrieval falls back to
-       *  searching every document, not "nothing is available to it". */
+       *  selected). Empty means no document grounding at all — there is no
+       *  fallback to the global corpus. */
       list: (id: string) =>
         http.get<DocumentSource[]>(`/api/conversations/${enc(id)}/documents`),
       /** Scope this conversation's retrieval to include an already-ingested

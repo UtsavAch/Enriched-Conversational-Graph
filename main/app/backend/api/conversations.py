@@ -147,8 +147,9 @@ def get_conversation_documents(
     doc_repo: JsonDocumentRepository = Depends(get_document_repository),
 ) -> list[dict]:
     """Documents this conversation's retrieval is scoped to - uploaded through
-    it or explicitly selected from the global corpus. Empty means "no explicit
-    scope", not "no documents exist" - see ``ContextAssembler._add_document_context``.
+    it or explicitly selected from the global corpus. Empty means this
+    conversation has no document grounding at all - there is no fallback to
+    the global corpus, see ``ContextAssembler._add_document_context``.
     """
     out = []
     for source_id in get_conversation_document_ids(conversation_id):

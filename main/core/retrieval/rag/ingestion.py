@@ -159,6 +159,13 @@ class DocumentIngestor:
         self.repository.add_source(source, chunks)
         logger.info("ingested %s as %s (%d chunks)", path.name, source_id, len(chunks))
 
+        # Archive the original bytes globally - add_source only persisted the
+        # chunked/embedded text. Without this, an API upload's raw file is
+        # gone for good the moment the request's temp file is cleaned up.
+        from core.persistence.json_repository import save_source_file  # noqa: PLC0415
+
+        save_source_file(source, path)
+
         if conversation_id:
             from core.persistence.json_repository import (  # noqa: PLC0415
                 attach_document_to_conversation,

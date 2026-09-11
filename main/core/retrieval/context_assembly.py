@@ -435,18 +435,21 @@ class ContextAssembler:
         profile: ContextProfile,
         conversation_id: str,
     ) -> None:
-        """Retrieve document chunks, scoped to what this conversation actually
-        references (uploaded or explicitly selected - see
-        ``get_conversation_document_ids``).
+        """Retrieve document chunks, scoped *strictly* to what this
+        conversation actually references (uploaded or explicitly selected -
+        see ``get_conversation_document_ids``).
 
-        A conversation with no references at all falls back to searching the
-        whole global corpus - this is what keeps old, batch-ingested
-        conversations (never wired to any particular document) working
-        unchanged. Once a conversation has at least one reference, retrieval
-        is scoped strictly to that set, which is both the relevance fix (no
-        unrelated PDF wins a slot on a coincidental match) and, since
-        ``SimpleRagRetriever`` filters before scoring, a real reduction in how
-        many chunks get cosine-scored per query.
+        No fallback: a conversation with zero references gets zero document
+        context, not "search the whole global corpus". A document a
+        conversation never selected is not available to it, full stop -
+        that is the actual isolation guarantee this is meant to provide, and
+        a silent fallback would quietly defeat it for the exact conversations
+        that need it most (the ones that never opted into anything). Since
+        ``SimpleRagRetriever`` filters before scoring, an empty reference set
+        also skips embedding the query entirely (it still loads the cached
+        chunk list to filter it down to nothing, but never reaches the
+        cosine-similarity pass) - not just a relevance fix, a real reduction
+        in per-query work too.
         """
         if self.rag is None or not profile.k_documents:
             return
@@ -454,7 +457,7 @@ class ContextAssembler:
             get_conversation_document_ids,
         )
 
-        source_ids = get_conversation_document_ids(conversation_id) or None
+        source_ids = get_conversation_document_ids(conversation_id)
         chunks: list[RetrievedChunk] = self.rag.retrieve(
             question, k=profile.k_documents, source_ids=source_ids
         )

@@ -16,6 +16,7 @@ Layout on disk::
     data/documents/
         sources.json                  {"DOC_1": {...}, ...}
         chunks/DOC_1.json             [ {...}, ... ]
+        raw/{DOC_id}_{filename}       original file, archival - see ``save_source_file``
 
 Split into several small files rather than one big one so that a human can open
 ``state_nodes.json`` and read it, and so that a diff during Phase 3 validation
@@ -29,6 +30,12 @@ run cannot leave a half-written JSON that fails to parse on next load.
 embeddings, possibly shared across conversations) - see the design note in
 ``core/schema/document.py``. The per-conversation ``documents/`` folder is a
 separate, purely archival copy so a conversation directory is self-contained.
+
+Both the global ``raw/`` archive and every per-conversation copy are kept
+deliberately redundant with each other - this is a research corpus meant to be
+handed over and evaluated as a whole, not a deduplicated content store, so the
+same file legitimately living in three places (global raw, and two
+conversations that both selected it) is fine and expected.
 """
 
 from __future__ import annotations
@@ -151,19 +158,37 @@ def reference_document_in_conversation(
     conversation_id: str,
     source: DocumentSource,
     root: Path | str = CONVERSATIONS_DIR,
+    documents_root: Path | str = DOCUMENTS_DIR,
 ) -> None:
-    """Scope an already-ingested global document to this conversation, without
-    copying a file - there may not even be one available locally any more.
+    """Scope an already-ingested global document to this conversation.
 
     This is the "select an existing document" path: the document was ingested
     once (via upload or the CLI) and now a *different* conversation wants its
     retrieval scoped to include it too. Retrieval treats this identically to
     an uploaded-and-attached document - both just add an id to the manifest
     that ``get_conversation_document_ids`` reads.
+
+    Also copies the raw-file archive (see ``save_source_file``) into this
+    conversation's folder when one exists globally, so a conversation ends up
+    self-contained regardless of whether it originally uploaded the document
+    or only selected it - this is a research corpus meant to be handed over
+    and evaluated as a whole, so the same file living in the global archive
+    *and* every conversation that selected it is expected, not a bug to
+    dedupe away. A source ingested before the raw archive existed has no file
+    to copy; the manifest entry is still written either way.
     """
     docs_dir = _conversation_docs_dir(conversation_id, root)
     docs_dir.mkdir(parents=True, exist_ok=True)
-    _write_conversation_document_entry(docs_dir, source, filename=None)
+
+    filename = None
+    raw = find_source_file(source.id, documents_root)
+    if raw is not None:
+        safe_title = source.title.replace("/", "_").strip() or source.id
+        dest = docs_dir / f"{source.id}_{safe_title}{raw.suffix}"
+        shutil.copy2(raw, dest)
+        filename = dest.name
+
+    _write_conversation_document_entry(docs_dir, source, filename=filename)
 
 
 def unreference_document_in_conversation(
@@ -194,9 +219,8 @@ def get_conversation_document_ids(
     root: Path | str = CONVERSATIONS_DIR,
 ) -> list[str]:
     """Every document id (uploaded or selected) currently referenced by this
-    conversation. Empty if the conversation has never attached or selected
-    any - callers should treat that as "no explicit scope", not "no documents
-    exist". Used to scope RAG retrieval - see
+    conversation. Empty means this conversation has no document access at
+    all - retrieval does not fall back to the global corpus, by design, see
     ``ContextAssembler._add_document_context``.
     """
     docs_dir = _conversation_docs_dir(conversation_id, root)
@@ -310,6 +334,40 @@ class JsonConversationRepository:
             )
 
 
+def save_source_file(
+    source: DocumentSource,
+    path: Path,
+    root: Path | str = DOCUMENTS_DIR,
+) -> Path:
+    """Archive the original file behind a newly-ingested ``DocumentSource``.
+
+    The chunked/embedded text under ``chunks/`` is what retrieval actually
+    reads - this is a separate, purely archival copy of the raw bytes, kept so
+    the corpus is self-contained (inspectable, submittable as evaluation data)
+    without depending on wherever the source file originally lived. For an
+    API upload that matters concretely: the original is a temp file deleted
+    right after ingestion, so without this copy the raw bytes would be gone
+    for good the moment the request finished.
+    """
+    path = Path(path)
+    raw_dir = Path(root) / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    safe_title = source.title.replace("/", "_").strip() or source.id
+    dest = raw_dir / f"{source.id}_{safe_title}{path.suffix}"
+    shutil.copy2(path, dest)
+    return dest
+
+
+def find_source_file(source_id: str, root: Path | str = DOCUMENTS_DIR) -> Path | None:
+    """Locate ``source_id``'s archived raw file, if one was ever saved.
+
+    A source ingested before this archive existed has none - callers should
+    treat ``None`` as "no raw copy available", not an error.
+    """
+    matches = sorted((Path(root) / "raw").glob(f"{source_id}_*"))
+    return matches[0] if matches else None
+
+
 class JsonDocumentRepository:
     """Document storage backed by JSON files under ``data/documents``."""
 
@@ -356,6 +414,9 @@ class JsonDocumentRepository:
 
     def delete_source(self, source_id: str) -> None:
         (self.chunks_dir / f"{source_id}.json").unlink(missing_ok=True)
+        raw = find_source_file(source_id, self.root)
+        if raw is not None:
+            raw.unlink(missing_ok=True)
         sources = self._load_sources()
         sources.pop(source_id, None)
         _atomic_write_json(self.sources_path, sources)

@@ -66,7 +66,7 @@ export function DocumentsPanel({
         <p className="field-note">
           {hasExplicitScope
             ? "Retrieval for this conversation is scoped to the checked documents below."
-            : "No documents selected yet — retrieval falls back to searching every document. Check one below to scope retrieval to it."}
+            : "No documents selected — this conversation has no document grounding yet. Check one below to give it access."}
         </p>
       ) : (
         <p className="field-note">

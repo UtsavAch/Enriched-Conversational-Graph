@@ -1,0 +1,42 @@
+.edge-legend {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-4);
+  display: flex;
+  gap: var(--sp-4);
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  pointer-events: none;
+}
+
+.edge-legend-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.edge-legend-title {
+  color: var(--ink-faint);
+  letter-spacing: 0.06em;
+  margin-bottom: 1px;
+}
+.edge-legend-title::after {
+  content: ":";
+}
+
+.edge-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.edge-legend-arrow {
+  flex: none;
+}

@@ -50,7 +50,22 @@
   --e-references:  #8A8F94;
   --e-statelink:   #B4802E;
   --e-citation:    #A9ADA6;
-  --e-mention:     #C7CAC0;
+  --e-mention:     #3E8F63;
+
+  /* edge semantics: hierarchical sub-relations (validated for CVD-safe
+     separation and contrast within this group; colour-blind test:
+     scripts/validate_palette.js in the dataviz skill) */
+  --e-hier-subcase:   #C1662E;
+  --e-hier-supercase: #3568B0;
+  --e-hier-samelevel: #7A7E22;
+
+  /* edge semantics: state-link sub-relations (same validation) */
+  --e-state-creates:      #3E9B6E;
+  --e-state-updates:      #B8651F;
+  --e-state-supports:     #3E7CB8;
+  --e-state-contradicts:  #B84A3E;
+  --e-state-constrainedby: #5A4A96;
+  --e-state-resolves:     #A83E7A;
 
   /* type */
   --font-display: 'Fraunces', Georgia, serif;

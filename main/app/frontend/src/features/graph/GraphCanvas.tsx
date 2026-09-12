@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import { useUiStore } from "@/store/uiStore";
 import { edgeColor } from "@/lib/graphStyles";
 import type { EdgeGroup, GraphNodeDatum, GraphView } from "@/types/api";
+import { EdgeLegend } from "./EdgeLegend";
 import { GraphEdge } from "./GraphEdge";
 import { GraphNode } from "./GraphNode";
 import { TimelineAxis } from "./TimelineAxis";
@@ -176,6 +177,8 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
           </g>
         </g>
       </svg>
+
+      <EdgeLegend />
 
       <div className="graph-hint">
         drag nodes · scroll to zoom · click to inspect

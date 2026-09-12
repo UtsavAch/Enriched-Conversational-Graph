@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { GROUP_DASH, edgeColor } from "@/lib/graphStyles";
+import { GROUP_CURVE, GROUP_DASH, edgeColor } from "@/lib/graphStyles";
 import type { SimEdge } from "./useForceSimulation";
 
 interface Props {
@@ -39,12 +39,24 @@ function GraphEdgeImpl({
   const color = edgeColor(edge.group, edge.label);
   const base = edge.group === "pragmatic" ? 1.8 : 1.2;
 
+  // Bow the midpoint perpendicular to the line so edges sharing a node pair
+  // (e.g. hierarchical + pragmatic + citation between the same two
+  // interaction nodes) don't render on top of each other. A curve of 0
+  // collapses the control point onto the straight line, so this is a no-op
+  // for groups that don't need it.
+  const curve = GROUP_CURVE[edge.group];
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  const nx = len > 0 ? -dy / len : 0;
+  const ny = len > 0 ? dx / len : 0;
+  const qx = (x1 + x2) / 2 + nx * curve;
+  const qy = (y1 + y2) / 2 + ny * curve;
+
   return (
-    <line
-      x1={x1}
-      y1={y1}
-      x2={x2}
-      y2={y2}
+    <path
+      d={`M${x1},${y1} Q${qx},${qy} ${x2},${y2}`}
+      fill="none"
       stroke={color}
       strokeWidth={highlighted ? base + 1.2 : base}
       strokeDasharray={GROUP_DASH[edge.group]}

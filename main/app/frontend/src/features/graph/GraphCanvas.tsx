@@ -1,14 +1,14 @@
-import { useMemo, useRef } from 'react';
-import { useUiStore } from '@/store/uiStore';
-import { edgeColor } from '@/lib/graphStyles';
-import type { EdgeGroup, GraphNodeDatum, GraphView } from '@/types/api';
-import { GraphEdge } from './GraphEdge';
-import { GraphNode } from './GraphNode';
-import { TimelineAxis } from './TimelineAxis';
-import { useElementSize } from './useElementSize';
-import { useForceSimulation } from './useForceSimulation';
-import { useZoomPan } from './useZoomPan';
-import './GraphCanvas.css';
+import { useMemo, useRef } from "react";
+import { useUiStore } from "@/store/uiStore";
+import { edgeColor } from "@/lib/graphStyles";
+import type { EdgeGroup, GraphNodeDatum, GraphView } from "@/types/api";
+import { GraphEdge } from "./GraphEdge";
+import { GraphNode } from "./GraphNode";
+import { TimelineAxis } from "./TimelineAxis";
+import { useElementSize } from "./useElementSize";
+import { useForceSimulation } from "./useForceSimulation";
+import { useZoomPan } from "./useZoomPan";
+import "./GraphCanvas.css";
 
 /**
  * The graph view.
@@ -32,14 +32,33 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
   const { transform, reset } = useZoomPan(svgRef);
 
   // Flatten the three node layers into the discriminated union the graph draws.
-  const nodes = useMemo<GraphNodeDatum[]>(() => [
-    ...graph.interaction_nodes.map((d) => ({ id: d.id, kind: 'interaction' as const, data: d })),
-    ...graph.entities.map((d) => ({ id: d.id, kind: 'entity' as const, data: d })),
-    ...graph.state_nodes.map((d) => ({ id: d.id, kind: 'state' as const, data: d })),
-  ], [graph]);
+  const nodes = useMemo<GraphNodeDatum[]>(
+    () => [
+      ...graph.interaction_nodes.map((d) => ({
+        id: d.id,
+        kind: "interaction" as const,
+        data: d,
+      })),
+      ...graph.entities.map((d) => ({
+        id: d.id,
+        kind: "entity" as const,
+        data: d,
+      })),
+      ...graph.state_nodes.map((d) => ({
+        id: d.id,
+        kind: "state" as const,
+        data: d,
+      })),
+    ],
+    [graph],
+  );
 
   const { simNodes, simEdges, timeScale, dragNode } = useForceSimulation({
-    nodes, edges: graph.edges, width, height, mode: viewMode,
+    nodes,
+    edges: graph.edges,
+    width,
+    height,
+    mode: viewMode,
   });
 
   /**
@@ -70,7 +89,9 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
 
   const visibleNodeIds = useMemo(() => {
     const set = new Set<string>();
-    simNodes.forEach((n) => { if (nodeFilters[n.kind]) set.add(n.id); });
+    simNodes.forEach((n) => {
+      if (nodeFilters[n.kind]) set.add(n.id);
+    });
     return set;
   }, [simNodes, nodeFilters]);
 
@@ -88,33 +109,48 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
         <defs>
           {[...markers.entries()].map(([color, id]) => (
             <marker
-              key={id} id={id} viewBox="0 -4 8 8"
-              refX={8} refY={0} markerWidth={6} markerHeight={6} orient="auto"
+              key={id}
+              id={id}
+              viewBox="0 -4 8 8"
+              refX={8}
+              refY={0}
+              markerWidth={6}
+              markerHeight={6}
+              orient="auto"
             >
               <path d="M0,-4L8,0L0,4" fill={color} />
             </marker>
           ))}
         </defs>
 
-        {viewMode === 'timeline' && timeScale && (
+        {viewMode === "timeline" && timeScale && (
           <TimelineAxis scale={timeScale} height={height} />
         )}
 
         <g transform={transform.toString()}>
           <g className="edge-layer">
             {simEdges.map((e, i) => {
-              const sourceId = e.source?.id ?? '';
-              const targetId = e.target?.id ?? '';
+              const sourceId = e.source?.id ?? "";
+              const targetId = e.target?.id ?? "";
               if (!edgeFilters[e.group as EdgeGroup]) return null;
-              if (!visibleNodeIds.has(sourceId) || !visibleNodeIds.has(targetId)) return null;
-              const touches = selectedNodeId === sourceId || selectedNodeId === targetId;
+              if (
+                !visibleNodeIds.has(sourceId) ||
+                !visibleNodeIds.has(targetId)
+              )
+                return null;
+              const touches =
+                selectedNodeId === sourceId || selectedNodeId === targetId;
               return (
                 <GraphEdge
                   key={`${sourceId}-${targetId}-${e.label}-${i}`}
                   edge={e}
+                  x1={e.source?.x ?? 0}
+                  y1={e.source?.y ?? 0}
+                  x2={e.target?.x ?? 0}
+                  y2={e.target?.y ?? 0}
                   dimmed={Boolean(selectedNodeId) && !touches}
                   highlighted={touches}
-                  markerId={markers.get(edgeColor(e.group, e.label)) ?? ''}
+                  markerId={markers.get(edgeColor(e.group, e.label)) ?? ""}
                 />
               );
             })}
@@ -146,7 +182,9 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
       </div>
 
       {transform.k !== 1 && (
-        <button className="graph-reset" onClick={reset}>Reset view</button>
+        <button className="graph-reset" onClick={reset}>
+          Reset view
+        </button>
       )}
     </div>
   );

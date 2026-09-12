@@ -31,6 +31,12 @@ interface UiState {
   sidePanel: SidePanel;
   nodeFilters: Record<NodeKind, boolean>;
   edgeFilters: Record<EdgeGroup, boolean>;
+  /** How far each side panel is dragged past its CSS default width, in px.
+   *  0 means "default size" — the panels' actual default width lives in
+   *  `--chat-width`/`--panel-width` (tokens.css), not here. Not persisted:
+   *  like `sidePanel`/`viewMode`, this resets on reload. */
+  chatExpandBy: number;
+  panelExpandBy: number;
 
   setConversation: (id: string | null) => void;
   selectNode: (id: string | null) => void;
@@ -38,6 +44,8 @@ interface UiState {
   setSidePanel: (p: SidePanel) => void;
   toggleNodeFilter: (k: NodeKind) => void;
   toggleEdgeFilter: (g: EdgeGroup) => void;
+  setChatExpandBy: (px: number) => void;
+  setPanelExpandBy: (px: number) => void;
 }
 
 /** Restored on load so a refresh does not lose the open conversation. */
@@ -83,6 +91,8 @@ export const useUiStore = create<UiState>((set) => ({
     citation: true,
     mention: true,
   },
+  chatExpandBy: 0,
+  panelExpandBy: 0,
 
   setConversation: (id) => {
     persistConversation(id);
@@ -99,4 +109,7 @@ export const useUiStore = create<UiState>((set) => ({
     set((s) => ({ nodeFilters: { ...s.nodeFilters, [k]: !s.nodeFilters[k] } })),
   toggleEdgeFilter: (g) =>
     set((s) => ({ edgeFilters: { ...s.edgeFilters, [g]: !s.edgeFilters[g] } })),
+
+  setChatExpandBy: (px) => set({ chatExpandBy: px }),
+  setPanelExpandBy: (px) => set({ panelExpandBy: px }),
 }));

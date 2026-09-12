@@ -1,0 +1,31 @@
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  cursor: col-resize;
+  z-index: 1;
+  touch-action: none;
+}
+.resize-handle-right {
+  right: -4px;
+}
+.resize-handle-left {
+  left: -4px;
+}
+
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  border-radius: var(--r-pill);
+  background: transparent;
+  transition: background 0.12s;
+}
+.resize-handle:hover::after,
+.resize-handle:active::after {
+  background: var(--c-interaction);
+}

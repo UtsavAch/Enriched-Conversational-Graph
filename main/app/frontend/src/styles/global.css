@@ -40,7 +40,10 @@ button, input, textarea, select { font: inherit; color: inherit; }
 
 .app-shell { display: flex; flex-direction: column; height: 100%; }
 
-.workspace { flex: 1; display: flex; min-height: 0; }
+/* `position: relative` makes this the containing block for the two floated
+   side panels (`.chat-float`/`.panel-float`, App.css) — they resolve their
+   top/bottom/left/right against it, regardless of how wide they're dragged. */
+.workspace { flex: 1; display: flex; min-height: 0; position: relative; }
 
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

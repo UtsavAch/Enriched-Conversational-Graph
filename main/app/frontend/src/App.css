@@ -19,16 +19,79 @@
   white-space: nowrap;
 }
 
-.app-stats { display: flex; gap: var(--sp-4); margin: 0 0 0 auto; }
-.stat { display: flex; align-items: baseline; gap: 5px; }
-.stat-value { font-family: var(--font-mono); font-size: var(--text-md); font-weight: 600; margin: 0; }
-.stat-label { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-faint); order: 2; }
+.app-stats {
+  display: flex;
+  gap: var(--sp-4);
+  margin: 0 0 0 auto;
+}
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: 600;
+  margin: 0;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  order: 2;
+}
 
-.canvas-placeholder { flex: 1; display: flex; min-width: 0; }
+.canvas-placeholder {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+/* ── resizable side panels ──────────────────────────────────────────────
+   Each panel is drawn by a `-float` wrapper, positioned absolutely over the
+   canvas rather than sized by flex, so dragging it never resizes the graph.
+   A same-width, invisible `-spacer` sits in the normal flex flow instead —
+   that's what the canvas's `flex: 1` actually reacts to, and it never
+   changes, so the canvas never re-measures. At the default (unexpanded)
+   width the float sits exactly on top of its spacer and looks identical to
+   a plain flex layout. */
+.chat-spacer {
+  flex: none;
+  width: var(--chat-width);
+  pointer-events: none;
+}
+.panel-spacer {
+  flex: none;
+  width: var(--panel-width);
+  pointer-events: none;
+}
+
+.chat-float {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+}
+.panel-float {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+}
+/* Only while dragged past the default does a panel look like it's floating
+   over the canvas — at rest it should be indistinguishable from a normal
+   flex layout. */
+.chat-float.is-expanded,
+.panel-float.is-expanded {
+  box-shadow: var(--shadow-float);
+}
 
 .side-panel {
-  width: var(--panel-width);
-  flex: none;
+  width: 100%;
+  height: 100%;
   border-left: 1px solid var(--line);
   background: var(--panel);
   display: flex;
@@ -36,7 +99,11 @@
   min-height: 0;
 }
 
-.side-tabs { display: flex; border-bottom: 1px solid var(--line); flex: none; }
+.side-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
 .side-tabs button {
   flex: 1;
   border: none;
@@ -46,13 +113,27 @@
   color: var(--ink-faint);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
-.side-tabs button:hover { color: var(--ink-soft); }
-.side-tabs button.active { color: var(--ink); border-bottom-color: var(--c-interaction); }
+.side-tabs button:hover {
+  color: var(--ink-soft);
+}
+.side-tabs button.active {
+  color: var(--ink);
+  border-bottom-color: var(--c-interaction);
+}
 
-.side-body { flex: 1; overflow-y: auto; padding: var(--sp-4) var(--sp-4) var(--sp-6); }
+.side-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-4) var(--sp-6);
+}
 
 @media (max-width: 1200px) {
-  :root { --chat-width: 290px; --panel-width: 320px; }
+  :root {
+    --chat-width: 290px;
+    --panel-width: 320px;
+  }
 }

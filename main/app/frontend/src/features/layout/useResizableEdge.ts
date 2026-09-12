@@ -32,7 +32,11 @@ export function useResizableEdge({
   onChange: (px: number) => void;
   gap?: number;
 }) {
-  const drag = useRef<{ startX: number; defaultWidth: number } | null>(null);
+  const drag = useRef<{
+    startX: number;
+    startWidth: number;
+    defaultWidth: number;
+  } | null>(null);
 
   const onPointerMove = useCallback(
     (e: PointerEvent) => {
@@ -40,7 +44,10 @@ export function useResizableEdge({
       if (!d || !otherRef.current || !workspaceRef.current) return;
 
       const deltaX = (e.clientX - d.startX) * direction;
-      let width = d.defaultWidth + deltaX;
+      // Anchored to where *this drag* started, not to the CSS default — a
+      // panel already expanded from a previous drag must keep tracking the
+      // pointer from its current width, not snap back to default first.
+      let width = d.startWidth + deltaX;
       width = Math.max(width, d.defaultWidth);
 
       const otherWidth = otherRef.current.getBoundingClientRect().width;
@@ -68,7 +75,11 @@ export function useResizableEdge({
     (e: React.PointerEvent) => {
       if (!ownRef.current) return;
       const rect = ownRef.current.getBoundingClientRect();
-      drag.current = { startX: e.clientX, defaultWidth: rect.width - expandBy };
+      drag.current = {
+        startX: e.clientX,
+        startWidth: rect.width,
+        defaultWidth: rect.width - expandBy,
+      };
       document.body.style.cursor = "col-resize";
       document.body.style.userSelect = "none";
       window.addEventListener("pointermove", onPointerMove);

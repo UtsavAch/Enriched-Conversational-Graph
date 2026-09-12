@@ -1,7 +1,5 @@
 .edge-legend {
-  position: absolute;
-  top: var(--sp-3);
-  right: var(--sp-4);
+  flex: none;
   display: flex;
   gap: var(--sp-4);
   padding: 8px 10px;

@@ -13,10 +13,48 @@
 .timeline-axis text { font-family: var(--font-mono); font-size: var(--text-xs); fill: var(--ink-faint); }
 .timeline-axis path, .timeline-axis line { stroke: var(--line-strong); }
 
-.graph-hint {
+/*
+ * A "holy grail" 3-region header along the top of the canvas: the reset
+ * button and legend take only their own natural width (`flex: none`), and
+ * the middle region is a flexible spacer that soaks up whatever width is
+ * left between them and centers the hint inside *that* — not the full
+ * canvas width. That means the hint's centering is always relative to the
+ * actual gap between the other two, so it can never be pushed underneath
+ * either one, at any canvas width. (An earlier attempt gave the left/right
+ * slots equal `flex: 1` each — which forces them to equal widths regardless
+ * of content, so a wide legend simply overflowed its half; and centering the
+ * hint on the full canvas width independently ran into the same problem
+ * from the other direction, sitting under the legend whenever the legend
+ * was wide relative to the canvas.)
+ */
+.graph-overlay-top {
   position: absolute;
-  left: var(--sp-4);
-  bottom: var(--sp-3);
+  top: var(--sp-3);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4);
+  pointer-events: none;
+}
+
+.graph-overlay-slot { flex: none; display: flex; }
+.graph-overlay-left { justify-content: flex-start; }
+.graph-overlay-right { justify-content: flex-end; }
+
+.graph-overlay-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.graph-hint {
+  flex: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--ink-faint);
@@ -24,12 +62,11 @@
   background: rgba(255, 255, 255, 0.72);
   padding: 4px 9px;
   border-radius: var(--r-sm);
+  white-space: nowrap;
 }
 
 .graph-reset {
-  position: absolute;
-  right: var(--sp-4);
-  bottom: var(--sp-3);
+  pointer-events: auto;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--ink-soft);

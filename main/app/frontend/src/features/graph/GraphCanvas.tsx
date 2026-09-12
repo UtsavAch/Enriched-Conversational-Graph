@@ -178,17 +178,25 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
         </g>
       </svg>
 
-      <EdgeLegend />
+      <div className="graph-overlay-top">
+        <div className="graph-overlay-slot graph-overlay-left">
+          {transform.k !== 1 && (
+            <button className="graph-reset" onClick={reset}>
+              Reset view
+            </button>
+          )}
+        </div>
 
-      <div className="graph-hint">
-        drag nodes · scroll to zoom · click to inspect
+        <div className="graph-overlay-center">
+          <div className="graph-hint">
+            drag nodes · scroll to zoom · click to inspect
+          </div>
+        </div>
+
+        <div className="graph-overlay-slot graph-overlay-right">
+          <EdgeLegend />
+        </div>
       </div>
-
-      {transform.k !== 1 && (
-        <button className="graph-reset" onClick={reset}>
-          Reset view
-        </button>
-      )}
     </div>
   );
 }

@@ -80,13 +80,17 @@ function parseTimestamp(iso: string | undefined): number | undefined {
 
 /** Node radius. Interaction nodes scale with how often the memory has
  *  re-surfaced them — retrieval + recurrence — which makes heavily-reused turns
- *  visually prominent. Capped so one hot node cannot dominate the layout. */
+ *  visually prominent. Capped so one hot node cannot dominate the layout.
+ *
+ *  Sized to comfortably fit the node's id label centred inside the shape —
+ *  ids are short by design (`N_1`, `E_23`, `SN_8`, see `next_id()` in
+ *  `core/schema/conversation.py`), so no truncation is needed at these sizes. */
 export function nodeRadius(n: GraphNodeDatum): number {
   if (n.kind === "interaction") {
     const use = (n.data.recurrence_count ?? 0) + (n.data.retrieval_count ?? 0);
-    return 12 + Math.min(10, use);
+    return 15 + Math.min(10, use);
   }
-  return n.kind === "entity" ? 10 : 12;
+  return n.kind === "entity" ? 15 : 13;
 }
 
 /** Link distance by edge group. Mentions pull tighter so entities cluster near

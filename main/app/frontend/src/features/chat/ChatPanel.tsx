@@ -1,7 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useConversations } from "@/api/queries";
 import { useUiStore } from "@/store/uiStore";
 import type { GraphView } from "@/types/api";
+import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/States";
+import { DeleteConversationDialog } from "@/features/conversations/DeleteConversationDialog";
 import { Composer } from "./Composer";
 import { TurnCard } from "./TurnCard";
 import { useChatStream } from "./useChatStream";
@@ -23,9 +26,16 @@ import "./ChatPanel.css";
 export function ChatPanel({ graph }: { graph: GraphView | undefined }) {
   const selectedNodeId = useUiStore((s) => s.selectedNodeId);
   const selectNode = useUiStore((s) => s.selectNode);
+  const setConversation = useUiStore((s) => s.setConversation);
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
   const { send, pending, error } = useChatStream();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const { data: conversations } = useConversations();
+  const current =
+    conversations?.find((c) => c.conversation_id === graph?.conversation_id) ??
+    null;
 
   // Scroll the selected turn into view when selection comes from the graph.
   useEffect(() => {
@@ -50,14 +60,25 @@ export function ChatPanel({ graph }: { graph: GraphView | undefined }) {
   return (
     <aside className="chat-panel">
       <header className="chat-head">
-        <h2 className="chat-title">
-          {graph?.title ?? graph?.conversation_id ?? "Conversation"}
-        </h2>
-        <p className="chat-sub">
-          {graph
-            ? `${turns.length} turn${turns.length === 1 ? "" : "s"} · schema ${graph.schema_version}`
-            : "no conversation loaded"}
-        </p>
+        <div>
+          <h2 className="chat-title">
+            {graph?.title ?? graph?.conversation_id ?? "Conversation"}
+          </h2>
+          <p className="chat-sub">
+            {graph
+              ? `${turns.length} turn${turns.length === 1 ? "" : "s"} · schema ${graph.schema_version}`
+              : "no conversation loaded"}
+          </p>
+        </div>
+
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setDeleteOpen(true)}
+          disabled={!graph}
+        >
+          Delete
+        </Button>
       </header>
 
       <div className="chat-scroll" ref={scrollRef}>
@@ -97,6 +118,16 @@ export function ChatPanel({ graph }: { graph: GraphView | undefined }) {
         streaming={Boolean(pending)}
         streamError={error}
         onSend={send}
+      />
+
+      <DeleteConversationDialog
+        conversation={deleteOpen ? current : null}
+        onClose={() => setDeleteOpen(false)}
+        onDeleted={() => {
+          setDeleteOpen(false);
+          // The deleted conversation can no longer be the active one.
+          setConversation(null);
+        }}
       />
     </aside>
   );

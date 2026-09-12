@@ -29,7 +29,7 @@
  * rendering rather than SVG — a change confined to the view components, because
  * this hook only produces positions.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   forceCenter,
   forceCollide,
@@ -138,6 +138,28 @@ export function useForceSimulation({
   const nodesRef = useRef<SimNode[]>(simNodes);
   const [, forceRender] = useState(0);
   const frameRef = useRef<number | null>(null);
+  const runningRef = useRef(false);
+
+  /**
+   * One render per animation frame, regardless of how many ticks occurred.
+   * `forceRender` bumps a counter; the actual positions are read from the ref
+   * by the component, so no array is allocated per frame.
+   *
+   * Idempotent and callable from anywhere (mount, a layout-mode switch, or a
+   * drag) — whatever last stopped the loop (settling, see `sim.on("end", ...)`
+   * below) does not stop it from being woken again later, which is what lets
+   * dragging work even after the layout has visually settled.
+   */
+  const startRenderLoop = useCallback(() => {
+    if (runningRef.current) return;
+    runningRef.current = true;
+    const loop = () => {
+      if (!runningRef.current) return;
+      forceRender((n) => n + 1);
+      frameRef.current = requestAnimationFrame(loop);
+    };
+    frameRef.current = requestAnimationFrame(loop);
+  }, []);
 
   // ── build / rebuild the simulation ──────────────────────────────────────
   useEffect(() => {
@@ -160,33 +182,21 @@ export function useForceSimulation({
       );
 
     simRef.current = sim;
-
-    /**
-     * One render per animation frame, regardless of how many ticks occurred.
-     * `forceRender` bumps a counter; the actual positions are read from the ref
-     * by the component, so no array is allocated per frame.
-     */
-    let running = true;
-    const loop = () => {
-      if (!running) return;
-      forceRender((n) => n + 1);
-      frameRef.current = requestAnimationFrame(loop);
-    };
-    frameRef.current = requestAnimationFrame(loop);
+    startRenderLoop();
 
     // Stop the render loop once the layout settles. A static graph should not
-    // burn a frame budget forever.
+    // burn a frame budget forever. `startRenderLoop` wakes it again on demand.
     sim.on("end", () => {
-      running = false;
+      runningRef.current = false;
     });
 
     return () => {
-      running = false;
+      runningRef.current = false;
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       sim.stop();
       simRef.current = null;
     };
-  }, [simNodes, simEdges, width, height]);
+  }, [simNodes, simEdges, width, height, startRenderLoop]);
 
   // ── layout mode: force-directed vs. timeline ────────────────────────────
   const timeScale = useMemo(() => {
@@ -240,22 +250,11 @@ export function useForceSimulation({
 
     // Restarting stops the simulation from being 'ended', so the render loop
     // needs waking too.
-    let running = true;
-    const loop = () => {
-      if (!running) return;
-      forceRender((n) => n + 1);
-      frameRef.current = requestAnimationFrame(loop);
-    };
-    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-    frameRef.current = requestAnimationFrame(loop);
+    startRenderLoop();
     sim.on("end", () => {
-      running = false;
+      runningRef.current = false;
     });
-
-    return () => {
-      running = false;
-    };
-  }, [mode, timeScale, width, height]);
+  }, [mode, timeScale, width, height, startRenderLoop]);
 
   /**
    * Pin a node while it is dragged, and release it afterwards.
@@ -274,7 +273,13 @@ export function useForceSimulation({
     const node = nodesRef.current.find((n) => n.id === id);
     if (!sim || !node) return;
 
-    if (phase === "start") sim.alphaTarget(0.25).restart();
+    if (phase === "start") {
+      sim.alphaTarget(0.25).restart();
+      // The render loop stops once the layout settles (see the "end" handlers
+      // above); dragging after that point needs to wake it back up, or the
+      // node's new position is computed but never painted.
+      startRenderLoop();
+    }
     if (phase === "end") {
       sim.alphaTarget(0);
       node.fx = null;

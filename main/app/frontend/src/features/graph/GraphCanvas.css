@@ -1,7 +1,19 @@
-.graph-canvas { flex: 1; position: relative; min-width: 0; display: flex; }
+.graph-canvas {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  display: flex;
+}
 
-.graph-svg { width: 100%; height: 100%; display: block; cursor: grab; }
-.graph-svg:active { cursor: grabbing; }
+.graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+.graph-svg:active {
+  cursor: grabbing;
+}
 
 .node-label {
   font-family: var(--font-mono);
@@ -10,8 +22,15 @@
   pointer-events: none;
 }
 
-.timeline-axis text { font-family: var(--font-mono); font-size: var(--text-xs); fill: var(--ink-faint); }
-.timeline-axis path, .timeline-axis line { stroke: var(--line-strong); }
+.timeline-axis text {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  fill: var(--ink-faint);
+}
+.timeline-axis path,
+.timeline-axis line {
+  stroke: var(--line-strong);
+}
 
 /*
  * A "holy grail" 3-region header along the top of the canvas: the reset
@@ -39,9 +58,16 @@
   pointer-events: none;
 }
 
-.graph-overlay-slot { flex: none; display: flex; }
-.graph-overlay-left { justify-content: flex-start; }
-.graph-overlay-right { justify-content: flex-end; }
+.graph-overlay-slot {
+  flex: none;
+  display: flex;
+}
+.graph-overlay-left {
+  justify-content: flex-start;
+}
+.graph-overlay-right {
+  justify-content: flex-end;
+}
 
 .graph-overlay-center {
   flex: 1 1 auto;
@@ -76,4 +102,27 @@
   padding: 5px 10px;
   cursor: pointer;
 }
-.graph-reset:hover { background: var(--panel); color: var(--ink); }
+.graph-reset:hover {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+/* Custom node tooltip — replaces the native SVG <title> so it can appear
+   instantly (no browser hover delay) and be styled at all (native tooltips
+   ignore CSS entirely). Positioned in screen space via GraphCanvas's own
+   bounding rect, offset from the cursor so it doesn't sit under the pointer. */
+.node-tooltip {
+  position: absolute;
+  z-index: 5;
+  max-width: 260px;
+  padding: 6px 10px;
+  background: var(--c-interaction);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-float);
+  pointer-events: none;
+  word-break: break-word;
+}

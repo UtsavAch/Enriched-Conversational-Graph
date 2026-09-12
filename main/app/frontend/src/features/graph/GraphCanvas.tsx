@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useUiStore } from "@/store/uiStore";
 import { edgeColor } from "@/lib/graphStyles";
 import type { EdgeGroup, GraphNodeDatum, GraphView } from "@/types/api";
@@ -31,6 +31,16 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
   const edgeFilters = useUiStore((s) => s.edgeFilters);
 
   const { transform, reset } = useZoomPan(svgRef);
+
+  /** Custom node tooltip state — see `GraphNode`'s `onHover` prop for why
+   *  this replaces the native SVG `<title>` tooltip. */
+  const [hover, setHover] = useState<{
+    text: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  const handleHover = (text: string | null, x: number, y: number) =>
+    setHover(text ? { text, x, y } : null);
 
   // Flatten the three node layers into the discriminated union the graph draws.
   const nodes = useMemo<GraphNodeDatum[]>(
@@ -171,6 +181,7 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
                   onSelect={selectNode}
                   onDrag={dragNode}
                   labelScale={labelScale}
+                  onHover={handleHover}
                 />
               );
             })}
@@ -197,6 +208,18 @@ export function GraphCanvas({ graph }: { graph: GraphView }) {
           <EdgeLegend />
         </div>
       </div>
+
+      {hover && wrapRef.current && (
+        <div
+          className="node-tooltip"
+          style={{
+            left: hover.x - wrapRef.current.getBoundingClientRect().left + 14,
+            top: hover.y - wrapRef.current.getBoundingClientRect().top + 18,
+          }}
+        >
+          {hover.text}
+        </div>
+      )}
     </div>
   );
 }

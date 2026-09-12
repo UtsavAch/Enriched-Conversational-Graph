@@ -25,6 +25,11 @@ interface Props {
   ) => void;
   /** Inverse of the zoom scale — keeps labels legible at any zoom level. */
   labelScale: number;
+  /** Reports hover text + cursor position for `GraphCanvas`'s custom
+   *  tooltip, or `null` on mouse-leave. Replaces the native SVG `<title>`,
+   *  which appears only after the browser's own hover delay and can't be
+   *  restyled. */
+  onHover: (text: string | null, x: number, y: number) => void;
 }
 
 /**
@@ -46,6 +51,7 @@ function GraphNodeImpl({
   onSelect,
   onDrag,
   labelScale,
+  onHover,
 }: Props) {
   const gRef = useRef<SVGGElement>(null);
 
@@ -113,9 +119,11 @@ function GraphNodeImpl({
           onSelect(node.id);
         }
       }}
+      onMouseEnter={(e) =>
+        onHover(`${node.id} — ${label}`, e.clientX, e.clientY)
+      }
+      onMouseLeave={() => onHover(null, 0, 0)}
     >
-      <title>{`${node.id} — ${label}`}</title>
-
       {node.kind === "interaction" && (
         <circle
           r={r}

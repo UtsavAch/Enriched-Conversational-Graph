@@ -46,16 +46,20 @@ export type StateNodeStatus =
   | "lifted" // constraint: terminal
   | "resolved"; // open_question: terminal
 
-export type EntityType =
-  | "person"
-  | "organization"
-  | "system"
-  | "location"
-  | "document"
-  | "tool"
-  | "event"
-  | "measurement"
-  | "other";
+// Entity types are NOT a fixed enum on the backend (core/schema/enums.py's
+// DEFAULT_ENTITY_TYPES is a per-conversation-extensible default, not a closed
+// schema — see evaluation_report.md section 8). `person`/`organization`/etc.
+// are always valid, but a conversation's `entity_type_vocab` can add more.
+export type EntityType = string;
+
+/** A `propose:<label>` W1 raised because no allowed type fit — pending human
+ * confirmation. Mirrors `core.schema.conversation.PendingEntityTypeSuggestion`. */
+export interface PendingEntityTypeSuggestion {
+  label: string;
+  description: string;
+  example_entity_names: string[];
+  first_seen_turn: string;
+}
 
 /**
  * Edge groups. `mention` and `citation` are derived rather than classified —

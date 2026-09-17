@@ -33,7 +33,7 @@ def get_settings() -> Settings:
 @functools.lru_cache(maxsize=1)
 def get_embedder() -> Embedder:
     s = get_settings()
-    return build_embedder(s.models.embedding_model, s.models.embedding_dim)
+    return build_embedder(s.models.embedding_model, s.models.embedding_dim, api_key=s.models.gemini_api_key)
 
 
 @functools.lru_cache(maxsize=1)
@@ -55,21 +55,32 @@ def get_llm_client() -> LLMClient:
             s.models.openai_base_url,
             s.models.extraction_model,
         )
-        return OpenAICompatClient(
+        client = OpenAICompatClient(
             model=s.models.extraction_model,
             base_url=s.models.openai_base_url,
             api_key=s.models.openai_api_key,
         )
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    elif os.environ.get("ANTHROPIC_API_KEY"):
         from core.llm.client import AnthropicClient  # noqa: PLC0415
 
-        return AnthropicClient(s.models.extraction_model)
-    logger.warning(
-        "Neither GM_OPENAI_BASE_URL nor ANTHROPIC_API_KEY is set — using "
-        "StubLLMClient. Read-only endpoints work fully; live chat will return "
-        "empty answers."
-    )
-    return StubLLMClient()
+        client = AnthropicClient(s.models.extraction_model)
+    else:
+        logger.warning(
+            "Neither GM_OPENAI_BASE_URL nor ANTHROPIC_API_KEY is set — using "
+            "StubLLMClient. Read-only endpoints work fully; live chat will return "
+            "empty answers."
+        )
+        client = StubLLMClient()
+
+    if s.models.requests_per_minute or s.models.tokens_per_minute:
+        from core.llm.client import RateLimitedClient  # noqa: PLC0415
+
+        client = RateLimitedClient(
+            client,
+            requests_per_minute=s.models.requests_per_minute,
+            tokens_per_minute=s.models.tokens_per_minute,
+        )
+    return client
 
 
 @functools.lru_cache(maxsize=1)

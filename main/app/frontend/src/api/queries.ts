@@ -27,6 +27,8 @@ export const keys = {
   documentSearch: (q: string) => ["documents", "search", q] as const,
   conversationDocuments: (id: string) =>
     ["conversations", id, "documents"] as const,
+  entityTypeSuggestions: (id: string) =>
+    ["conversations", id, "entity-type-suggestions"] as const,
 };
 
 /** Server capabilities. Determines whether the composer is usable. */
@@ -156,6 +158,45 @@ export function useDeselectConversationDocument(conversationId: string | null) {
     onSuccess: () =>
       qc.invalidateQueries({
         queryKey: keys.conversationDocuments(conversationId ?? ""),
+      }),
+  });
+}
+
+/** Pending entity-type suggestions W1 raised, polled rather than pushed — a
+ *  small badge, not something worth a websocket. See evaluation_report.md
+ *  section 8. */
+export function useEntityTypeSuggestions(conversationId: string | null) {
+  return useQuery({
+    queryKey: keys.entityTypeSuggestions(conversationId ?? ""),
+    queryFn: () => api.conversations.entityTypeSuggestions.list(conversationId!),
+    enabled: Boolean(conversationId),
+    refetchInterval: 15_000,
+  });
+}
+
+/** Confirming also refetches the graph: backfilled entities change type. */
+export function useConfirmEntityTypeSuggestion(conversationId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (label: string) =>
+      api.conversations.entityTypeSuggestions.confirm(conversationId!, label),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: keys.entityTypeSuggestions(conversationId ?? ""),
+      });
+      qc.invalidateQueries({ queryKey: keys.graph(conversationId ?? "") });
+    },
+  });
+}
+
+export function useRejectEntityTypeSuggestion(conversationId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (label: string) =>
+      api.conversations.entityTypeSuggestions.reject(conversationId!, label),
+    onSuccess: () =>
+      qc.invalidateQueries({
+        queryKey: keys.entityTypeSuggestions(conversationId ?? ""),
       }),
   });
 }

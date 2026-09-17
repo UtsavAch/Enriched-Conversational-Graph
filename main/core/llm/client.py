@@ -21,6 +21,9 @@ from __future__ import annotations
 import json
 import logging
 import re
+import threading
+import time
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, Iterator, Protocol, runtime_checkable
 
@@ -431,3 +434,124 @@ class _StubStream:
 
     def final(self) -> LLMResponse:
         return self._response
+
+
+# ---------------------------------------------------------------------------
+# Rate limiting
+# ---------------------------------------------------------------------------
+
+#: Pulls a provider-suggested wait time out of an error message. Both Groq
+#: ("Please try again in 10.88s") and Gemini ("Please retry in 9.25s" /
+#: "'retryDelay': '48s'") embed this as plain text once the SDK exception has
+#: been wrapped into a plain LLMError string - regex is the pragmatic way to
+#: recover it without depending on either provider's specific exception shape.
+_RETRY_DELAY_RE = re.compile(
+    r"(?:retrydelay['\"]?\s*[:=]?\s*['\"]?|try again in|retry in)\s*(\d+(?:\.\d+)?)\s*s",
+    re.IGNORECASE,
+)
+
+
+def _parse_retry_delay(message: str) -> float | None:
+    m = _RETRY_DELAY_RE.search(message)
+    return float(m.group(1)) if m else None
+
+
+class RateLimitedClient:
+    """Wraps any ``LLMClient`` with proactive RPM/TPM throttling plus
+    provider-aware backoff on 429s.
+
+    Motivated by hitting real free-tier limits from two different providers
+    within the same session: Groq caps by tokens/minute (org-wide, not
+    per-model), Gemini's free tier caps by requests/minute (per-model). Both
+    got exhausted within the first few turns of ``TurnPipeline``'s three-wave
+    concurrent extraction design (5 calls fired per turn), and the pipeline's
+    own short fixed retry backoff (``core/pipeline/base.py``) gave up faster
+    than these providers actually asked callers to wait - so calls failed
+    outright rather than merely being slow.
+
+    One instance is shared across every step in a ``TurnPipeline`` (W1-W5,
+    combined - see ``TurnPipeline.__init__``), so the lock here is what
+    actually paces the orchestrator's concurrent wave dispatch. Nothing in
+    ``core/pipeline/orchestrator.py`` needs to change for this to work
+    correctly under concurrency - throttling lives at the client boundary,
+    not the call-scheduling boundary.
+
+    Token counts are *estimated* pre-call (chars/4, a rough English
+    heuristic) since the exact count isn't known until the response returns.
+    This is deliberately conservative pacing, not exact accounting - it will
+    not perfectly match a provider's own counters (their window boundaries,
+    other traffic on the same key, etc. are invisible here), which is why the
+    reactive backoff on an actual 429 still matters even with proactive
+    throttling on.
+    """
+
+    def __init__(
+        self,
+        inner: LLMClient,
+        requests_per_minute: int | None = None,
+        tokens_per_minute: int | None = None,
+        max_wait_retries: int = 2,
+    ) -> None:
+        self._inner = inner
+        self._rpm = requests_per_minute
+        self._tpm = tokens_per_minute
+        self._max_wait_retries = max_wait_retries
+        self._lock = threading.Lock()
+        self._request_times: deque[float] = deque()
+        self._token_events: deque[tuple[float, int]] = deque()
+
+    @staticmethod
+    def _estimate_tokens(system: str, user: str) -> int:
+        return max(1, (len(system) + len(user)) // 4)
+
+    def _throttle(self, estimated_tokens: int) -> None:
+        """Block until a call is safe to make under the configured budgets.
+
+        Sliding 60s window rather than a fixed per-minute bucket, so the
+        limit is enforced continuously (a burst right at a minute boundary
+        can't slip two windows' worth of calls through back to back).
+        """
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                cutoff = now - 60.0
+                while self._request_times and self._request_times[0] < cutoff:
+                    self._request_times.popleft()
+                while self._token_events and self._token_events[0][0] < cutoff:
+                    self._token_events.popleft()
+
+                wait = 0.0
+                if self._rpm is not None and len(self._request_times) >= self._rpm:
+                    wait = max(wait, self._request_times[0] + 60.0 - now)
+                if self._tpm is not None:
+                    used = sum(t for _, t in self._token_events)
+                    if used + estimated_tokens > self._tpm and self._token_events:
+                        wait = max(wait, self._token_events[0][0] + 60.0 - now)
+
+                if wait <= 0:
+                    self._request_times.append(now)
+                    self._token_events.append((now, estimated_tokens))
+                    return
+            time.sleep(min(max(wait, 0.0), 60.0) + 0.05)
+
+    def complete(
+        self, system: str, user: str, *, max_tokens: int = 1024, temperature: float = 0.0
+    ) -> LLMResponse:
+        estimated = self._estimate_tokens(system, user)
+        attempts = 0
+        while True:
+            self._throttle(estimated)
+            try:
+                return self._inner.complete(
+                    system, user, max_tokens=max_tokens, temperature=temperature
+                )
+            except LLMError as exc:
+                delay = _parse_retry_delay(str(exc))
+                attempts += 1
+                if delay is None or attempts > self._max_wait_retries:
+                    raise
+                logger.warning(
+                    "rate limited, provider asked for %.1fs - waiting (attempt %d/%d)",
+                    delay, attempts, self._max_wait_retries,
+                )
+                time.sleep(delay + 0.5)

@@ -13,6 +13,7 @@ import type {
   GraphView,
   HealthResponse,
   NodeDetail,
+  PendingEntityTypeSuggestion,
 } from "@/types/api";
 
 const enc = encodeURIComponent;
@@ -48,6 +49,24 @@ export const api = {
       deselect: (id: string, sourceId: string) =>
         http.delete<{ deselected: string }>(
           `/api/conversations/${enc(id)}/documents/${enc(sourceId)}`,
+        ),
+    },
+    entityTypeSuggestions: {
+      /** Pending `propose:<label>` suggestions W1 raised for this
+       *  conversation — see evaluation_report.md section 8. */
+      list: (id: string) =>
+        http.get<PendingEntityTypeSuggestion[]>(
+          `/api/conversations/${enc(id)}/entity-type-suggestions`,
+        ),
+      /** Adopts the type for this conversation and backfills matching
+       *  entities currently typed "other". */
+      confirm: (id: string, label: string) =>
+        http.post<{ confirmed: string; backfilled_entities: string[] }>(
+          `/api/conversations/${enc(id)}/entity-type-suggestions/${enc(label)}/confirm`,
+        ),
+      reject: (id: string, label: string) =>
+        http.post<{ rejected: string }>(
+          `/api/conversations/${enc(id)}/entity-type-suggestions/${enc(label)}/reject`,
         ),
     },
   },

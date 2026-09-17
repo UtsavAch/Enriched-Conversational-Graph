@@ -12,8 +12,6 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field
 
-from core.schema.enums import EntityType
-
 
 class Entity(BaseModel):
     """A named entity, deduplicated across the whole conversation.
@@ -23,7 +21,15 @@ class Entity(BaseModel):
 
     id: str = Field(..., description="Stable id, convention 'E_<n>'.")
     conversation_id: str
-    type: EntityType
+    type: str = Field(
+        "other",
+        description=(
+            "Free-text type, validated at extraction time against the conversation's "
+            "active entity-type vocabulary (core/schema/enums.py::DEFAULT_ENTITY_TYPES, "
+            "extended per-conversation via ConversationMeta.entity_type_vocab), not a "
+            "fixed enum - see that module's docstring."
+        ),
+    )
     name: str = Field(..., description="Surface form as first mentioned.")
     timestamp: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),

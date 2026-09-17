@@ -65,7 +65,7 @@ def build_graph_view(graph: ConversationGraph) -> dict[str, Any]:
     entities = [
         {
             "id": e.id,
-            "type": e.type.value,
+            "type": e.type,  # plain str now, not an EntityType enum
             "name": e.name,
             "mentioned_in": e.mentioned_in,
             "timestamp": e.timestamp,

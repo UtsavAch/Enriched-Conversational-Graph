@@ -31,7 +31,8 @@ from typing import Any
 from core.pipeline.base import ExtractionStep
 from core.retrieval.candidate_selection import Candidate, render_candidates
 from core.schema.enums import (
-    EntityType,
+    DEFAULT_ENTITY_TYPE_FALLBACK,
+    DEFAULT_ENTITY_TYPES,
     HierarchicalRelation,
     PragmaticRelation,
     SpeechAct,
@@ -57,16 +58,32 @@ class ExtractedEntity:
     Id assignment happens in the orchestrator, because deciding whether this is
     a new entity or another mention of an existing one requires the whole
     conversation - which a single extraction call does not have.
+
+    ``type`` is a free string, not ``EntityType`` - validated in
+    ``_parse_entities`` against whichever vocabulary was active for this call,
+    not against a fixed enum. See ``core/schema/enums.py``'s module docstring.
     """
 
     name: str
-    type: EntityType
+    type: str
+
+
+@dataclass
+class ProposedEntityType:
+    """A ``propose:<label>`` W1 emitted - see ``core.schema.conversation.
+    PendingEntityTypeSuggestion``, which this becomes once the orchestrator
+    applies it to the graph.
+    """
+
+    label: str
+    example_entity_name: str
 
 
 @dataclass
 class W1Result:
     entities: list[ExtractedEntity] = field(default_factory=list)
     speech_act: SpeechAct = SpeechAct.INFORMATION
+    proposed_types: list[ProposedEntityType] = field(default_factory=list)
 
 
 @dataclass
@@ -104,19 +121,71 @@ class CombinedResult:
 # ---------------------------------------------------------------------------
 
 
-def _parse_entities(payload: Any) -> list[ExtractedEntity]:
-    """Parse the ``entities`` list from W1 or combined-call output."""
-    entities = []
+def resolve_entity_vocab(conversation_vocab: dict[str, str] | None) -> dict[str, str]:
+    """Merge a conversation's domain-specific types onto the built-in default set.
+
+    A conversation's config only needs to declare what it *adds*
+    (``ConversationMeta.entity_type_vocab``, e.g. ``{"resource": "...",
+    "endpoint": "..."}``); the 9 default types are always available underneath,
+    so a domain config never needs to restate ``person``/``organization``/etc.
+    A conversation-supplied description overrides the default's for the same
+    type name.
+    """
+    return {**DEFAULT_ENTITY_TYPES, **(conversation_vocab or {})}
+
+
+def render_entity_type_vocab(vocab: dict[str, str]) -> str:
+    """Render a resolved vocab into the bullet list ``{allowed_entity_types}`` expects."""
+    return "\n".join(f"  - {name}: {desc}" for name, desc in vocab.items())
+
+
+def _parse_entities(
+    payload: Any, allowed_types: dict[str, str] | None = None
+) -> tuple[list[ExtractedEntity], list[ProposedEntityType]]:
+    """Parse the ``entities`` list from W1 or combined-call output.
+
+    ``allowed_types`` is the resolved vocab for this conversation
+    (``resolve_entity_vocab``'s output) - defaults to the built-in set alone
+    when not supplied, so existing callers that don't yet thread a
+    conversation-specific vocab through keep working unchanged.
+
+    A type of ``"propose:<label>"`` is treated specially: the entity is stored
+    as ``DEFAULT_ENTITY_TYPE_FALLBACK`` (never left unset - "fail loudly, don't
+    silently pollute the graph" still applies) and the proposal is returned
+    separately for the orchestrator to record as a pending suggestion, rather
+    than applied to the graph directly - only a human confirming it does that
+    (see evaluation_report.md section 8). A type that is neither in the
+    vocabulary nor a ``propose:`` is treated as a plain hallucination and
+    falls back the same way, with no proposal recorded - only an explicit
+    ``propose:`` counts as one.
+    """
+    allowed = allowed_types if allowed_types is not None else DEFAULT_ENTITY_TYPES
+    entities: list[ExtractedEntity] = []
+    proposed: list[ProposedEntityType] = []
     for item in payload.get("entities", []) or []:
         name = (item.get("name") or "").strip()
         if not name:
             continue
-        try:
-            etype = EntityType(item.get("type", "other"))
-        except ValueError:
-            etype = EntityType.OTHER
-        entities.append(ExtractedEntity(name=name, type=etype))
-    return entities
+        raw_type = (item.get("type") or DEFAULT_ENTITY_TYPE_FALLBACK).strip()
+
+        if raw_type in allowed:
+            entities.append(ExtractedEntity(name=name, type=raw_type))
+            continue
+
+        if raw_type.lower().startswith("propose:"):
+            label = raw_type.split(":", 1)[1].strip().lower()
+            if label in allowed:
+                # Not actually new - a weaker model sometimes wraps an already
+                # allowed type in "propose:" anyway. Use it directly rather
+                # than raising a redundant "new type" suggestion for something
+                # already in the vocabulary.
+                entities.append(ExtractedEntity(name=name, type=label))
+                continue
+            if label and label != DEFAULT_ENTITY_TYPE_FALLBACK:
+                proposed.append(ProposedEntityType(label=label, example_entity_name=name))
+
+        entities.append(ExtractedEntity(name=name, type=DEFAULT_ENTITY_TYPE_FALLBACK))
+    return entities, proposed
 
 
 def _parse_speech_act(payload: Any) -> SpeechAct:
@@ -210,13 +279,30 @@ class W1EntityAndSpeechAct(ExtractionStep):
     step_id = "W1"
     max_tokens = 512
 
-    def build_inputs(self, *, question: str, answer: str, **_: Any) -> dict[str, Any]:
-        return {"question": question, "answer": answer}
+    def build_inputs(
+        self,
+        *,
+        question: str,
+        answer: str,
+        entity_type_vocab: dict[str, str] | None = None,
+        **_: Any,
+    ) -> dict[str, Any]:
+        return {
+            "question": question,
+            "answer": answer,
+            "allowed_entity_types": render_entity_type_vocab(
+                resolve_entity_vocab(entity_type_vocab)
+            ),
+        }
 
-    def parse(self, payload: Any, **_: Any) -> W1Result:
+    def parse(
+        self, payload: Any, *, entity_type_vocab: dict[str, str] | None = None, **_: Any
+    ) -> W1Result:
+        entities, proposed = _parse_entities(payload, resolve_entity_vocab(entity_type_vocab))
         return W1Result(
-            entities=_parse_entities(payload),
+            entities=entities,
             speech_act=_parse_speech_act(payload),
+            proposed_types=proposed,
         )
 
 
@@ -344,6 +430,7 @@ class CombinedExtraction(ExtractionStep):
         answer: str,
         candidates: list[Candidate],
         open_state_nodes: list[StateNode],
+        entity_type_vocab: dict[str, str] | None = None,
         **_: Any,
     ) -> dict[str, Any]:
         if open_state_nodes:
@@ -358,6 +445,9 @@ class CombinedExtraction(ExtractionStep):
             "answer": answer,
             "candidates": render_candidates(candidates),
             "open_state_nodes": rendered_state,
+            "allowed_entity_types": render_entity_type_vocab(
+                resolve_entity_vocab(entity_type_vocab)
+            ),
         }
 
     def parse(
@@ -366,14 +456,17 @@ class CombinedExtraction(ExtractionStep):
         *,
         candidates: list[Candidate],
         open_state_nodes: list[StateNode],
+        entity_type_vocab: dict[str, str] | None = None,
         **_: Any,
     ) -> CombinedResult:
         valid_targets = {c.node.id for c in candidates}
         known = {sn.id: sn for sn in open_state_nodes}
 
+        entities, proposed = _parse_entities(payload, resolve_entity_vocab(entity_type_vocab))
         w1 = W1Result(
-            entities=_parse_entities(payload),
+            entities=entities,
             speech_act=_parse_speech_act(payload),
+            proposed_types=proposed,
         )
 
         h_edges = _parse_edge_dict(

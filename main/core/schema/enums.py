@@ -4,6 +4,14 @@ at parse time instead of silently polluting the graph.
 
 If you add a value here you are changing the schema. Bump ``SCHEMA_VERSION`` in
 ``core/schema/__init__.py`` when you do.
+
+Exception: entity types are NOT a fixed enum (see ``DEFAULT_ENTITY_TYPES`` below
+and ``core/schema/entity.py``). The Phase 1-2 report (section 3.2) is explicit
+that the entity-type list is domain-specific, not fixed - a REST API corpus
+needs ``resource``/``endpoint``, a different domain needs something else. Adding
+or changing entity types is a per-conversation config change (``ConversationMeta
+.entity_type_vocab``, see ``evaluation_report.md`` section 8), not a schema
+version bump.
 """
 
 from __future__ import annotations
@@ -166,21 +174,32 @@ class StateRelation(StrEnum):
     RESOLVES = "resolves"
 
 
-class EntityType(StrEnum):
-    """
-    Entity categories. This list may need revision for domains other than
-    research conversations. Section 3.2 of the Phase 1-2 report.
-    """
+#: Default entity-type vocabulary: name -> one-line description, in the shape a
+#: W1/combined prompt renders directly into its "allowed types" list. This is
+#: a *starting point* used when a conversation has no domain-specific config
+#: (``ConversationMeta.entity_type_vocab`` is ``None``), not a closed schema -
+#: see the module docstring. Kept as a plain dict (not a ``StrEnum``) because
+#: the whole point is that this set is meant to be extended per domain without
+#: touching code; ``core/schema/entity.py``'s ``Entity.type`` is a plain
+#: ``str``, validated against whichever vocabulary is active for a given
+#: conversation (``core/pipeline/steps.py::resolve_entity_vocab``), not against
+#: a value here.
+DEFAULT_ENTITY_TYPES: dict[str, str] = {
+    "person": "A named individual.",
+    "organization": "A company, institution, or other named group.",
+    "system": "A named software system, platform, or technical component.",
+    "location": "A named place.",
+    "document": "A named document, report, or written artefact.",
+    "tool": "A named tool, library, or protocol/method (e.g. an HTTP verb).",
+    "event": "A named occurrence or meeting.",
+    "measurement": "A named field, metric, or quantity.",
+    "other": "Doesn't fit any other type. Last resort, not a first choice.",
+}
 
-    PERSON = "person"
-    ORGANIZATION = "organization"
-    SYSTEM = "system"
-    LOCATION = "location"
-    DOCUMENT = "document"
-    TOOL = "tool"
-    EVENT = "event"
-    MEASUREMENT = "measurement"
-    OTHER = "other"
+#: The fallback type for an entity whose extracted type isn't in the active
+#: vocabulary and wasn't a ``propose:`` suggestion either (a plain hallucinated
+#: label). Never silently dropped - always ``DEFAULT_ENTITY_TYPE_FALLBACK``.
+DEFAULT_ENTITY_TYPE_FALLBACK = "other"
 
 
 class Granularity(StrEnum):

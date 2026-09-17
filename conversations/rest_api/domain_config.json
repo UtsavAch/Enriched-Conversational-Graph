@@ -1,0 +1,4 @@
+{
+  "resource": "A named domain-model/API resource concept (e.g. Article, Topic, Source, Entity, User, Job, Conversation, Message).",
+  "endpoint": "A concrete route/path once one is actually specified (e.g. /articles/{id}/topics/{topic_id})."
+}

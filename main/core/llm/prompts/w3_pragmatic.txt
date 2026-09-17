@@ -26,6 +26,15 @@ DISTINGUISHING THE HARD CASES:
   references.
 - resolves requires that the candidate actually posed something open. A
   confident answer to a question nobody asked is not resolves.
+- resolves vs depends_on: depends_on means the new turn presupposes the
+  candidate's content to make sense (background it relies on). resolves means
+  the candidate posed an explicit open question or dispute that the new turn
+  now closes. A turn can depend on background without resolving anything
+  (using an earlier decision, not answering an earlier question), and the two
+  are not mutually exclusive in general — but when a candidate is itself the
+  open question being answered, prefer resolves, since that is the more
+  specific and more useful signal (it is what lets the open_question's status
+  update to resolved — see the state-node side of this pipeline).
 
 Note: the new turn's answer, or a candidate's answer, may contain bracketed
 markers like [N_6]. These are citation markers — judge the discourse relation
@@ -51,6 +60,27 @@ CANDIDATES:
 
 → {{"N_2": "resolves", "N_6": "resolves"}}
 ([N_6] in NEW's answer is a citation marker. N_6 the candidate turn is the classification target.)
+
+FEW-SHOT EXAMPLE (resolves an open question, not a dispute):
+
+NEW:
+Q: "We tested it — does the W2/W3 ordering actually matter?"
+A: "No, it doesn't — we checked: both calls read the same candidate list and
+    neither touches the other's output, so there's no dependency between them.
+    They run fully in parallel. Resolved."
+
+CANDIDATES:
+- [N_2] Five pragmatic edges are proposed: revises, contradicts, resolves, depends_on, references.
+- [N_3] Opens the question of whether W2/W3 call ordering matters or can run in parallel.
+
+→ {{"N_2": "no_relation", "N_3": "resolves"}}
+(N_3 explicitly left something open — "does the order matter?" — and NEW settles
+it with a tested, definitive answer. That is the canonical resolves case: no
+disagreement to referee, just an open question that now has an answer. N_2 is
+topically related background (it's what introduced the calls being ordered) but
+NEW does not answer or depend on anything N_2 itself left unresolved, so it
+stays no_relation here rather than depends_on — presupposing N_2's existence is
+not the same as N_2 posing an open question.)
 
 === USER ===
 NEW TURN:

@@ -11,8 +11,11 @@ Definitions are identical to the single-task prompts. Apply them exactly:
 
 ENTITIES: specific, referenceable things — proper nouns, named systems, people,
 organisations. Skip generic nouns and pronouns.
-Allowed types: person, organization, system, location, document, tool, event,
-measurement, other.
+Allowed types for this conversation:
+{allowed_entity_types}
+If an entity genuinely fits none of these, use "propose:<short_label>" instead
+(e.g. "propose:resource"). Use this rarely, and never for "other" - "other" is
+already allowed.
 
 SPEECH ACT: discourse function of the USER's question. Exactly one of:
 factual_question, clarification_request, decision, suggestion, feedback,

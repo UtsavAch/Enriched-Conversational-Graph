@@ -12,11 +12,16 @@ whenever a field is added, removed, or changes meaning, and add a note to
 
 SCHEMA_VERSION = "0.4.0"
 
-from core.schema.conversation import ConversationGraph, ConversationMeta  # noqa: E402
+from core.schema.conversation import (  # noqa: E402
+    ConversationGraph,
+    ConversationMeta,
+    PendingEntityTypeSuggestion,
+)
 from core.schema.document import DocumentChunk, DocumentSource  # noqa: E402
 from core.schema.entity import Entity  # noqa: E402
 from core.schema.enums import (  # noqa: E402
-    EntityType,
+    DEFAULT_ENTITY_TYPE_FALLBACK,
+    DEFAULT_ENTITY_TYPES,
     EpistemicStatus,
     Granularity,
     HierarchicalRelation,
@@ -40,10 +45,11 @@ __all__ = [
     "SCHEMA_VERSION",
     "ConversationGraph",
     "ConversationMeta",
+    "DEFAULT_ENTITY_TYPE_FALLBACK",
+    "DEFAULT_ENTITY_TYPES",
     "DocumentChunk",
     "DocumentSource",
     "Entity",
-    "EntityType",
     "EpistemicEvent",
     "EpistemicStatus",
     "Granularity",
@@ -51,6 +57,7 @@ __all__ = [
     "HierarchicalRelation",
     "InteractionNode",
     "NodeKind",
+    "PendingEntityTypeSuggestion",
     "PragmaticEdge",
     "PragmaticRelation",
     "SpeechAct",

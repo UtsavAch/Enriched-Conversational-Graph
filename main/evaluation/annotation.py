@@ -85,7 +85,7 @@ def extract_predictions(graph) -> dict:
     system, without modification.
     """
     entities = [
-        EntityRef(turn_id=turn_id, name=e.name, type=e.type.value)
+        EntityRef(turn_id=turn_id, name=e.name, type=e.type)  # e.type is now a plain str
         for e in graph.entities.values()
         for turn_id in e.mentioned_in
     ]

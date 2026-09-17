@@ -77,7 +77,7 @@ def _read_json(path: Path, default: Any) -> Any:
 
 
 def _conversation_export(graph: ConversationGraph) -> list[dict[str, Any]]:
-    """Render ``graph`` in the raw ingest-input shape (see ``worked_example/``).
+    """Render ``graph`` in the raw ingest-input shape (see ``conversations/*/corpus.json``).
 
     Purely a read view over ``interactions`` - the InteractionNode is the
     source of truth for question/answer text, so this is regenerated on every

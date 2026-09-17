@@ -1,0 +1,233 @@
+{
+  "conversation_id": "rest_api",
+  "generated_at": "2026-09-15T19:46:07.043354+00:00",
+  "schema_version": "0.4.0",
+  "corpus_size": {
+    "turns": 50,
+    "entities": 68,
+    "state_nodes": 90
+  },
+  "error_analysis": {
+    "entities": {
+      "false_positives": [
+        "N_1: 'HTTP' (system)",
+        "N_1: 'Order' (resource)",
+        "N_1: 'OrderItems' (resource)",
+        "N_36: 'User' (resource)",
+        "N_36: 'Article' (resource)",
+        "N_46: 'Article' (resource)",
+        "N_9: 'Source' (resource)",
+        "N_36: 'Source' (resource)",
+        "N_5: 'Topic' (resource)",
+        "N_36: 'Topic' (resource)",
+        "N_46: 'Topic' (resource)",
+        "N_35: 'Entity' (resource)",
+        "N_36: 'Entity' (resource)",
+        "N_46: 'Entity' (resource)",
+        "N_49: 'Entity' (resource)",
+        "N_15: '/sources' (endpoint)",
+        "N_8: '/articles/{id}/topics/{topic_id}' (endpoint)",
+        "N_12: 'Wikidata' (organization)",
+        "N_47: 'Wikidata' (organization)",
+        "N_11: 'NLP pipeline' (system)"
+      ],
+      "false_negatives": [
+        "N_19: 'User' (resource)",
+        "N_20: 'User' (resource)",
+        "N_22: 'User' (resource)",
+        "N_23: 'User' (resource)",
+        "N_24: 'User' (resource)",
+        "N_5: 'Article' (resource)",
+        "N_6: 'Article' (resource)",
+        "N_13: 'Article' (resource)",
+        "N_14: 'Article' (resource)",
+        "N_15: 'Article' (resource)",
+        "N_17: 'Article' (resource)",
+        "N_19: 'Article' (resource)",
+        "N_21: 'Article' (resource)",
+        "N_25: 'Article' (resource)",
+        "N_27: 'Article' (resource)",
+        "N_28: 'Article' (resource)",
+        "N_29: 'Article' (resource)",
+        "N_30: 'Article' (resource)",
+        "N_31: 'Article' (resource)",
+        "N_13: 'Source' (resource)"
+      ]
+    },
+    "relation_confusion": {
+      "resolves": {
+        "no_relation": 4,
+        "revises": 1
+      },
+      "same_level": {
+        "contradicts": 1,
+        "no_relation": 1
+      },
+      "no_relation": {
+        "subcase": 10,
+        "revises": 11,
+        "references": 13,
+        "resolves": 11,
+        "contradicts": 3,
+        "same_level": 1,
+        "supercase": 1
+      },
+      "references": {
+        "resolves": 6,
+        "no_relation": 26,
+        "references": 1,
+        "revises": 2,
+        "subcase": 1
+      },
+      "supercase": {
+        "no_relation": 4,
+        "contradicts": 1
+      },
+      "depends_on": {
+        "revises": 15,
+        "contradicts": 2,
+        "resolves": 15,
+        "same_level": 1,
+        "no_relation": 7,
+        "references": 4
+      },
+      "subcase": {
+        "no_relation": 8,
+        "revises": 1
+      },
+      "revises": {
+        "no_relation": 2,
+        "resolves": 1,
+        "revises": 1
+      },
+      "contradicts": {
+        "contradicts": 1
+      }
+    },
+    "state_nodes": {
+      "n_gold": 56,
+      "n_predicted": 90,
+      "matched": 1,
+      "duplicates": 89,
+      "missed": 55,
+      "status_errors": 1,
+      "creation_precision": 0.0111,
+      "creation_recall": 0.0179,
+      "status_accuracy": 0.0,
+      "duplicate_examples": [
+        "Design REST API for application with clear architecture",
+        "Do you already have main resources in mind?",
+        "Decide which resource is a top-level entity",
+        "Resource must be either independent or nested",
+        "Model Article as a central resource with main relationships",
+        "Article should be top-level entity",
+        "Topic assignment must go through a dedicated relationship endpoint",
+        "Should clients be able to manage the many-to-many Topic- Article relationship directly from the article side?",
+        "Keep source_id inline on article representation",
+        "Dedicated sub-resource route only for operations with add/remove semantics"
+      ],
+      "missed_examples": [
+        "Design the REST API's resource model before implementing endpoints",
+        "Which of User/Article/Source/Topic/Entity should be independent API resources?",
+        "Model Article as top-level; Source many-to-one, Topic/Entity many-to-many with Entity as read-only derived sub-resource",
+        "Manage Topic assignment via dedicated relationship endpoint, not nested article PATCH",
+        "Keep source_id inline on Article representation; no dedicated /articles/{id}/source endpoint",
+        "Source is a top-level resource: /sources alongside /articles, with /articles?source_id=... for filtering, not nested",
+        "Topic is a top-level resource: /topics alongside /articles and /sources; Article relationship unchanged from N_4 decision",
+        "Represent the Article-Entity relationship as an association object (ArticleEntity) with confidence/mention_count/position; embedded in /articles/{id}/entities, not a new top-level resource",
+        "Article API responses should stay bounded in size even for entity-dense articles",
+        "Return entity ID + name/type + relationship metadata inline in /articles/{id}/entities; full entity detail via GET /entities/{id}"
+      ]
+    }
+  },
+  "metrics": {
+    "entity_prf_normalised": {
+      "criterion": "normalised",
+      "precision": 0.4295,
+      "recall": 0.4926,
+      "f1": 0.4589,
+      "tp": 67,
+      "fp": 89,
+      "fn": 69
+    },
+    "entity_prf_typed": {
+      "criterion": "typed",
+      "precision": 0.4038,
+      "recall": 0.4632,
+      "f1": 0.4315,
+      "tp": 63,
+      "fp": 93,
+      "fn": 73
+    },
+    "relations": {
+      "contradicts": {
+        "precision": 0.125,
+        "recall": 1.0,
+        "f1": 0.2222,
+        "support": 1
+      },
+      "depends_on": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 44
+      },
+      "no_relation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 50
+      },
+      "references": {
+        "precision": 0.0556,
+        "recall": 0.0278,
+        "f1": 0.037,
+        "support": 36
+      },
+      "resolves": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 5
+      },
+      "revises": {
+        "precision": 0.0323,
+        "recall": 0.25,
+        "f1": 0.0571,
+        "support": 4
+      },
+      "same_level": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 2
+      },
+      "subcase": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 9
+      },
+      "supercase": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 5
+      },
+      "macro_avg_excl_no_relation": {
+        "precision": 0.0266,
+        "recall": 0.1597,
+        "f1": 0.0395,
+        "support": 106
+      }
+    },
+    "resolves_linking": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "gold_count": 5
+    }
+  },
+  "integrity": {
+    "dangling_references": []
+  }
+}

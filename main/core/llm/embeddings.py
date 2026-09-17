@@ -6,9 +6,13 @@ near-zero recall on multi-hop questions. That finding is a real constraint: do
 not casually swap in whatever embedder is convenient, because retrieval quality
 is the thing the whole architecture rests on.
 
-Three providers here:
+Four providers here:
 
-* ``SentenceTransformerEmbedder`` - the real one. Optional dependency.
+* ``SentenceTransformerEmbedder`` - real, local, free. Optional dependency.
+* ``GeminiEmbedder``              - real, cloud, free tier (Google AI Studio).
+  The recommended pairing when the extraction/answer LLM is Groq: Groq has no
+  embeddings endpoint of its own, and this is a genuinely free cloud option
+  rather than a paid one (OpenAI/Voyage embeddings are not free).
 * ``HashingEmbedder``            - deterministic, dependency-free, offline. Its
   vectors are meaningless for semantic similarity; it exists so the pipeline,
   the storage layer and the app can be exercised end to end without a model
@@ -114,6 +118,48 @@ class SentenceTransformerEmbedder:
         return [list(map(float, v)) for v in vecs]
 
 
+class GeminiEmbedder:
+    """Google Gemini embeddings, free tier, via its OpenAI-compatible endpoint.
+
+    Reuses the ``openai`` package (already a dependency for OpenAICompatClient)
+    pointed at Google's OpenAI-compatible base URL, rather than adding a
+    separate Google SDK dependency for one call shape. Same account and API
+    key as any Gemini chat model, but independent of which provider is used
+    for extraction/answers - see core/config.py's ``gemini_api_key``.
+    """
+
+    #: Google's OpenAI-compatible endpoint (chat + embeddings).
+    BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+    def __init__(
+        self, model: str = "gemini-embedding-001", api_key: str | None = None, dim: int = 768
+    ) -> None:
+        try:
+            from openai import OpenAI  # noqa: PLC0415
+        except ImportError as exc:  # pragma: no cover
+            raise RuntimeError(
+                "the 'openai' package is required for GeminiEmbedder; "
+                "install it with: pip install openai"
+            ) from exc
+        if not api_key:
+            raise RuntimeError(
+                "GeminiEmbedder requires an API key (GEMINI_API_KEY) - "
+                "get a free one at aistudio.google.com"
+            )
+        self.model = model
+        self.dim = dim
+        self._client = OpenAI(base_url=self.BASE_URL, api_key=api_key)
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        # dimensions= requests Matryoshka-truncated output at this project's
+        # standard 768-d, so GeminiEmbedder is drop-in compatible with every
+        # other Embedder here without a config.py change to embedding_dim.
+        resp = self._client.embeddings.create(
+            model=self.model, input=texts, dimensions=self.dim
+        )
+        return [item.embedding for item in resp.data]
+
+
 class CachingEmbedder:
     """Memoise embeddings by exact text.
 
@@ -135,12 +181,16 @@ class CachingEmbedder:
         return [self._cache[t] for t in texts]
 
 
-def build_embedder(model_name: str, dim: int = 768) -> Embedder:
+def build_embedder(model_name: str, dim: int = 768, api_key: str | None = None) -> Embedder:
     """Factory driven by ``ModelConfig.embedding_model``.
 
-    ``"hashing"`` selects the offline stand-in; anything else is treated as a
-    sentence-transformers model id.
+    ``"hashing"`` selects the offline stand-in; ``"gemini"`` selects the free
+    cloud provider (``api_key`` then required - pass ``settings.models.
+    gemini_api_key``); anything else is treated as a sentence-transformers
+    model id.
     """
     if model_name == "hashing":
         return CachingEmbedder(HashingEmbedder(dim=dim))
+    if model_name == "gemini":
+        return CachingEmbedder(GeminiEmbedder(api_key=api_key, dim=dim))
     return CachingEmbedder(SentenceTransformerEmbedder(model_name, dim=dim))

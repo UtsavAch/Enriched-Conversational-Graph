@@ -184,7 +184,9 @@ export default function App() {
               {sidePanel === "inspector" && (
                 <InspectorPanel graph={graph.data} />
               )}
-              {sidePanel === "entities" && <EntitiesPanel graph={graph.data} />}
+              {sidePanel === "entities" && (
+                <EntitiesPanel graph={graph.data} conversationId={conversationId} />
+              )}
               {sidePanel === "states" && <StateNodesPanel graph={graph.data} />}
               {sidePanel === "documents" && (
                 <DocumentsPanel conversationId={conversationId} />

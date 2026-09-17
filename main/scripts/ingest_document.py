@@ -34,7 +34,10 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     settings = Settings()
     repo = JsonDocumentRepository()
-    embedder = build_embedder(settings.models.embedding_model, settings.models.embedding_dim)
+    embedder = build_embedder(
+        settings.models.embedding_model, settings.models.embedding_dim,
+        api_key=settings.models.gemini_api_key,
+    )
     ingestor = DocumentIngestor(repo, embedder, settings.rag)
 
     if args.title and len(args.paths) > 1:

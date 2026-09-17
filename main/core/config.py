@@ -261,15 +261,39 @@ class ModelConfig:
     """Model identifiers. Swapping models — including to a local SLM via an
     OpenAI-compatible endpoint — should be a config/environment edit only."""
 
-    answer_model: str = os.environ.get("GM_ANSWER_MODEL", "claude-sonnet-4-6")
-    extraction_model: str = os.environ.get("GM_EXTRACTION_MODEL", "claude-sonnet-4-6")
+    #: "claude-sonnet-4-6" was never a real model id - corrected to the current
+    #: Claude default. Only takes effect when no OpenAI-compatible endpoint is
+    #: configured (see build_client's priority order in scripts/ingest_conversation.py).
+    answer_model: str = os.environ.get("GM_ANSWER_MODEL", "claude-sonnet-5")
+    extraction_model: str = os.environ.get("GM_EXTRACTION_MODEL", "claude-sonnet-5")
     embedding_model: str = os.environ.get("GM_EMBEDDING_MODEL", "hashing")
     embedding_dim: int = 768  # [thesis] 768-d vectors compared by dot product
 
-    #: Base URL for an OpenAI-compatible endpoint (Ollama, vLLM, etc.).
-    #: Set GM_OPENAI_BASE_URL to use a local SLM instead of Anthropic.
+    #: Base URL for an OpenAI-compatible endpoint (Ollama, vLLM, Groq, etc.).
+    #: Set GM_OPENAI_BASE_URL to use one instead of Anthropic directly - e.g.
+    #: https://api.groq.com/openai/v1 for Groq's free tier.
     openai_base_url: str | None = os.environ.get("GM_OPENAI_BASE_URL")
     openai_api_key: str = os.environ.get("GM_OPENAI_API_KEY", "ollama")
+
+    #: Google AI Studio key, for GeminiEmbedder (embedding_model == "gemini").
+    #: Free tier - see core/llm/embeddings.py. Independent of the chat-completion
+    #: provider above: you can use Groq for extraction and Gemini only for
+    #: embeddings, which is the recommended free-tier pairing (Groq has no
+    #: embeddings endpoint).
+    gemini_api_key: str | None = os.environ.get("GEMINI_API_KEY")
+
+    #: Optional rate limits, enforced by RateLimitedClient (core/llm/client.py)
+    #: when either is set - unset (default) means no throttling, unchanged
+    #: behaviour for Ollama/Anthropic/unrestricted usage. Set these to comfortably
+    #: under whatever a free tier actually allows - e.g. GM_TPM_LIMIT=7000 for
+    #: Groq's free 8000 TPM cap, GM_RPM_LIMIT=12 for Gemini flash-lite's free
+    #: 15 RPM cap - found by hitting both live, not from provider docs alone.
+    requests_per_minute: int | None = (
+        int(os.environ["GM_RPM_LIMIT"]) if os.environ.get("GM_RPM_LIMIT") else None
+    )
+    tokens_per_minute: int | None = (
+        int(os.environ["GM_TPM_LIMIT"]) if os.environ.get("GM_TPM_LIMIT") else None
+    )
 
 
 # --------------------------------------------------------------------------

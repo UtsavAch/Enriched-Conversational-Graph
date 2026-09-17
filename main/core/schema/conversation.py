@@ -17,6 +17,23 @@ from core.schema.interaction import InteractionNode
 from core.schema.state_node import StateNode
 
 
+class PendingEntityTypeSuggestion(BaseModel):
+    """A ``propose:<label>`` W1 emitted because no type in the active vocabulary fit.
+
+    Not yet part of the conversation's entity-type vocabulary - the entities
+    that triggered it are stored with type ``"other"`` in the meantime (see
+    ``core/pipeline/steps.py``). Confirming a suggestion (an app-layer action,
+    not something the pipeline does on its own) moves ``label`` into
+    ``ConversationMeta.entity_type_vocab`` and backfills the matching entities
+    below off ``"other"``. See ``evaluation_report.md`` section 8.
+    """
+
+    label: str
+    description: str = ""
+    example_entity_names: list[str] = Field(default_factory=list)
+    first_seen_turn: str = ""
+
+
 class ConversationMeta(BaseModel):
     """Bookkeeping written alongside every conversation.
 
@@ -39,6 +56,19 @@ class ConversationMeta(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
     tags: list[str] = Field(default_factory=list)
+    entity_type_vocab: dict[str, str] | None = Field(
+        None,
+        description=(
+            "This conversation's entity-type vocabulary (name -> description), merged "
+            "on top of core.schema.enums.DEFAULT_ENTITY_TYPES at render time. None means "
+            "'use the default only'. Set once at conversation creation (batch ingestion's "
+            "--domain-config) and/or grown incrementally by confirming pending suggestions "
+            "below (live chat) - see evaluation_report.md section 8."
+        ),
+    )
+    pending_entity_type_suggestions: list[PendingEntityTypeSuggestion] = Field(
+        default_factory=list
+    )
 
 
 class ConversationGraph(BaseModel):

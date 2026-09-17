@@ -183,3 +183,85 @@ def deselect_conversation_document(conversation_id: str, source_id: str) -> dict
     it was never referenced."""
     unreference_document_in_conversation(conversation_id, source_id)
     return {"deselected": source_id}
+
+
+# --- entity type suggestions ------------------------------------------------
+# See evaluation_report.md section 8: W1's "propose:<label>" escape hatch
+# records a PendingEntityTypeSuggestion instead of applying a new type
+# unilaterally. These three endpoints are the human-in-the-loop step that
+# actually grows a conversation's entity_type_vocab.
+
+
+def _load_or_404(
+    conversation_id: str, repo: JsonConversationRepository
+):
+    try:
+        return repo.load(conversation_id)
+    except KeyError:
+        raise HTTPException(404, f"no conversation '{conversation_id}'") from None
+
+
+@router.get("/{conversation_id}/entity-type-suggestions")
+def get_entity_type_suggestions(
+    conversation_id: str,
+    repo: JsonConversationRepository = Depends(get_conversation_repository),
+) -> list[dict]:
+    """Pending ``propose:`` suggestions, for a non-blocking UI badge to poll."""
+    graph = _load_or_404(conversation_id, repo)
+    return [s.model_dump(mode="json") for s in graph.meta.pending_entity_type_suggestions]
+
+
+@router.post("/{conversation_id}/entity-type-suggestions/{label}/confirm")
+def confirm_entity_type_suggestion(
+    conversation_id: str,
+    label: str,
+    repo: JsonConversationRepository = Depends(get_conversation_repository),
+) -> dict:
+    """Adopt a proposed type for this conversation and backfill matching entities.
+
+    Backfill: entities already stored as ``"other"`` (the fallback
+    ``_parse_entities`` gives a ``propose:`` entity while it's unconfirmed)
+    whose name matches one of the suggestion's recorded examples are retyped -
+    so confirming benefits entities mentioned before the confirmation click,
+    not just ones extracted after it. Per-conversation only: no cross-conversation
+    preset is written (see evaluation_report.md section 8's scope decision).
+    """
+    graph = _load_or_404(conversation_id, repo)
+    pending = graph.meta.pending_entity_type_suggestions
+    suggestion = next((s for s in pending if s.label == label), None)
+    if suggestion is None:
+        raise HTTPException(404, f"no pending suggestion '{label}'")
+
+    vocab = graph.meta.entity_type_vocab or {}
+    vocab[label] = suggestion.description or f"Domain-specific type: {label}."
+    graph.meta.entity_type_vocab = vocab
+
+    examples = {name.strip().lower() for name in suggestion.example_entity_names}
+    backfilled = []
+    for entity in graph.entities.values():
+        if entity.type == "other" and entity.normalised_name() in examples:
+            entity.type = label
+            backfilled.append(entity.id)
+
+    graph.meta.pending_entity_type_suggestions = [s for s in pending if s.label != label]
+    repo.save(graph)
+    return {"confirmed": label, "backfilled_entities": backfilled}
+
+
+@router.post("/{conversation_id}/entity-type-suggestions/{label}/reject")
+def reject_entity_type_suggestion(
+    conversation_id: str,
+    label: str,
+    repo: JsonConversationRepository = Depends(get_conversation_repository),
+) -> dict:
+    """Drop a suggestion. Matching entities stay ``"other"`` - identical to
+    today's behaviour if a suggestion is simply never acted on."""
+    graph = _load_or_404(conversation_id, repo)
+    before = len(graph.meta.pending_entity_type_suggestions)
+    graph.meta.pending_entity_type_suggestions = [
+        s for s in graph.meta.pending_entity_type_suggestions if s.label != label
+    ]
+    if len(graph.meta.pending_entity_type_suggestions) == before:
+        raise HTTPException(404, f"no pending suggestion '{label}'")
+    repo.save(graph)
+    return {"rejected": label}

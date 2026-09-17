@@ -42,6 +42,7 @@ from core.pipeline.base import CallCost, TurnCost
 from core.pipeline.steps import (
     CombinedExtraction,
     ExtractedEntity,
+    ProposedEntityType,
     W1EntityAndSpeechAct,
     W2HierarchicalEdges,
     W3PragmaticEdges,
@@ -50,7 +51,7 @@ from core.pipeline.steps import (
 )
 from core.retrieval.candidate_selection import select_edge_candidates
 from core.retrieval.context_assembly import AssembledContext, ContextAssembler
-from core.schema.conversation import ConversationGraph
+from core.schema.conversation import ConversationGraph, PendingEntityTypeSuggestion
 from core.schema.entity import Entity
 from core.schema.enums import (
     DEFAULT_STATUS_BY_TYPE,
@@ -314,12 +315,13 @@ class TurnPipeline:
             embed_done.set()
 
         def w1_task() -> None:
-            r = self.w1.run(**kw)
+            r = self.w1.run(entity_type_vocab=graph.meta.entity_type_vocab, **kw)
             with lock:
                 cost.calls.append(r.cost)
                 if r.ok:
                     node.speech_act = r.data.speech_act
                     node.named_entities = self._merge_entities(graph, node, r.data.entities)
+                    self._apply_proposed_types(graph, node, r.data.proposed_types)
                 else:
                     errors.append(f"W1: {r.error}")
                 node.epistemic_status = (
@@ -444,6 +446,7 @@ class TurnPipeline:
             answer=node.answer,
             candidates=candidates,
             open_state_nodes=open_state,
+            entity_type_vocab=graph.meta.entity_type_vocab,
         )
         cost.calls.append(r.cost)
         if not r.ok:
@@ -455,6 +458,7 @@ class TurnPipeline:
         # Apply W1
         node.speech_act = result.w1.speech_act
         node.named_entities = self._merge_entities(graph, node, result.w1.entities)
+        self._apply_proposed_types(graph, node, result.w1.proposed_types)
         node.epistemic_status = (
             EpistemicStatus.OPEN
             if node.speech_act in QUESTION_SPEECH_ACTS
@@ -520,6 +524,38 @@ class TurnPipeline:
                     existing.mentioned_in.append(node.id)
                 ids.append(existing.id)
         return ids
+
+    def _apply_proposed_types(
+        self,
+        graph: ConversationGraph,
+        node: InteractionNode,
+        proposed: list[ProposedEntityType],
+    ) -> None:
+        """Record W1's ``propose:<label>`` outputs as pending suggestions.
+
+        Never touches ``entity_type_vocab`` or any entity's stored type - those
+        already-created entities keep the ``"other"`` fallback
+        ``_parse_entities`` gave them until a human confirms the suggestion
+        (an app-layer action; see ``evaluation_report.md`` section 8, and the
+        confirm/reject endpoints in ``app/backend``, which also backfill these
+        entities off ``"other"``). Repeated proposals of the same label append
+        more example names to the existing suggestion rather than duplicating it.
+        """
+        if not proposed:
+            return
+        by_label = {
+            s.label: s for s in graph.meta.pending_entity_type_suggestions
+        }
+        for item in proposed:
+            existing = by_label.get(item.label)
+            if existing is None:
+                existing = PendingEntityTypeSuggestion(
+                    label=item.label, first_seen_turn=node.id
+                )
+                graph.meta.pending_entity_type_suggestions.append(existing)
+                by_label[item.label] = existing
+            if item.example_entity_name not in existing.example_entity_names:
+                existing.example_entity_names.append(item.example_entity_name)
 
     def _propagate_epistemic_status(
         self, graph: ConversationGraph, node: InteractionNode

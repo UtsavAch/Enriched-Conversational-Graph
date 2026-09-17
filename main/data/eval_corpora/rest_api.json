@@ -1,0 +1,1883 @@
+{
+  "conversation_id": "rest_api",
+  "entities": [
+    {
+      "turn_id": "N_2",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_20",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_22",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_23",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_24",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_37",
+      "name": "User",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_2",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_3",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_4",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_5",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_6",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_7",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_8",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_9",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_11",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_13",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_14",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_15",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_17",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_18",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_20",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_21",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_25",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_27",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_28",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_29",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_30",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_31",
+      "name": "Article",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_2",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_3",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_5",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_6",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_7",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_13",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_14",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_15",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_20",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_46",
+      "name": "Source",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_2",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_3",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_4",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_8",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_9",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_13",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_14",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_15",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_17",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_18",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_20",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_25",
+      "name": "Topic",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_2",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_3",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_4",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_9",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_10",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_11",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_12",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_15",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_17",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_18",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_20",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_32",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_47",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_48",
+      "name": "Entity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_3",
+      "name": "/articles/{id}/entities",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_11",
+      "name": "/articles/{id}/entities",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_12",
+      "name": "/articles/{id}/entities",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_4",
+      "name": "/articles/{id}/topics/{topic_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_25",
+      "name": "/articles/{id}/topics/{topic_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_26",
+      "name": "/articles/{id}/topics/{topic_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_5",
+      "name": "/articles/{id}/source",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_5",
+      "name": "/sources",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_6",
+      "name": "/sources",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_7",
+      "name": "/sources",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_7",
+      "name": "/sources/{id}/articles",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_8",
+      "name": "/topics",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_10",
+      "name": "Wikidata",
+      "type": "system"
+    },
+    {
+      "turn_id": "N_10",
+      "name": "/entities",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_12",
+      "name": "/entities",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_11",
+      "name": "ArticleEntity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_25",
+      "name": "ArticleEntity",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "OAuth2/OIDC",
+      "type": "tool"
+    },
+    {
+      "turn_id": "N_19",
+      "name": "JWT",
+      "type": "tool"
+    },
+    {
+      "turn_id": "N_21",
+      "name": "/me/articles/saved",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_25",
+      "name": "/me/articles/saved",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_26",
+      "name": "/me/articles/saved",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_22",
+      "name": "/users/{user_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_23",
+      "name": "/users/{user_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_24",
+      "name": "/users/{user_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_37",
+      "name": "/users/{user_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_22",
+      "name": "/me",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_23",
+      "name": "/me",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_37",
+      "name": "/me",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_27",
+      "name": "Summary",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_28",
+      "name": "Summary",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_29",
+      "name": "Summary",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_30",
+      "name": "Summary",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_31",
+      "name": "Summary",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_33",
+      "name": "Summary",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_27",
+      "name": "Conversation",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_38",
+      "name": "Conversation",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_39",
+      "name": "Conversation",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_44",
+      "name": "Conversation",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_45",
+      "name": "Conversation",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_27",
+      "name": "/articles/{id}/summaries",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_27",
+      "name": "/conversations",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_27",
+      "name": "/conversations/{id}/messages",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_28",
+      "name": "/articles/{id}/summary",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_29",
+      "name": "/articles/{id}/summary/current",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_31",
+      "name": "SummaryJob",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_31",
+      "name": "/articles/{id}/summary-jobs",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_31",
+      "name": "/articles/{id}/summary-jobs/{job_id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_32",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_33",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_34",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_39",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_40",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_41",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_42",
+      "name": "Job",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_32",
+      "name": "/jobs/{id}",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_32",
+      "name": "/articles/{id}/jobs",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_35",
+      "name": "OpenAPI",
+      "type": "tool"
+    },
+    {
+      "turn_id": "N_38",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_39",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_40",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_41",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_42",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_43",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_44",
+      "name": "Message",
+      "type": "resource"
+    },
+    {
+      "turn_id": "N_38",
+      "name": "/me/conversations",
+      "type": "endpoint"
+    },
+    {
+      "turn_id": "N_38",
+      "name": "/me/conversations/{id}/messages",
+      "type": "endpoint"
+    }
+  ],
+  "relations": [
+    {
+      "source": "N_2",
+      "target": "N_1",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_2",
+      "target": "N_1",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_3",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_3",
+      "target": "N_2",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_4",
+      "target": "N_3",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_4",
+      "target": "N_3",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_5",
+      "target": "N_3",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_5",
+      "target": "N_3",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_5",
+      "target": "N_2",
+      "relation": "references"
+    },
+    {
+      "source": "N_6",
+      "target": "N_5",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_6",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_6",
+      "target": "N_5",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_7",
+      "target": "N_6",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_7",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_7",
+      "target": "N_6",
+      "relation": "resolves"
+    },
+    {
+      "source": "N_8",
+      "target": "N_7",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_8",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_8",
+      "target": "N_7",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_9",
+      "target": "N_3",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_9",
+      "target": "N_8",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_9",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_9",
+      "target": "N_3",
+      "relation": "references"
+    },
+    {
+      "source": "N_10",
+      "target": "N_3",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_10",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_10",
+      "target": "N_9",
+      "relation": "contradicts"
+    },
+    {
+      "source": "N_11",
+      "target": "N_10",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_11",
+      "target": "N_3",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_11",
+      "target": "N_3",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_11",
+      "target": "N_10",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_12",
+      "target": "N_11",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_12",
+      "target": "N_11",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_12",
+      "target": "N_10",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_13",
+      "target": "N_3",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_13",
+      "target": "N_12",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_13",
+      "target": "N_12",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_14",
+      "target": "N_13",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_14",
+      "target": "N_13",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_15",
+      "target": "N_3",
+      "relation": "references"
+    },
+    {
+      "source": "N_15",
+      "target": "N_7",
+      "relation": "references"
+    },
+    {
+      "source": "N_15",
+      "target": "N_8",
+      "relation": "references"
+    },
+    {
+      "source": "N_15",
+      "target": "N_10",
+      "relation": "references"
+    },
+    {
+      "source": "N_16",
+      "target": "N_15",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_16",
+      "target": "N_15",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_17",
+      "target": "N_16",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_17",
+      "target": "N_16",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_18",
+      "target": "N_17",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_18",
+      "target": "N_14",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_18",
+      "target": "N_17",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_18",
+      "target": "N_14",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_19",
+      "target": "N_1",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_19",
+      "target": "N_1",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_20",
+      "target": "N_19",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_20",
+      "target": "N_19",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_21",
+      "target": "N_20",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_21",
+      "target": "N_20",
+      "relation": "revises"
+    },
+    {
+      "source": "N_22",
+      "target": "N_21",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_22",
+      "target": "N_21",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_23",
+      "target": "N_22",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_23",
+      "target": "N_22",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_24",
+      "target": "N_23",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_24",
+      "target": "N_14",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_24",
+      "target": "N_18",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_24",
+      "target": "N_23",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_24",
+      "target": "N_14",
+      "relation": "references"
+    },
+    {
+      "source": "N_25",
+      "target": "N_24",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_25",
+      "target": "N_4",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_25",
+      "target": "N_24",
+      "relation": "references"
+    },
+    {
+      "source": "N_25",
+      "target": "N_4",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_26",
+      "target": "N_25",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_26",
+      "target": "N_4",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_26",
+      "target": "N_25",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_26",
+      "target": "N_4",
+      "relation": "revises"
+    },
+    {
+      "source": "N_27",
+      "target": "N_26",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_27",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_27",
+      "target": "N_26",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_27",
+      "target": "N_2",
+      "relation": "references"
+    },
+    {
+      "source": "N_28",
+      "target": "N_27",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_28",
+      "target": "N_27",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_29",
+      "target": "N_28",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_29",
+      "target": "N_26",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_29",
+      "target": "N_28",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_29",
+      "target": "N_26",
+      "relation": "references"
+    },
+    {
+      "source": "N_29",
+      "target": "N_27",
+      "relation": "references"
+    },
+    {
+      "source": "N_30",
+      "target": "N_29",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_30",
+      "target": "N_19",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_30",
+      "target": "N_29",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_30",
+      "target": "N_19",
+      "relation": "references"
+    },
+    {
+      "source": "N_31",
+      "target": "N_29",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_31",
+      "target": "N_27",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_31",
+      "target": "N_29",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_31",
+      "target": "N_27",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_32",
+      "target": "N_31",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_32",
+      "target": "N_10",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_32",
+      "target": "N_31",
+      "relation": "revises"
+    },
+    {
+      "source": "N_32",
+      "target": "N_10",
+      "relation": "references"
+    },
+    {
+      "source": "N_33",
+      "target": "N_32",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_33",
+      "target": "N_32",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_34",
+      "target": "N_33",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_34",
+      "target": "N_24",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_34",
+      "target": "N_33",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_34",
+      "target": "N_24",
+      "relation": "references"
+    },
+    {
+      "source": "N_35",
+      "target": "N_1",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_35",
+      "target": "N_1",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_35",
+      "target": "N_10",
+      "relation": "references"
+    },
+    {
+      "source": "N_35",
+      "target": "N_26",
+      "relation": "references"
+    },
+    {
+      "source": "N_35",
+      "target": "N_32",
+      "relation": "references"
+    },
+    {
+      "source": "N_36",
+      "target": "N_3",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_36",
+      "target": "N_7",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_36",
+      "target": "N_8",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_36",
+      "target": "N_10",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_36",
+      "target": "N_32",
+      "relation": "supercase"
+    },
+    {
+      "source": "N_36",
+      "target": "N_2",
+      "relation": "references"
+    },
+    {
+      "source": "N_37",
+      "target": "N_36",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_37",
+      "target": "N_2",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_37",
+      "target": "N_36",
+      "relation": "resolves"
+    },
+    {
+      "source": "N_37",
+      "target": "N_23",
+      "relation": "references"
+    },
+    {
+      "source": "N_37",
+      "target": "N_24",
+      "relation": "references"
+    },
+    {
+      "source": "N_37",
+      "target": "N_2",
+      "relation": "references"
+    },
+    {
+      "source": "N_38",
+      "target": "N_37",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_38",
+      "target": "N_27",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_38",
+      "target": "N_37",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_38",
+      "target": "N_22",
+      "relation": "references"
+    },
+    {
+      "source": "N_38",
+      "target": "N_27",
+      "relation": "revises"
+    },
+    {
+      "source": "N_38",
+      "target": "N_15",
+      "relation": "references"
+    },
+    {
+      "source": "N_38",
+      "target": "N_36",
+      "relation": "resolves"
+    },
+    {
+      "source": "N_39",
+      "target": "N_38",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_39",
+      "target": "N_31",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_39",
+      "target": "N_38",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_39",
+      "target": "N_31",
+      "relation": "references"
+    },
+    {
+      "source": "N_40",
+      "target": "N_39",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_40",
+      "target": "N_33",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_40",
+      "target": "N_39",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_40",
+      "target": "N_32",
+      "relation": "references"
+    },
+    {
+      "source": "N_40",
+      "target": "N_33",
+      "relation": "references"
+    },
+    {
+      "source": "N_41",
+      "target": "N_40",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_41",
+      "target": "N_34",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_41",
+      "target": "N_40",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_41",
+      "target": "N_34",
+      "relation": "references"
+    },
+    {
+      "source": "N_42",
+      "target": "N_41",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_42",
+      "target": "N_34",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_42",
+      "target": "N_41",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_42",
+      "target": "N_34",
+      "relation": "references"
+    },
+    {
+      "source": "N_43",
+      "target": "N_42",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_43",
+      "target": "N_24",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_43",
+      "target": "N_42",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_43",
+      "target": "N_24",
+      "relation": "references"
+    },
+    {
+      "source": "N_44",
+      "target": "N_43",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_44",
+      "target": "N_28",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_44",
+      "target": "N_43",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_44",
+      "target": "N_28",
+      "relation": "references"
+    },
+    {
+      "source": "N_45",
+      "target": "N_44",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_45",
+      "target": "N_44",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_46",
+      "target": "N_17",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_46",
+      "target": "N_17",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_46",
+      "target": "N_18",
+      "relation": "references"
+    },
+    {
+      "source": "N_46",
+      "target": "N_36",
+      "relation": "resolves"
+    },
+    {
+      "source": "N_47",
+      "target": "N_17",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_47",
+      "target": "N_10",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_47",
+      "target": "N_17",
+      "relation": "resolves"
+    },
+    {
+      "source": "N_47",
+      "target": "N_10",
+      "relation": "references"
+    },
+    {
+      "source": "N_48",
+      "target": "N_47",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_48",
+      "target": "N_47",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_49",
+      "target": "N_1",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_49",
+      "target": "N_35",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_49",
+      "target": "N_10",
+      "relation": "references"
+    },
+    {
+      "source": "N_49",
+      "target": "N_26",
+      "relation": "references"
+    },
+    {
+      "source": "N_49",
+      "target": "N_32",
+      "relation": "references"
+    },
+    {
+      "source": "N_50",
+      "target": "N_49",
+      "relation": "same_level"
+    },
+    {
+      "source": "N_50",
+      "target": "N_1",
+      "relation": "subcase"
+    },
+    {
+      "source": "N_50",
+      "target": "N_49",
+      "relation": "depends_on"
+    },
+    {
+      "source": "N_50",
+      "target": "N_33",
+      "relation": "references"
+    }
+  ],
+  "state_nodes": [
+    {
+      "type": "goal",
+      "label": "Design the REST API's resource model before implementing endpoints",
+      "status": "achieved"
+    },
+    {
+      "type": "open_question",
+      "label": "Which of User/Article/Source/Topic/Entity should be independent API resources?",
+      "status": "resolved"
+    },
+    {
+      "type": "decision",
+      "label": "Model Article as top-level; Source many-to-one, Topic/Entity many-to-many with Entity as read-only derived sub-resource",
+      "status": "revised"
+    },
+    {
+      "type": "decision",
+      "label": "Manage Topic assignment via dedicated relationship endpoint, not nested article PATCH",
+      "status": "revised"
+    },
+    {
+      "type": "decision",
+      "label": "Keep source_id inline on Article representation; no dedicated /articles/{id}/source endpoint",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Source is a top-level resource: /sources alongside /articles, with /articles?source_id=... for filtering, not nested",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Topic is a top-level resource: /topics alongside /articles and /sources; Article relationship unchanged from N_4 decision",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Represent the Article-Entity relationship as an association object (ArticleEntity) with confidence/mention_count/position; embedded in /articles/{id}/entities, not a new top-level resource",
+      "status": "active"
+    },
+    {
+      "type": "constraint",
+      "label": "Article API responses should stay bounded in size even for entity-dense articles",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Return entity ID + name/type + relationship metadata inline in /articles/{id}/entities; full entity detail via GET /entities/{id}",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Keep source_id/topic_ids as plain ID references in Article representation by default; support optional ?include= expansion for embedding",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Limit ?include= expansion to one level; validate against an allow-list of top-level relation names; reject (400) dotted/unsupported values rather than silently ignoring them",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Use a consistent cursor-based pagination approach and response envelope across all collection endpoints",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Cursor encodes an opaque (created_at, id) composite; id is purely a deterministic tiebreaker for equal timestamps",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Keep pagination cursor mechanism uniform, but allow the ordering field to be resource-specific (created_at for Article, updated_at for Topic/Entity)",
+      "status": "active"
+    },
+    {
+      "type": "open_question",
+      "label": "How should Entity merges be represented (redirect, tombstone, alias), given effects on cursor stability and cached client references?",
+      "status": "resolved"
+    },
+    {
+      "type": "constraint",
+      "label": "Sort/ordering options must be validated against a fixed per-resource allow-list; arbitrary client-specified fields are not permitted",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Expose ?sort= as a per-resource enum (Article: created_at/-created_at; Topic/Entity: updated_at/-updated_at); id always appended as tiebreaker",
+      "status": "active"
+    },
+    {
+      "type": "goal",
+      "label": "Design authentication and authorization for the API, covering user-specific features (personalized articles, saved content, research chatbot)",
+      "status": "active"
+    },
+    {
+      "type": "constraint",
+      "label": "Cached responses must not leak per-user personalization across users; caching strategy must vary by auth state or bypass cache for authenticated requests",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Public read endpoints accept an optional bearer token — validated if present for personalization/per-user rate limiting, not required; anonymous requests fall back to IP-based rate limiting",
+      "status": "revised"
+    },
+    {
+      "type": "decision",
+      "label": "Personalization (e.g. saved articles) exposed via explicit dedicated endpoints like /me/articles/saved rather than injected into public resource responses; public representations stay identical regardless of auth state",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "/me is a convenience alias for /users/{token_subject}, not a separate resource type; /users/{user_id} exposes general public profile data; private sub-resources (saved articles, chat history) live only under /me/... and are never exposed under /users/{id}/... for other users",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Allow PATCH /me as a passthrough alias to PATCH /users/{token_subject} using the identical handler; write access to /users/{id} permitted only when id matches the token subject, whether reached via /me or explicit ID",
+      "status": "active"
+    },
+    {
+      "type": "constraint",
+      "label": "PATCH /users/{id} must not be vulnerable to mass assignment; only an explicit whitelist of fields may be updated",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "PATCH /users/{id} validates against a fixed whitelist (display_name, bio, avatar_url); unknown fields are rejected with 400",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Relationship-toggle write operations (saved articles, topic assignments, etc.) are idempotent: POST succeeds regardless of prior state, DELETE returns 204 regardless of prior existence; conflict errors reserved for genuine object-creation endpoints",
+      "status": "revised"
+    },
+    {
+      "type": "decision",
+      "label": "Use PUT (not POST) for idempotent relationship-existence endpoints (saved articles, topic assignments, etc.); PUT signals 'set this resource to this state,' matching the already-decided idempotent semantics",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Model processing-triggering operations as resource creation (POST /articles/{id}/summaries creates a Summary; POST /conversations creates a session, POST /conversations/{id}/messages appends) rather than verb-shaped action URIs; async operations return 202 Accepted with a pollable resource",
+      "status": "revised"
+    },
+    {
+      "type": "decision",
+      "label": "Keep Summary as a collection (POST creates a new one per generation, preserving history); add a convenience GET /articles/{id}/summary (singular) returning the current/most-recent generation, not a separate write target",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Promoting a Summary to 'current' is an explicit operation (PUT /articles/{id}/summary/current naming the summary_id), never automatic on generation, to avoid async out-of-order promotion",
+      "status": "active"
+    },
+    {
+      "type": "constraint",
+      "label": "API behavior should favor explicit, client-controlled operations over implicit/automatic state changes, especially where async timing or generation source could produce surprising results",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Summary promotion (PUT /articles/{id}/summary/current) requires an elevated role (e.g. editor/admin), not just any authenticated user, since it affects shared public-facing content; remains a narrow exception rather than justifying full RBAC",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Async summary generation creates a separate Job resource (POST /articles/{id}/summary-jobs, status pending/processing/completed/failed); Summary is only created upon job success and referenced from the completed job",
+      "status": "revised"
+    },
+    {
+      "type": "decision",
+      "label": "Job becomes a generic top-level resource (/jobs/{id}) with a job_type field and result reference, covering summary generation and future async operations (entity extraction, ingestion, embedding); resource-scoped convenience views (e.g. GET /articles/{id}/jobs) filter the same underlying collection rather than being separate resource types, mirroring the Entity canonical+nested-view pattern",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Job's output is referenced via a polymorphic result_type + result_id pair, plus a ready-to-use result URL, rather than type-specific foreign keys",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "On job failure, result is null and an error object is included with a curated, client-safe shape (fixed error-code taxonomy + generic message), not raw internal exception details",
+      "status": "active"
+    },
+    {
+      "type": "constraint",
+      "label": "Internal error details (stack traces, exception messages, internal service info) must never be exposed in public API responses; log full detail server-side correlated by job ID instead",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Write the API contract (OpenAPI) first, before implementation; treat today's decisions as input to that spec",
+      "status": "active"
+    },
+    {
+      "type": "open_question",
+      "label": "Is User a top-level API resource? (SN_2 never formally closed on this point)",
+      "status": "resolved"
+    },
+    {
+      "type": "decision",
+      "label": "User formally confirmed as a top-level resource (/users/{user_id}); already in practical use since N_19 for auth/profile design",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Model Conversation (id, owner via token, created_at, nullable title) and Message (id, conversation_id, role, content, created_at) simply for v1; Message creation is plain POST, not idempotent PUT, since it is not a relationship-toggle",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "POST /me/conversations/{id}/messages creates only the user Message and returns immediately; a separate Job generates the assistant response, which becomes its own Message (role: assistant) once complete",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "POST /me/conversations/{id}/messages response embeds a direct link to the triggered Job (job.id + job.url), rather than requiring the client to separately discover it; /jobs/{id} remains the canonical endpoint",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "On assistant-generation job failure, create a synthetic assistant Message with a fallback content string and an explicit status:'failed' flag referencing the Job, rather than leaving a silent gap in the conversation",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Every Message carries status: 'completed'|'failed' uniformly (not only on failure), and assistant messages carry job_id (nullable) tracing back to the generating Job",
+      "status": "active"
+    },
+    {
+      "type": "constraint",
+      "label": "POST /me/conversations/{id}/messages must not allow clients to set role directly; assistant-authored messages may only be created via the internal pipeline write path, never through the public API",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "The public message-creation endpoint hardcodes role:'user' server-side and ignores/rejects any client-supplied role field",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Messages are immutable once created (no PATCH/DELETE on individual messages); DELETE is only supported at the Conversation level (whole-thread deletion), consistent with the no-in-place-mutation pattern used for Summary regeneration",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Conversation deletion is soft-delete (deleted_at timestamp), excluded from listings but data retained, at least for v1",
+      "status": "active"
+    },
+    {
+      "type": "open_question",
+      "label": "What retention/purge policy applies to soft-deleted conversations, and is a separate hard-delete path needed for privacy/legal (e.g. GDPR erasure) requests?",
+      "status": "open"
+    },
+    {
+      "type": "decision",
+      "label": "Source's default pagination ordering field is created_at (matching Article's reasoning); updated_at remains available via the sort allow-list but is not the default",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Entity merges use a redirect pattern: old Entity marked status:'merged' with canonical_id pointing to the surviving record; GET on the old ID returns redirect info rather than 404 or stale data; merged rows are not deleted, preserving cursor pagination stability",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "GET /entities returns only active/canonical entities by default (excludes status:'merged'); an explicit opt-in (?status=all or ?include_merged=true) surfaces merged records for admin/reconciliation use cases; direct GET /entities/{id} on a merged ID still resolves via redirect regardless of the collection filter",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "API is versioned from the start via URL path (/api/v1/...), not introduced later; URL-path versioning chosen over header-based versioning for simplicity",
+      "status": "active"
+    },
+    {
+      "type": "decision",
+      "label": "Use a consistent {data: ...} envelope for both single-resource and collection responses, not a bare object for single resources; collections additionally carry pagination alongside data",
+      "status": "active"
+    }
+  ],
+  "probes": [
+    {
+      "probe_id": "p1",
+      "question": "Is Entity a top-level API resource with its own endpoint, or only a read-only sub-resource nested under Article?",
+      "target": "SN_3",
+      "expected_any": [
+        "top-level",
+        "GET /entities"
+      ],
+      "forbidden_any": [
+        "derived sub-resource",
+        "not top-level"
+      ],
+      "valid_from_turn": 10,
+      "decision_text": "Model Article as top-level; Source many-to-one, Topic/Entity many-to-many with Entity as read-only derived sub-resource, later revised: make Entity a genuine top-level resource with GET /entities/{id}."
+    },
+    {
+      "probe_id": "p2",
+      "question": "Which HTTP method should the client use to toggle a saved-article or topic-assignment relationship (add/remove)?",
+      "target": "SN_27",
+      "expected_any": [
+        "PUT"
+      ],
+      "forbidden_any": [
+        "use POST for",
+        "POST is idempotent here"
+      ],
+      "valid_from_turn": 26,
+      "decision_text": "Relationship-toggle write operations (saved articles, topic assignments, etc.) are idempotent; use PUT to set relationship existence rather than POST."
+    },
+    {
+      "probe_id": "p3",
+      "question": "Should a new conversation be created at a top-level /conversations endpoint, or nested under the current user?",
+      "target": "SN_29",
+      "expected_any": [
+        "/me/conversations"
+      ],
+      "forbidden_any": [
+        "top-level /conversations"
+      ],
+      "valid_from_turn": 38,
+      "decision_text": "Conversation and message endpoints live under /me/conversations and /me/conversations/{id}/messages (private, per-user resources), not top-level /conversations."
+    },
+    {
+      "probe_id": "p4",
+      "question": "Should the async summary Job resource be nested under /articles/{id}, or exposed as its own top-level resource?",
+      "target": "SN_34",
+      "expected_any": [
+        "/jobs/{id}",
+        "top-level"
+      ],
+      "forbidden_any": [
+        "only under /articles/{id}/summary-jobs",
+        "nested-only"
+      ],
+      "valid_from_turn": 32,
+      "decision_text": "Job is a generic top-level resource (/jobs/{id}, with a job_type field), not nested under /articles/{id}/summary-jobs."
+    }
+  ]
+}

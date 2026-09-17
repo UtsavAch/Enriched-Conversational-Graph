@@ -4,6 +4,7 @@ import type { EntityView, GraphView } from "@/types/api";
 import { Badge } from "@/components/Badge";
 import { EmptyState } from "@/components/States";
 import { formatDate } from "@/lib/format";
+import { EntityTypeSuggestions } from "./EntityTypeSuggestions";
 import "./Entities.css";
 
 /** `E_12` -> 12, so ordering matches creation order even past `E_9`. */
@@ -20,7 +21,13 @@ function idOrdinal(id: string): number {
  * the one place to confirm what extraction actually found, in bulk, without
  * hunting for each node on the canvas.
  */
-export function EntitiesPanel({ graph }: { graph: GraphView | undefined }) {
+export function EntitiesPanel({
+  graph,
+  conversationId = null,
+}: {
+  graph: GraphView | undefined;
+  conversationId?: string | null;
+}) {
   const selectedNodeId = useUiStore((s) => s.selectedNodeId);
   const selectNode = useUiStore((s) => s.selectNode);
   const [query, setQuery] = useState("");
@@ -55,6 +62,8 @@ export function EntitiesPanel({ graph }: { graph: GraphView | undefined }) {
       <p className="inspector-lede">
         Every entity extracted from the conversation, oldest first.
       </p>
+
+      <EntityTypeSuggestions conversationId={conversationId} />
 
       <input
         className="list-search"

@@ -7,8 +7,14 @@ Given one question/answer pair, produce two things:
    thing: a proper noun, a technical term, a named system or tool, a person,
    an organisation. Skip generic nouns, pronouns, and vague references.
    "INESC TEC" is an entity; "the schema" is not.
-   Allowed types: person, organization, system, location, document, tool,
-   event, measurement, other.
+   Allowed types for this conversation:
+   {allowed_entity_types}
+   If an entity clearly doesn't fit any allowed type - not just an awkward
+   fit, genuinely none of them describe it - use "propose:<short_label>"
+   instead (e.g. "propose:resource" for a domain concept these types don't
+   cover). Use this rarely: prefer an existing type whenever one reasonably
+   applies, and never propose a type that's just a rewording of one already
+   allowed. Never use "propose:other" - "other" is already allowed.
 
 2. speech_act - the discourse function of the USER's question turn. Choose
    exactly one of:
@@ -20,7 +26,7 @@ earlier interaction. These are citation markers — never extract a bracketed ID
 as an entity, and ignore them when judging the speech act.
 
 Return strict JSON only, with no preamble and no markdown fences:
-{{"entities": [{{"name": "<surface form as it appears in the text>", "type": "<one of the allowed types>"}}, ...],
+{{"entities": [{{"name": "<surface form as it appears in the text>", "type": "<an allowed type, or propose:<label>>"}}, ...],
   "speech_act": "<one of the values above>"}}
 
 If there are no entities, return an empty list. Do not invent entities that are
@@ -34,6 +40,14 @@ A: "I'd propose five pragmatic edges — revises, contradicts, resolves, depends
     bounded [N_1]."
 → {{"entities": [{{"name": "Claude", "type": "system"}}], "speech_act": "decision"}}
 ([N_1] is a citation marker, not an entity)
+
+Q: "Should Article be a top-level resource, independently addressable from other
+    resources?"
+A: "Yes — Article should be top-level, with Source as a related sub-resource."
+→ {{"entities": [{{"name": "Article", "type": "propose:resource"}}, {{"name": "Source", "type": "propose:resource"}}], "speech_act": "decision"}}
+(neither "Article" nor "Source" is a person/organization/system/location/
+document/tool/event/measurement - they're domain resources, so propose a new
+type rather than forcing them into "other" or a poor-fitting existing type)
 
 Q: "When you said pragmatic edges get their own classification call — does that mean
     W2 and W3 always run fully independently in parallel, or could the order matter?"

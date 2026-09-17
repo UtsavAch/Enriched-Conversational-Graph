@@ -43,6 +43,11 @@ class ConsistencyProbe:
     forbidden_any: list[str] = field(default_factory=list)
     #: Turn index after which the probe is valid (the decision must exist first).
     valid_from_turn: int = 0
+    #: The gold decision/fact text itself, denormalised onto the probe so an
+    #: LLM judge (llm_judge.py) can be given it directly, without a separate
+    #: join back to the full-schema ground truth to resolve ``target``.
+    #: Optional - keyword scoring never needs it.
+    decision_text: str = ""
 
 
 @dataclass

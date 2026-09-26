@@ -1,0 +1,139 @@
+[
+  {
+    "probe_id": "p1",
+    "question": "What is Rita's main classification method in her thesis?",
+    "target": "SN_7",
+    "expected_any": [
+      "LLM",
+      "few-shot",
+      "zero-shot",
+      "GPT-4o-mini"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 55,
+    "decision_text": "Zero-shot and few-shot LLM classification (GPT-4o-mini), compared against a fine-tuned XLM-R-base baseline; fine-tuning BERTimbau was dropped as the main method.",
+    "designed_to_defeat": "anti-semantic: N_27 (fine-tune BERTimbau as main method) is the closest match"
+  },
+  {
+    "probe_id": "p2",
+    "question": "Does Rita's thesis include a fine-tuned baseline, and which model is it?",
+    "target": "SN_10",
+    "expected_any": [
+      "XLM-R"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 55,
+    "decision_text": "Yes: a fine-tuned XLM-R-base baseline (fits on the 16 GB GPU), added at the supervisor's request.",
+    "designed_to_defeat": "anti-semantic: N_36 drops fine-tuning; only N_53-N_55 bring it back"
+  },
+  {
+    "probe_id": "p3",
+    "question": "Is Rita building her own dataset of 2,000 annotated claims?",
+    "target": "SN_4",
+    "expected_any": [
+      "abandon",
+      "400",
+      "dropped"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 39,
+    "decision_text": "No: the 2,000-claim goal was abandoned; she annotated 400 PT-PT claims as a test set and uses FakeRecogna.",
+    "designed_to_defeat": "anti-recency"
+  },
+  {
+    "probe_id": "p4",
+    "question": "Which varieties of Portuguese does Rita's thesis cover?",
+    "target": "SN_3",
+    "expected_any": [
+      "both",
+      "PT-BR",
+      "Brazilian"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 41,
+    "decision_text": "Both European (PT-PT) and Brazilian (PT-BR) Portuguese; the scope was originally PT-PT only.",
+    "designed_to_defeat": "anti-semantic: N_8 limits the scope to PT-PT"
+  },
+  {
+    "probe_id": "p5",
+    "question": "What is Rita's second research question now?",
+    "target": "SN_2",
+    "expected_any": [
+      "transfer",
+      "PT-BR to PT-PT",
+      "built on PT-BR",
+      "trained on PT-BR"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 42,
+    "decision_text": "RQ2 asks how well a classifier built on PT-BR data transfers to PT-PT news (originally: whether performance differs between PT-PT and PT-BR).",
+    "designed_to_defeat": "anti-semantic + anti-recency: N_6 has the original RQ2; the reframing is 36 turns before the recall at N_74"
+  },
+  {
+    "probe_id": "p6",
+    "question": "When is Rita's thesis due?",
+    "target": "SN_11",
+    "expected_any": [
+      "15 September",
+      "September 15"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 64,
+    "decision_text": "15 September, after an approved extension (originally 30 June).",
+    "designed_to_defeat": "anti-semantic: N_12 states 30 June"
+  },
+  {
+    "probe_id": "p7",
+    "question": "Is Rita submitting a paper to PROPOR 2026?",
+    "target": "SN_12",
+    "expected_any": [
+      "skip",
+      "dropped",
+      "not submitting",
+      "decided against"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 66,
+    "decision_text": "No: the PROPOR submission was dropped to focus on the thesis after the extension.",
+    "designed_to_defeat": "anti-recency"
+  },
+  {
+    "probe_id": "p8",
+    "question": "Is Rita's annotation reliable enough to report?",
+    "target": "SN_9",
+    "expected_any": [
+      "0.71",
+      "substantial"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 52,
+    "decision_text": "Yes: Cohen's kappa of 0.71 on 100 double-annotated claims, substantial agreement.",
+    "designed_to_defeat": "none"
+  },
+  {
+    "probe_id": "p9",
+    "question": "Which LLMs does the thesis report results for?",
+    "target": "SN_14",
+    "expected_any": [
+      "both",
+      "Llama"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 62,
+    "decision_text": "Both: GPT-4o-mini as the main result and Llama-3.1-8B as the reproducible reference.",
+    "designed_to_defeat": "anti-hierarchical: answered by N_62 resolves N_58"
+  },
+  {
+    "probe_id": "p10",
+    "question": "What hardware limits Rita's experiments?",
+    "target": "SN_6",
+    "expected_any": [
+      "16 GB",
+      "16GB"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 30,
+    "decision_text": "A single shared 16 GB GPU on the faculty server.",
+    "designed_to_defeat": "anti-recency: set at N_30, needed again at N_54 and N_76"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "dataset": "A named dataset or corpus (e.g. FakeRecogna).",
+  "model": "A named ML model or model family (e.g. BERTimbau, GPT-4o-mini, XLM-R-base).",
+  "venue": "A named conference, journal, or workshop (e.g. PROPOR 2026).",
+  "concept": "A named research concept or method (e.g. claim-worthiness detection, Cohen's kappa)."
+}

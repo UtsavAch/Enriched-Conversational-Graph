@@ -25,6 +25,22 @@ from dataclasses import dataclass
 
 NO_RELATION = "no_relation"
 
+#: The schema's two independent edge families (core/schema/enums.py). A turn can
+#: hold one hierarchical AND one pragmatic edge to the same earlier turn (e.g.
+#: N_3 -> N_2 subcase + resolves), so every pair is scored once per family.
+#: Kept as literals rather than imported from core.schema, so the metrics stay
+#: independent of the pipeline (see evaluation/annotation.py).
+HIERARCHICAL_LABELS = frozenset({"subcase", "supercase", "same_level"})
+PRAGMATIC_LABELS = frozenset({"revises", "contradicts", "resolves", "depends_on", "references"})
+
+
+def relation_family(label: str) -> str:
+    if label in HIERARCHICAL_LABELS:
+        return "hierarchical"
+    if label in PRAGMATIC_LABELS:
+        return "pragmatic"
+    return "other"
+
 
 @dataclass(frozen=True)
 class RelationRef:
@@ -35,24 +51,46 @@ class RelationRef:
     relation: str
 
 
-def _pair_map(refs: list[RelationRef]) -> dict[tuple[str, str], str]:
-    return {(r.source, r.target): r.relation for r in refs}
+def _pair_map(refs: list[RelationRef]) -> dict[tuple[str, str, str], str]:
+    """Key each edge by (source, target, family), not (source, target).
+
+    Keying by pair alone let a pragmatic label overwrite the hierarchical label
+    on the same pair, silently dropping it from both gold and predictions
+    (65 of 171 gold relations on rest_api).
+    """
+    return {(r.source, r.target, relation_family(r.relation)): r.relation for r in refs}
 
 
 def confusion_matrix(
-    predicted: list[RelationRef], gold: list[RelationRef]
+    predicted: list[RelationRef], gold: list[RelationRef], family: str | None = None
 ) -> dict[str, dict[str, int]]:
     """``matrix[gold_label][predicted_label] = count``.
 
-    The union of pairs appearing in either list is scored. A pair the classifier
-    did not mention is treated as ``no_relation`` - which is exactly what it
-    meant, since the prompts instruct it to omit no-relation pairs.
+    The union of (pair, family) keys appearing in either list is scored. A pair
+    the classifier did not mention in a family is treated as ``no_relation`` in
+    that family - which is exactly what it meant, since the prompts instruct it
+    to omit no-relation pairs. Labels never cross families, so e.g. a predicted
+    ``subcase`` where gold has only ``resolves`` is a hierarchical false positive
+    plus a pragmatic false negative, not a subcase/resolves confusion.
+
+    ``family`` ("hierarchical" / "pragmatic") restricts the matrix to one family.
     """
     pred, gld = _pair_map(predicted), _pair_map(gold)
     matrix: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
-    for pair in set(pred) | set(gld):
-        matrix[gld.get(pair, NO_RELATION)][pred.get(pair, NO_RELATION)] += 1
+    for key in set(pred) | set(gld):
+        if family is not None and key[2] != family:
+            continue
+        matrix[gld.get(key, NO_RELATION)][pred.get(key, NO_RELATION)] += 1
     return {g: dict(row) for g, row in matrix.items()}
+
+
+def _macro(rows: list[dict[str, float]]) -> dict[str, float]:
+    return {
+        "precision": round(sum(v["precision"] for v in rows) / len(rows), 4) if rows else 0.0,
+        "recall": round(sum(v["recall"] for v in rows) / len(rows), 4) if rows else 0.0,
+        "f1": round(sum(v["f1"] for v in rows) / len(rows), 4) if rows else 0.0,
+        "support": sum(v["support"] for v in rows),
+    }
 
 
 def per_relation_prf(
@@ -82,13 +120,16 @@ def per_relation_prf(
             "support": tp + fn,
         }
 
-    scored = [v for k, v in out.items() if k != NO_RELATION]
-    out["macro_avg_excl_no_relation"] = {
-        "precision": round(sum(v["precision"] for v in scored) / len(scored), 4) if scored else 0.0,
-        "recall": round(sum(v["recall"] for v in scored) / len(scored), 4) if scored else 0.0,
-        "f1": round(sum(v["f1"] for v in scored) / len(scored), 4) if scored else 0.0,
-        "support": sum(v["support"] for v in scored),
-    }
+    scored = {k: v for k, v in out.items() if k != NO_RELATION}
+    out["macro_avg_excl_no_relation"] = _macro(list(scored.values()))
+    # Per-family macro averages: the two families are different tasks (topic
+    # structure vs discourse function) and are worth reporting separately.
+    out["macro_avg_hierarchical"] = _macro(
+        [v for k, v in scored.items() if relation_family(k) == "hierarchical"]
+    )
+    out["macro_avg_pragmatic"] = _macro(
+        [v for k, v in scored.items() if relation_family(k) == "pragmatic"]
+    )
     return out
 
 

@@ -20,6 +20,7 @@ one with the other.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -36,6 +37,30 @@ _SYSTEM = (
     '- "contradicts": the answer states or implies something the decision rules out.\n'
     '- "unclear": the answer does not engage with the decision either way.'
 )
+
+
+_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
+
+
+def _parse_judge_json(raw: str) -> dict:
+    """Parse the judge's JSON even when wrapped in a markdown fence or prose.
+
+    Models often answer ```json {...}``` despite "JSON only"; a bare json.loads
+    turned every such answer into verdict "error". Same tolerance as
+    core.llm.client.parse_json_response, re-implemented here to keep this module
+    free of pipeline imports. Raises ValueError if no JSON object is found.
+    """
+    candidate = raw.strip()
+    fenced = _FENCE_RE.search(candidate)
+    if fenced:
+        candidate = fenced.group(1).strip()
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError:
+        start, end = candidate.find("{"), candidate.rfind("}")
+        if start != -1 and end > start:
+            return json.loads(candidate[start : end + 1])
+        raise ValueError("no JSON object in judge response") from None
 
 
 class JudgeClient(Protocol):
@@ -103,10 +128,10 @@ def judge_consistency(
     raw = getattr(response, "text", str(response))
 
     try:
-        parsed = json.loads(raw)
+        parsed = _parse_judge_json(raw)
         verdict = parsed.get("verdict", "unclear")
         rationale = parsed.get("rationale", "")
-    except (json.JSONDecodeError, AttributeError):
+    except (ValueError, AttributeError):  # json.JSONDecodeError is a ValueError
         verdict, rationale = "error", f"could not parse judge response: {raw[:200]!r}"
 
     if verdict not in ("consistent", "contradicts", "unclear"):

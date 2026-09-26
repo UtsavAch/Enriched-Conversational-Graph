@@ -3,8 +3,16 @@
     "probe_id": "p1",
     "question": "Where should Tomás keep the master copy of his training dataset?",
     "target": "SN_4",
-    "expected_any": ["$PROJECT", "project storage", "project directory"],
-    "forbidden_any": ["keep it in $SCRATCH", "scratch is the right place", "scratch is the best place"],
+    "expected_any": [
+      "$PROJECT",
+      "project storage",
+      "project directory"
+    ],
+    "forbidden_any": [
+      "keep it in $SCRATCH",
+      "scratch is the right place",
+      "scratch is the best place"
+    ],
     "valid_from_turn": 36,
     "decision_text": "Keep the master copy of the dataset in $PROJECT and stage a working copy to $SCRATCH per job (originally: dataset kept in $SCRATCH only).",
     "designed_to_defeat": "anti-semantic: N_12 recommends scratch and is the closest match to the question"
@@ -13,8 +21,16 @@
     "probe_id": "p2",
     "question": "Is it safe for Tomás to leave files in $SCRATCH for a couple of months?",
     "target": "SN_4",
-    "expected_any": ["30 days", "purge", "purged"],
-    "forbidden_any": ["scratch is persistent", "yes, it is safe", "yes, that's safe"],
+    "expected_any": [
+      "30 days",
+      "purge",
+      "purged"
+    ],
+    "forbidden_any": [
+      "scratch is persistent",
+      "yes, it is safe",
+      "yes, that's safe"
+    ],
     "valid_from_turn": 36,
     "decision_text": "Scratch files not accessed in 30 days are deleted automatically and scratch is not backed up; the master copy belongs in $PROJECT.",
     "designed_to_defeat": "anti-semantic"
@@ -23,8 +39,15 @@
     "probe_id": "p3",
     "question": "Can Tomás run a short Python test directly on the login node?",
     "target": "SN_2",
-    "expected_any": ["srun", "compute node", "interactive session"],
-    "forbidden_any": ["yes, you can run it on the login node", "it's fine to run it on the login node"],
+    "expected_any": [
+      "srun",
+      "compute node",
+      "interactive session"
+    ],
+    "forbidden_any": [
+      "yes, you can run it on the login node",
+      "it's fine to run it on the login node"
+    ],
     "valid_from_turn": 5,
     "decision_text": "No computation on the login nodes; use an interactive srun --pty session on a compute node for tests.",
     "designed_to_defeat": "anti-recency: set at N_5, only recapped at N_49"
@@ -33,8 +56,14 @@
     "probe_id": "p4",
     "question": "How should Tomás set up the software environment for his GPU training jobs now?",
     "target": "SN_12",
-    "expected_any": ["Apptainer", "container"],
-    "forbidden_any": ["conda environment in $HOME", "conda env in $HOME"],
+    "expected_any": [
+      "Apptainer",
+      "container"
+    ],
+    "forbidden_any": [
+      "conda environment in $HOME",
+      "conda env in $HOME"
+    ],
     "valid_from_turn": 43,
     "decision_text": "Run GPU jobs inside an Apptainer container instead of a conda environment (the conda env, first in $HOME and then in $PROJECT, was retired after CUDA driver mismatches).",
     "designed_to_defeat": "anti-semantic: two conda turns (N_10, N_24) are closer matches than the container turn"
@@ -43,8 +72,15 @@
     "probe_id": "p5",
     "question": "How much memory should Tomás request for training runs on the full dataset?",
     "target": "SN_6",
-    "expected_any": ["64G", "64 GB", "64GB"],
-    "forbidden_any": ["request --mem=32G", "32G is enough"],
+    "expected_any": [
+      "64G",
+      "64 GB",
+      "64GB"
+    ],
+    "forbidden_any": [
+      "request --mem=32G",
+      "32G is enough"
+    ],
     "valid_from_turn": 29,
     "decision_text": "Request --mem=64G per training job for the full dataset (originally: --mem=32G).",
     "designed_to_defeat": "anti-semantic: N_21 (32G) is the canonical memory turn"
@@ -53,8 +89,13 @@
     "probe_id": "p6",
     "question": "How does Tomás run a training that takes about 60 hours on Aurora?",
     "target": "SN_10",
-    "expected_any": ["checkpoint"],
-    "forbidden_any": ["--time=60", "request 60 hours"],
+    "expected_any": [
+      "checkpoint"
+    ],
+    "forbidden_any": [
+      "--time=60",
+      "request 60 hours"
+    ],
     "valid_from_turn": 32,
     "decision_text": "Checkpoint every 2 hours and resubmit via an afterany dependency chain, since no partition allows jobs over 24 hours.",
     "designed_to_defeat": "anti-hierarchical: the answer is reached via N_30 -> N_32 resolves"
@@ -63,7 +104,9 @@
     "probe_id": "p7",
     "question": "Which partition should Tomás use for quick debug runs on a GPU?",
     "target": "SN_7",
-    "expected_any": ["gpu-short"],
+    "expected_any": [
+      "gpu-short"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 34,
     "decision_text": "Use gpu-short (2 h max, higher priority) for debugging; keep gpu-a100 for the training chain.",
@@ -73,20 +116,35 @@
     "probe_id": "p8",
     "question": "How should Tomás submit the 40-configuration hyper-parameter sweep?",
     "target": "SN_13",
-    "expected_any": ["job array", "--array"],
-    "forbidden_any": ["40 separate jobs", "submit 40 jobs"],
+    "expected_any": [
+      "job array",
+      "--array"
+    ],
+    "forbidden_any": [
+      "submit 40 jobs",
+      "use 40 separate sbatch"
+    ],
     "valid_from_turn": 45,
     "decision_text": "Run the 40-configuration sweep as a job array (--array=1-40%10), max 10 concurrent.",
-    "designed_to_defeat": "none (control probe)"
+    "designed_to_defeat": "none (control probe)",
+    "revision_note": "2026-09-26: removed '40 separate jobs' from forbidden_any; correct answers say 'rather than submitting 40 separate jobs' (false negatives in all 4 baseline runs, judge: consistent)."
   },
   {
     "probe_id": "p9",
     "question": "Why did Tomás's first training jobs die after a few minutes without any Python traceback?",
     "target": "SN_5",
-    "expected_any": ["memory", "OOM", "OUT_OF_MEMORY"],
-    "forbidden_any": ["python error", "bug in your code"],
+    "expected_any": [
+      "memory",
+      "OOM",
+      "OUT_OF_MEMORY"
+    ],
+    "forbidden_any": [
+      "bug in your code",
+      "caused by a bug"
+    ],
     "valid_from_turn": 21,
     "decision_text": "Jobs were killed for exceeding the default 2 GB per core memory allocation (OUT_OF_MEMORY); fixed by requesting memory explicitly.",
-    "designed_to_defeat": "anti-recency: answered at N_21, not revisited"
+    "designed_to_defeat": "anti-recency: answered at N_21, not revisited",
+    "revision_note": "2026-09-26: removed 'python error' from forbidden_any; correct answers say 'rather than crashing due to a Python error' (false negatives in 2 no-doc baseline runs, judge: consistent)."
   }
 ]

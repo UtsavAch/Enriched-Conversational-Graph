@@ -1,0 +1,5 @@
+{
+  "partition": "A named SLURM partition/queue on the cluster (e.g. gpu-a100, gpu-short).",
+  "command": "A named CLI command or command-line flag (e.g. sbatch, sacct, --mem).",
+  "filesystem": "A named storage area or filesystem path variable (e.g. $HOME, $PROJECT, $SCRATCH)."
+}

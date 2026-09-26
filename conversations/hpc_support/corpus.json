@@ -1,0 +1,702 @@
+[
+  {
+    "id": "N_1",
+    "date": "2026-10-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Hi! I'm Tomás, a new PhD student. I just got my account on Aurora and I need to train a protein-embedding model on the GPUs there for my first project. I've never used a cluster before, so where do I even start?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Welcome! The short path is: log in with an SSH key, set up a software environment, put your data in the right storage area, then submit training as SLURM batch jobs on a GPU partition. The Aurora User Guide covers each step; it also flags four sections that cause most new-user problems (login-node limits, where to install conda, memory requests, and the scratch purge policy). Let's go step by step."
+      }
+    ]
+  },
+  {
+    "id": "N_2",
+    "date": "2026-10-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, first things first. How do I actually log in?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Aurora only accepts SSH keys; passwords are disabled. Generate a key on your laptop with `ssh-keygen -t ed25519`, upload the public key (`~/.ssh/id_ed25519.pub`) in the Research Computing portal under Profile → SSH keys, then connect with `ssh <username>@login.aurora.inst`."
+      }
+    ]
+  },
+  {
+    "id": "N_3",
+    "date": "2026-10-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Uploaded the key but the login still gets rejected. Did I do something wrong?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Probably not. New keys take up to 15 minutes to propagate to the login nodes. Wait a bit and try again, and make sure you uploaded the .pub file, not the private key. Never copy your private key onto Aurora itself."
+      }
+    ]
+  },
+  {
+    "id": "N_4",
+    "date": "2026-10-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I'm in. Can I just run a quick Python test of my data loader right here on the login node? It only takes a few minutes."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Please don't. The login nodes are shared by every user and are only for editing, managing files and submitting jobs. Any process using more than 10 minutes of CPU time there is killed automatically, and repeated violations can get the account suspended."
+      }
+    ]
+  },
+  {
+    "id": "N_5",
+    "date": "2026-10-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Got it. So what's the right way to do a quick interactive test then?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Ask SLURM for an interactive session on a compute node, e.g. `srun --partition=cpu --time=00:30:00 --cpus-per-task=4 --mem=8G --pty bash`. You get a shell on a real compute node and can test freely. Treat it as a hard rule from now on: no computation on login nodes."
+      }
+    ]
+  },
+  {
+    "id": "N_6",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Next: what Python is available on Aurora?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Centrally installed software comes as environment modules. Run `module avail` to see everything, and `module load python/3.11` for Python. In batch scripts, start with `module purge` so jobs don't inherit whatever you had loaded interactively."
+      }
+    ]
+  },
+  {
+    "id": "N_7",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "`module load python/3.11` works. Is that enough for everything, or should I add packages to it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The module gives you the interpreter and a small standard set of packages; you can't install into it. For anything beyond that, you'll want your own environment."
+      }
+    ]
+  },
+  {
+    "id": "N_8",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I need PyTorch plus a couple of custom protein libraries. Module or conda?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "For a custom stack like that, conda is the practical option."
+      }
+    ]
+  },
+  {
+    "id": "N_9",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Is conda actually allowed on Aurora, though? Some clusters ban it."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, conda is allowed. Load it with `module load miniforge`, then create and activate your own environment as usual."
+      }
+    ]
+  },
+  {
+    "id": "N_10",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Done: I created the environment in ~/envs/protein with PyTorch and my libraries. Everything imports fine."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Great, that gives you a working environment. Keep an `environment.yml` exported in your repo so you can recreate it later."
+      }
+    ]
+  },
+  {
+    "id": "N_11",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Where should my training data live? It's about 400 GB of protein sequence shards."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Aurora has three storage areas, $HOME, $PROJECT and $SCRATCH, with very different sizes and rules. 400 GB certainly doesn't fit in $HOME."
+      }
+    ]
+  },
+  {
+    "id": "N_12",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So which of the other two is best for a big dataset that training reads over and over?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "$SCRATCH: it's the high-performance parallel filesystem with 50 TB of space, so it's the fastest place for heavy training I/O and large datasets."
+      }
+    ]
+  },
+  {
+    "id": "N_13",
+    "date": "2026-10-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Perfect, I've copied the whole 400 GB dataset to $SCRATCH and deleted it from my laptop to free space."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good. Your training jobs will read it quickly from there."
+      }
+    ]
+  },
+  {
+    "id": "N_14",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Now I want to submit my first real job. Can you help me write a batch script?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Sure. Batch jobs are shell scripts with `#SBATCH` directives at the top, submitted with `sbatch job.sh`. You need at least a job name, partition, time limit and CPU count."
+      }
+    ]
+  },
+  {
+    "id": "N_15",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Could you give me a minimal template I can adapt?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Here's the guide's minimal version: `#SBATCH --job-name=test`, `--partition=cpu`, `--time=01:00:00`, `--cpus-per-task=4`, then `module purge`, `module load python/3.11` and your command. Submit with `sbatch job.sh` and watch it with `squeue -u $USER`."
+      }
+    ]
+  },
+  {
+    "id": "N_16",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Submitted it, but it's been sitting in PENDING for twenty minutes. Is something broken?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Check the REASON column in `squeue -u $USER`. What does it say?"
+      }
+    ]
+  },
+  {
+    "id": "N_17",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "It says `Resources`."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then nothing is broken: the resources you asked for simply aren't free yet. It will start when they are. Smaller requests (fewer cores, shorter time) usually start sooner. `Priority` would instead mean other jobs are ahead of yours."
+      }
+    ]
+  },
+  {
+    "id": "N_18",
+    "date": "2026-10-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The job ran this time, but it died after about 3 minutes, and there's no Python traceback in the output file at all. It just stops. Any idea?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "A job that ends abruptly with no traceback is usually killed by the scheduler, not by Python. Let's find out what SLURM thinks happened."
+      }
+    ]
+  },
+  {
+    "id": "N_19",
+    "date": "2026-10-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How do I check what SLURM thinks happened?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Run `sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS,ExitCode` and look at the State and MaxRSS columns."
+      }
+    ]
+  },
+  {
+    "id": "N_20",
+    "date": "2026-10-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "State is `OUT_OF_MEMORY`, and MaxRSS is about 7.8 GB. I only asked for 4 CPUs."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That explains it: with 4 cores and no memory request you only got 8 GB."
+      }
+    ]
+  },
+  {
+    "id": "N_21",
+    "date": "2026-10-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Why only 8 GB? And what should I ask for?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Without an explicit request, Aurora gives 2 GB per allocated core, so 4 cores = 8 GB, and exceeding it gets the job killed silently. Your data loader alone is close to that. Request memory explicitly: for this setup `--mem=32G` gives plenty of headroom."
+      }
+    ]
+  },
+  {
+    "id": "N_22",
+    "date": "2026-10-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Resubmitted with --mem=32G and it's been running for an hour now. Thanks!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Great. Keep an eye on MaxRSS in sacct after each run so you can size future requests with about 20% headroom."
+      }
+    ]
+  },
+  {
+    "id": "N_23",
+    "date": "2026-10-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "New problem: pip suddenly fails inside my environment with 'Disk quota exceeded', and even saving a small file in my home directory fails."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's your $HOME quota, which is 10 GB and strictly enforced. Your conda environment in ~/envs [N_10] is almost certainly what's filling it."
+      }
+    ]
+  },
+  {
+    "id": "N_24",
+    "date": "2026-10-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "But you said conda was fine to use. What should I have done?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Conda is allowed, but I left out the important part earlier: the guide says to install environments under $PROJECT, not $HOME, because deep-learning environments are typically 5–15 GB and $HOME has a 10 GB quota. So create it as `conda create --prefix $PROJECT/envs/protein python=3.11`. It's also worth pointing caches elsewhere, e.g. `export HF_HOME=$PROJECT/.cache/huggingface`."
+      }
+    ]
+  },
+  {
+    "id": "N_25",
+    "date": "2026-10-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can I just `mv ~/envs/protein $PROJECT/envs/` to move it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "No. Conda environments hard-code their own paths, so a moved directory breaks in subtle ways."
+      }
+    ]
+  },
+  {
+    "id": "N_26",
+    "date": "2026-10-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then how do I move it without breaking anything?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Export it with `conda env export > environment.yml`, recreate it with `conda env create --prefix $PROJECT/envs/protein -f environment.yml`, check it imports, then delete ~/envs/protein to free your home quota."
+      }
+    ]
+  },
+  {
+    "id": "N_27",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The CPU pipeline works. Time for the real thing: which GPU partition should I use for training?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "For training and production runs, `gpu-a100`: A100 40 GB cards, normal priority. Request GPUs with `--partition=gpu-a100 --gres=gpu:1`, up to 4 per node."
+      }
+    ]
+  },
+  {
+    "id": "N_28",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Is there a time limit on gpu-a100?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: 24 hours maximum walltime per job. Jobs asking for more than that are rejected at submission."
+      }
+    ]
+  },
+  {
+    "id": "N_29",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The first GPU run on the full dataset got killed with OUT_OF_MEMORY again, even with 32G. MaxRSS says about 51 GB."
+      },
+      {
+        "speaker": "assistant",
+        "text": "The full dataset needs more host memory than the subset did. With 51 GB peak plus roughly 20% headroom, request `--mem=64G` for the full-dataset runs."
+      }
+    ]
+  },
+  {
+    "id": "N_30",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Bigger problem: I estimate one full training run takes about 60 hours. How can I do that with a 24-hour limit?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "You can't do it in a single job on any partition; you'll need to split the run across several jobs."
+      }
+    ]
+  },
+  {
+    "id": "N_31",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Split it how, exactly? Can't I just ask for a longer reservation?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Extended reservations exist but only in exceptional cases with PI approval. The standard approach, and a requirement for work over 24 hours, is checkpointing: save model and optimizer state every 1–2 hours so a new job can resume from the last checkpoint."
+      }
+    ]
+  },
+  {
+    "id": "N_32",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, so I checkpoint every 2 hours. How do the jobs pick up automatically after each other?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Chain them with dependencies: `sbatch --dependency=afterany:<jobid> train.sh`, where train.sh always resumes from the latest checkpoint. `afterany` starts the next job even when the previous one hits the time limit, which is exactly what you want here. Three to four chained 24-hour jobs cover the 60 hours."
+      }
+    ]
+  },
+  {
+    "id": "N_33",
+    "date": "2026-10-13",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "My debug runs sit in the gpu-a100 queue for ages before they start. Is there a faster way to iterate on small tests?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, there's a partition meant for exactly that."
+      }
+    ]
+  },
+  {
+    "id": "N_34",
+    "date": "2026-10-13",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Which one?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "`gpu-short`: same A100 cards, 2-hour maximum, higher priority. Use it for debugging and short tests, and keep `gpu-a100` for the real training chain."
+      }
+    ]
+  },
+  {
+    "id": "N_35",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Something scary happened. About half of my dataset shards have vanished from $SCRATCH. I didn't delete anything!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That matches the scratch purge policy. The shards that disappeared are probably the ones your jobs hadn't read recently."
+      }
+    ]
+  },
+  {
+    "id": "N_36",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Purge policy? You told me scratch was the right place for my dataset!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "I did, and that advice was incomplete, sorry. Scratch is fast, but the guide is explicit: files not accessed in 30 days are deleted automatically, and scratch is not backed up, so it must never hold the only copy of anything. The recommended pattern is to keep the master copy in $PROJECT (backed up, never purged) and stage a working copy to $SCRATCH at the start of each job or job chain."
+      }
+    ]
+  },
+  {
+    "id": "N_37",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Is there enough room in $PROJECT for 400 GB?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "$PROJECT is 1 TB per group, and it's shared by everyone in your group, so check current usage with `aurora-quota` before adding 400 GB and coordinate with your group."
+      }
+    ]
+  },
+  {
+    "id": "N_38",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "aurora-quota shows the group already uses about 650 GB. So 400 GB won't fit?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "1 TB minus 650 GB leaves roughly 350 GB, so the raw 400 GB won't fit as-is. Talk to whoever manages your group's storage before anything else."
+      }
+    ]
+  },
+  {
+    "id": "N_39",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I talked to Inês, who manages our group's storage. She confirmed there's 350 GB free and suggested compressing the shards. They compress to about 230 GB."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That works: 230 GB fits in the 350 GB free. Store the compressed master copy in $PROJECT and decompress into $SCRATCH when staging for a run."
+      }
+    ]
+  },
+  {
+    "id": "N_40",
+    "date": "2026-10-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "To stop the purge from hitting the scratch copy again, can I just run a nightly `touch` over all the shards?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Please don't: the guide explicitly prohibits artificially updating access times to dodge the purge, and it can cost you scratch access."
+      }
+    ]
+  },
+  {
+    "id": "N_41",
+    "date": "2026-10-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then what's the right way to keep a working copy available?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Re-stage from $PROJECT at the start of each job chain: the first job decompresses the shards into $SCRATCH, and the later jobs in the chain reuse them. If the chain is idle for weeks and the copy gets purged, the next chain simply re-stages it; nothing is lost because the master is in $PROJECT."
+      }
+    ]
+  },
+  {
+    "id": "N_42",
+    "date": "2026-10-22",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "On the GPU nodes my environment now crashes on import with a CUDA error: 'CUDA driver version is insufficient for CUDA runtime version'. It worked on gpu-short last week."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a classic conda problem on these nodes: conda-installed CUDA libraries often mismatch the A100 driver, and the guide warns about this. It's the same environment we rebuilt in $PROJECT [N_24], so rebuilding it again won't reliably fix it."
+      }
+    ]
+  },
+  {
+    "id": "N_43",
+    "date": "2026-10-22",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So what should I use instead?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Containers. Apptainer is the recommended way to run GPU workloads on Aurora: the image bundles a CUDA runtime that matches the driver when you run it with `--nv`. I'd move the whole training stack into an Apptainer image and retire the conda environment for GPU jobs."
+      }
+    ]
+  },
+  {
+    "id": "N_44",
+    "date": "2026-10-22",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I don't have root on Aurora. How do I build the .sif image?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Two options: build it on a compute node with `apptainer build --fakeroot train.sif train.def` (not on a login node), or build it on your own machine and copy it to $PROJECT. You can also convert a Docker image, e.g. `apptainer build train.sif docker://pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime`, then run with `apptainer exec --nv train.sif python train.py`."
+      }
+    ]
+  },
+  {
+    "id": "N_45",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Training works in the container. Now my supervisor wants a sweep over 40 hyper-parameter configurations. Do I submit 40 separate jobs?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Use a job array instead: `#SBATCH --array=1-40%10` submits all 40 configs as one array and runs at most 10 at a time; each task reads its config via `$SLURM_ARRAY_TASK_ID`. The guide asks for a concurrency limit on large arrays, and each task still uses the same checkpoint-and-resume logic."
+      }
+    ]
+  },
+  {
+    "id": "N_46",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Looking back, the 24-hour limit really isn't a problem for me anymore, is it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Right: with checkpoint-and-resume chains [N_32] every run is already split into sub-24-hour jobs, so the limit no longer constrains anything you plan to do. It's still the partition policy, but it has stopped binding your work."
+      }
+    ]
+  },
+  {
+    "id": "N_47",
+    "date": "2026-10-27",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Weird: after the sweep, my jobs are suddenly waiting much longer than before, with reason `Priority`."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's fair-share at work. Priority depends on your group's recent usage, and a 40-config sweep is a lot of usage."
+      }
+    ]
+  },
+  {
+    "id": "N_48",
+    "date": "2026-10-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How long until my priority recovers? And good news: the first full 60-hour training finished overnight with good results!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations, that's the main goal done! Usage decays with a 7-day half-life, so your priority recovers over about one to two weeks; `sshare -u $USER` shows your current standing."
+      }
+    ]
+  },
+  {
+    "id": "N_49",
+    "date": "2026-10-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "A new labmate starts on Aurora next week. Can you give me a checklist of everything I learned the hard way?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Here's the checklist: (1) never compute on login nodes; use `srun --pty` for tests. (2) Keep environments out of $HOME, and for GPU work use an Apptainer image rather than conda. (3) Master data lives in $PROJECT (a 1 TB quota shared by the group); scratch is a purged working area, staged per job chain. (4) Always request memory explicitly, sized from MaxRSS plus about 20%. (5) Anything longer than 24 h is checkpointed and chained; debug on gpu-short; sweeps go in job arrays with a concurrency limit."
+      }
+    ]
+  },
+  {
+    "id": "N_50",
+    "date": "2026-10-29",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Thanks. I'm also opening a helpdesk ticket suggesting that the quickstart page mention the scratch purge right next to the dataset advice."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good idea, since that was the most costly surprise. Include the section number (§5.3) in the ticket. If they want to discuss it, Research Computing holds office hours on Thursdays, 14:00–16:00."
+      }
+    ]
+  }
+]

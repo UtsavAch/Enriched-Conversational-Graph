@@ -1,0 +1,5 @@
+{
+  "product": "A named product, product codename, or product tier (e.g. Nimbus, Nimbus Team).",
+  "feature": "A named product feature or feature codename (e.g. Smart Rota, Work Offline).",
+  "metric": "A named business or product metric (e.g. activation rate)."
+}

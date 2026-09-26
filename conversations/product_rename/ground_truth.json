@@ -1,0 +1,2603 @@
+{
+  "conversation_id": "product_rename",
+  "domain": "SaaS product launch planning with a mid-conversation product rename",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip. Domain entity types (domain_config.json): product, feature, metric. Entities carry an aliases list (core/schema/entity.py Entity.aliases): name is the surface form as first mentioned, later surface forms are aliases (Falcon -> Nimbus, Tailwind -> Work Offline, Falcon Lite/Pro -> Nimbus Free/Team). Built to break semantic retrieval: decisions are made under old names and every probe uses the new names.",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_21",
+      "issue": "entity_prf scores by (turn, normalised name) and ignores aliases. The flat gold therefore uses the first surface form ('Falcon') for every mention of E_3, including turns whose text only says 'Nimbus'.",
+      "proposed_direction": "With the current scorer this rewards correct merging (a merged entity keeps its first name, matching gold on every turn) and penalises a separate 'Nimbus' entity on each post-rename turn. An alias-aware criterion (match if the predicted name equals the gold name or any alias) would additionally report surface-form recall separately from merge accuracy; not implemented yet."
+    },
+    {
+      "raised_at_node": "N_36",
+      "issue": "Restoring a cut feature cannot re-activate SN_3, because reverted is terminal. The restored scope is a new decision (SN_10) with a different name and a narrower scope (Team tier only).",
+      "proposed_direction": "Same convention as the other corpora. The link between SN_3 and SN_10 exists only through the interaction graph (N_36 contradicts N_14; N_37 references N_6), which is exactly what probe p2 tests."
+    },
+    {
+      "raised_at_node": "N_44",
+      "issue": "SN_11 (no Slack before launch) is lifted because its reason, missing backend time, disappeared, not because anyone decided otherwise. N_44 contradicts N_16.",
+      "proposed_direction": "Consistent with hpc_support's SN_8: lifted means the constraint no longer binds the plan, whatever the cause."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "I'm Priya, PM at Tessellate. We're launching Falcon, our team-scheduling product for shift-based businesses, and I want a paying beta customer on board before the public launch. Can you help me plan it?",
+      "answer": "Happy to. Let's build a launch checklist: date, scope, pricing, beta customer, and team capacity. Those five decisions drive everything else.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_48",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 10,
+      "retrieval_count": 10,
+      "summary": "Priya sets the goal of launching Falcon publicly with a paying beta customer.",
+      "reference": "Falcon launch goal",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "What goes on the checklist first?",
+      "answer": "The date, because scope and staffing both work backwards from it. Then scope, then pricing, then the beta customer, who should be secured early so their feedback can still change things.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Checklist order: date, scope, pricing, beta customer.",
+      "reference": "Checklist order",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_3": {
+      "question": "Let's say the public launch is 2 June.",
+      "answer": "2 June gives four weeks, which is tight but workable if scope stays small. I'll plan everything back from that date.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_24",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Public launch set for 2 June.",
+      "reference": "Launch 2 June",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_4": {
+      "question": "For scope, what should Falcon ship with?",
+      "answer": "What are the core features on your roadmap? Let's rank them by what a beta customer can't live without.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "open"
+        ],
+        [
+          "N_5",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks what Falcon should ship with at launch.",
+      "reference": "Scope question",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "Three big ones: Smart Rota, the auto-scheduler; shift swaps between staff; and Tailwind, our codename for offline sync in the mobile app.",
+      "answer": "Smart Rota and shift swaps are the core of a scheduling product. Tailwind is the riskiest of the three to build, since offline sync is hard, but valuable for staff without reliable signal.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [
+        "E_5",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Core features listed: Smart Rota, shift swaps, and Tailwind (offline sync).",
+      "reference": "Core features listed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_4",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_6": {
+      "question": "I want all three in the launch, including Tailwind.",
+      "answer": "OK, Tailwind is in scope. Let's confirm with engineering that it fits in four weeks alongside everything else.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_14",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Tailwind (offline sync) put into the launch scope.",
+      "reference": "Tailwind in scope",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ]
+      }
+    },
+    "N_7": {
+      "question": "Next is pricing. What do competitors charge for team scheduling?",
+      "answer": "Most charge per seat per month, typically €4–€8, with a free tier for very small teams to drive sign-ups.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [
+        "E_16"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks about competitor pricing; per-seat €4-€8 with a free tier is typical.",
+      "reference": "Competitor pricing",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ],
+          [
+            "N_4",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "Would a free tier cannibalise the paid one?",
+      "answer": "Not if it's capped by seats. A cap of a handful of seats keeps it useful for a single small shop but pushes any real team onto the paid plan.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "A seat-capped free tier is suggested to avoid cannibalisation.",
+      "reference": "Seat-capped free tier",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_7",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_9": {
+      "question": "Then two tiers: Falcon Lite, free for up to 5 seats, and Falcon Pro at €5 per seat per month.",
+      "answer": "That's a clean structure and within the market range. Falcon Lite (5 seats, free) and Falcon Pro (€5/seat/month) it is.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_7",
+        "E_16"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_28",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Tiers set: Falcon Lite free up to 5 seats, Falcon Pro €5 per seat.",
+      "reference": "Falcon Lite / Pro pricing",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4"
+        ]
+      }
+    },
+    "N_10": {
+      "question": "For the beta, Café Aurora (a chain of 12 cafés) is keen. Should we go with them?",
+      "answer": "Yes. Twelve sites with rotating shift staff is exactly the target customer, and a chain gives you multi-site feedback. Café Aurora as the beta customer is a good choice.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Café Aurora (12 cafés) chosen as the beta customer.",
+      "reference": "Café Aurora beta",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ]
+      }
+    },
+    "N_11": {
+      "question": "Their ops manager says what matters most is seeing rotas per site on staff phones.",
+      "answer": "So mobile-first, per-site rotas. That fits Smart Rota; keep their needs in mind as we lock scope.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Café Aurora needs per-site rotas visible on staff phones.",
+      "reference": "Café Aurora needs",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "Marcus, our CTO, says until launch we only have 2 backend engineers and 1 mobile engineer.",
+      "answer": "That's a hard constraint on scope; everything has to fit into three people's time over four weeks.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_35",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Capacity constraint: 2 backend engineers and 1 mobile engineer until launch.",
+      "reference": "Engineering capacity",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ]
+      }
+    },
+    "N_13": {
+      "question": "Marcus also estimates Tailwind alone is about three weeks of the mobile engineer's time.",
+      "answer": "Then Tailwind would consume nearly all of your only mobile engineer's time before launch, leaving no room for the rest of the mobile app.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_10",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Tailwind needs ~3 weeks of the single mobile engineer's time.",
+      "reference": "Tailwind cost 3 weeks",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_14": {
+      "question": "Then we have to cut it, right?",
+      "answer": "Yes. Cut Tailwind from the launch and ship the mobile app online-only. It can come back after launch.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_36",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Tailwind cut from the launch scope.",
+      "reference": "Tailwind cut",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_15": {
+      "question": "What does Café Aurora lose without Tailwind?",
+      "answer": "Staff will need a connection to see their rota. Given their focus on phones [N_11], it's worth checking how many of their sites have poor signal.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_4"
+      ],
+      "citations": [
+        "N_11"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Without Tailwind, Café Aurora staff need connectivity to see rotas.",
+      "reference": "Impact of the cut",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "depends_on"
+          ],
+          [
+            "N_11",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_16": {
+      "question": "Along the same lines, should we also hold back the Slack integration?",
+      "answer": "Yes, no Slack integration before launch either. It's backend time we don't have.",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_44",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Slack integration deferred until after launch.",
+      "reference": "No Slack before launch",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ],
+        "relates": [
+          [
+            "SN_5",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_17": {
+      "question": "Smart Rota's suggestions are still a bit rough. Ship it anyway?",
+      "answer": "Ship it but label it beta in the UI, so customers treat the suggestions as a starting point and give feedback rather than trusting them blindly.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Smart Rota ships labelled as beta.",
+      "reference": "Smart Rota beta label",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_18": {
+      "question": "Can you recap Falcon's launch plan so far?",
+      "answer": "Falcon launches 2 June with Smart Rota (labelled beta) and shift swaps, no Tailwind and no Slack. Pricing is Falcon Lite (free, 5 seats) and Falcon Pro (€5/seat). Café Aurora is the beta customer.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [
+        "E_3",
+        "E_5",
+        "E_8",
+        "E_7",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Recap of Falcon's launch plan before the rename.",
+      "reference": "Pre-rename recap",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "supercase"
+          ],
+          [
+            "N_9",
+            "supercase"
+          ],
+          [
+            "N_17",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_19": {
+      "question": "Bad news from legal: a company called Falcon Systems Ltd holds the 'Falcon' trademark in our software class. Can we keep the name?",
+      "answer": "That's a serious risk. Launching under a mark someone else holds in your class invites an injunction right when you get traction.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "open"
+        ],
+        [
+          "N_21",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Falcon Systems Ltd holds the Falcon trademark; opens whether the name can be kept.",
+      "reference": "Trademark conflict",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ]
+      }
+    },
+    "N_20": {
+      "question": "What are our options?",
+      "answer": "Two: negotiate a coexistence agreement, which could take months with no guarantee, or rename before launch while you have almost no public footprint.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Options: coexistence agreement (slow) or rename now.",
+      "reference": "Rename vs coexistence",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_21": {
+      "question": "We've decided: we're renaming Falcon to Nimbus, everywhere.",
+      "answer": "Good call; renaming now is far cheaper than after launch. The product is Nimbus from here on.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Product renamed to Nimbus.",
+      "reference": "Renamed to Nimbus",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_20",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "resolves"
+          ],
+          [
+            "N_20",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ],
+        "updates": [
+          [
+            "SN_6",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_6",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_22": {
+      "question": "What does the rename checklist look like?",
+      "answer": "Domain and email, the app-store listings, the marketing site and copy, in-app strings, legal documents, and the beta customer's onboarding materials.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Rename checklist: domain, app stores, site, in-app text, legal, beta materials.",
+      "reference": "Rename checklist",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_23": {
+      "question": "Problem: changing the app name in the app stores triggers a fresh review cycle, roughly 10 days.",
+      "answer": "That doesn't fit the current date. The store review alone eats most of the remaining time.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "App-store rename requires a ~10-day review.",
+      "reference": "Store review 10 days",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "Then let's move the launch to 16 June.",
+      "answer": "16 June leaves room for the store review plus a buffer. Nimbus launches on 16 June.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_40",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Launch moved to 16 June because of the rename.",
+      "reference": "Launch 16 June",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_23",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "revises"
+          ],
+          [
+            "N_23",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_2",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_25": {
+      "question": "Elena, our design lead, has a first version of the Nimbus brand: a cloud mark and a soft blue palette.",
+      "answer": "Nice, and it fits the name. Get it into the app-store assets first, since they gate the review.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [
+        "E_11",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Elena delivers the Nimbus brand.",
+      "reference": "Nimbus brand",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_26": {
+      "question": "Store listings for Nimbus are submitted.",
+      "answer": "Good; the review clock starts now, so 16 June still holds.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Nimbus app-store listings submitted.",
+      "reference": "Store listings submitted",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_27": {
+      "question": "Marketing copy for the Nimbus site is done too. Should the pricing page change while we're at it?",
+      "answer": "It's a good moment. Every page is being rewritten anyway, so a pricing change costs nothing extra now.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Site copy done; pricing change considered alongside the rewrite.",
+      "reference": "Pricing page rewrite",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_26",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_28": {
+      "question": "New tiers then: the old Lite and Pro become Nimbus Free and Nimbus Team. Team goes to €6 per seat, and Free is capped at 3 seats instead of 5.",
+      "answer": "Nimbus Free (3 seats) and Nimbus Team (€6/seat/month): still in the market range, and the tighter free cap pushes small teams to upgrade sooner.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_7",
+        "E_16"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Tiers renamed and repriced: Nimbus Free (3 seats) and Nimbus Team (€6 per seat).",
+      "reference": "Nimbus Free / Team pricing",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_4",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_29": {
+      "question": "Marcus pushed back: raising the price right before launch looks bad, especially to the beta customer.",
+      "answer": "He has a point about the beta: Café Aurora agreed to a price and shouldn't be surprised. For new customers the launch is the natural moment to set the price.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [
+        "E_10",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_30",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Marcus objects to raising the price before launch.",
+      "reference": "Price rise pushback",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_30": {
+      "question": "Compromise: €6 for everyone new, and Café Aurora keeps €5 per seat as the beta customer.",
+      "answer": "That works: new customers pay €6 per seat on Nimbus Team, and Café Aurora is grandfathered at €5.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "€6 per seat for new customers; Café Aurora grandfathered at €5.",
+      "reference": "Grandfather beta at €5",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_29",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_4",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_31": {
+      "question": "Café Aurora just told us they might drop out of the beta. I don't know why yet; their feedback has been vague. Why would they?",
+      "answer": "Let's find out before guessing. Ask to interview a few shift leads directly rather than the head office.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "open"
+        ],
+        [
+          "N_34",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Café Aurora threatens to drop the beta; the reason is unknown.",
+      "reference": "Beta at risk",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ],
+        "relates": [
+          [
+            "SN_9",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_32": {
+      "question": "Interviewed five shift leads. Several sites have kitchens and stockrooms in basements with no phone signal.",
+      "answer": "That's a strong clue. Where do staff usually check their rota?",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Several Café Aurora sites have basement areas with no signal.",
+      "reference": "Basements without signal",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_31",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_31",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_33": {
+      "question": "Right there, on their breaks, in the basement. And the app shows nothing without a connection.",
+      "answer": "So the gap is exactly the per-site rota on phones they asked for at the start [N_11], which only works online.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [
+        "N_11"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Staff check rotas in basements where the app shows nothing offline.",
+      "reference": "App blank offline",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_32",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_32",
+            "depends_on"
+          ],
+          [
+            "N_11",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_34": {
+      "question": "So the root cause is that staff can't see their rotas offline?",
+      "answer": "Yes. That's why Café Aurora is at risk: staff can't access rotas without signal, and for a scheduling product that's the core job.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Root cause: staff can't see rotas offline.",
+      "reference": "Root cause found",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_31",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_31",
+            "resolves"
+          ],
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_12",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_12",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_35": {
+      "question": "Marcus found budget to hire a mobile contractor for four weeks.",
+      "answer": "That doubles mobile capacity to two engineers until launch, which changes what's feasible on the app side.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "A 4-week mobile contractor is hired; mobile capacity doubles.",
+      "reference": "Mobile contractor hired",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_12",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_5",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_36": {
+      "question": "Then let's bring offline access back for launch. We'll call it Work Offline, and put it on the Team tier only.",
+      "answer": "Agreed: Work Offline goes back into the launch scope, Team tier only. With two mobile engineers it fits, and it directly fixes Café Aurora's problem.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 8,
+      "retrieval_count": 8,
+      "summary": "Offline access restored to launch scope as 'Work Offline', Team tier only.",
+      "reference": "Work Offline in scope",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_34",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "contradicts"
+          ],
+          [
+            "N_34",
+            "depends_on"
+          ],
+          [
+            "N_35",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ],
+        "relates": [
+          [
+            "SN_9",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_37": {
+      "question": "Wait, is Work Offline the same thing as Tailwind, the offline sync we cut back in early May?",
+      "answer": "Yes, it's the same feature under a new name: Tailwind was the internal codename. What changed is capacity, not the feature itself.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "open"
+        ],
+        [
+          "N_38",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Confirms Work Offline is the same feature as the earlier cut Tailwind.",
+      "reference": "Work Offline = Tailwind",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "references"
+          ],
+          [
+            "N_36",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_38": {
+      "question": "Same design as before, then?",
+      "answer": "Same design, but read-only first: staff can view rotas offline, and edits sync when they reconnect. That keeps it within the contractor's four weeks.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Work Offline ships read-only first, reusing the earlier design.",
+      "reference": "Read-only first",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_39": {
+      "question": "The mobile team says Work Offline needs one more week than we have before 16 June.",
+      "answer": "Then the date has to move again, or Work Offline misses launch, and Café Aurora made it clear that it can't.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Work Offline needs one extra week beyond 16 June.",
+      "reference": "One more week needed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_40": {
+      "question": "OK, final answer: we launch on 23 June.",
+      "answer": "23 June it is. That's the new public launch date for Nimbus.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Launch moved to 23 June to include Work Offline.",
+      "reference": "Launch 23 June",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "revises"
+          ],
+          [
+            "N_39",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_2",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_41": {
+      "question": "Work Offline QA started. Sync works, but there are conflicts when a manager edits the rota while someone is offline.",
+      "answer": "For a read-only first version the rule is simple: the server always wins, and offline devices just refresh their copy on reconnect.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Sync conflicts found in QA; server-wins rule for the read-only version.",
+      "reference": "Sync conflicts",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_38",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_42": {
+      "question": "What about staff who stay offline for days?",
+      "answer": "Show a clear 'last updated' timestamp on the rota, and a warning if it's older than 24 hours.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Stale offline rotas get a last-updated timestamp and warning.",
+      "reference": "Stale-rota warning",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_41",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_41",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_43": {
+      "question": "Work Offline passed QA on Café Aurora's own devices.",
+      "answer": "Great: that's the customer who needed it, on their real hardware.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Work Offline passes QA on Café Aurora devices.",
+      "reference": "Work Offline passes QA",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_42",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_10",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_44": {
+      "question": "Surprise: Marcus built the Slack integration during a hack week, and it's solid enough to ship.",
+      "answer": "Then the earlier reason for holding it back, a lack of backend time, no longer applies. It can ship at launch.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_10",
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Slack integration built in a hack week; it can ship at launch.",
+      "reference": "Slack ready",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_16",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_11",
+            "lifted"
+          ]
+        ]
+      }
+    },
+    "N_45": {
+      "question": "Should Slack be on Free or only on Team?",
+      "answer": "Slack is cheap for you to run and good for adoption; on the free tier it helps word-of-mouth inside companies.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_8",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "open"
+        ],
+        [
+          "N_46",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks which tier gets Slack.",
+      "reference": "Slack tier question",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_44",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_46": {
+      "question": "Then both tiers get Slack.",
+      "answer": "Slack integration on both Nimbus Free and Nimbus Team.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_8",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Slack integration ships on both tiers.",
+      "reference": "Slack on both tiers",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_45",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_45",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_47": {
+      "question": "Final launch-day scope check for Nimbus, please.",
+      "answer": "Nimbus launches 23 June with Smart Rota (labelled beta), shift swaps, Work Offline (read-only, Team tier) and Slack integration on both tiers. Pricing: Nimbus Free up to 3 seats, Nimbus Team €6 per seat, Café Aurora grandfathered at €5.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [
+        "E_3",
+        "E_5",
+        "E_4",
+        "E_6",
+        "E_8",
+        "E_7",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Launch-day scope for Nimbus confirmed.",
+      "reference": "Launch-day scope",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_28",
+            "supercase"
+          ],
+          [
+            "N_36",
+            "supercase"
+          ],
+          [
+            "N_46",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "We launched today! And Café Aurora converted to a paid Nimbus Team account.",
+      "answer": "Congratulations. A public launch with a paying customer on day one is exactly the goal you set.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_14",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Nimbus launched; Café Aurora converted to paid.",
+      "reference": "Launched, beta converted",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_40",
+            "depends_on"
+          ],
+          [
+            "N_1",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    },
+    "N_49": {
+      "question": "I need to write the launch retro. What changed from the original plan, and why?",
+      "answer": "Three big changes. The name: Falcon became Nimbus because of Falcon Systems' trademark [N_21], which pushed launch to 16 June. Scope: offline sync was cut for capacity [N_14], then restored as Work Offline once a contractor was hired and Café Aurora's basement problem surfaced [N_36], pushing launch to 23 June. Pricing: Falcon Lite/Pro became Nimbus Free (3 seats) and Team (€6). Slack also made it in after Marcus's hack week.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [
+        "E_3",
+        "E_9",
+        "E_4",
+        "E_14",
+        "E_8",
+        "E_7",
+        "E_6",
+        "E_10"
+      ],
+      "citations": [
+        "N_14",
+        "N_21",
+        "N_36"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Launch retro: rename, offline cut and restore, pricing change, Slack.",
+      "reference": "Launch retro",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "supercase"
+          ],
+          [
+            "N_21",
+            "supercase"
+          ],
+          [
+            "N_36",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_50": {
+      "question": "First-week numbers: 41% of new sign-ups activated.",
+      "answer": "41% activation in week one is a strong start for a scheduling product. Track it weekly against the Work Offline and Slack usage to see which one drives it.",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "First-week activation is 41%.",
+      "reference": "41% activation",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_48",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Priya",
+      "aliases": [],
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_2": {
+      "type": "organization",
+      "name": "Tessellate",
+      "aliases": [],
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_3": {
+      "type": "product",
+      "name": "Falcon",
+      "aliases": [
+        "Project Falcon",
+        "Nimbus"
+      ],
+      "mentioned_in": [
+        "N_1",
+        "N_4",
+        "N_18",
+        "N_19",
+        "N_21",
+        "N_24",
+        "N_25",
+        "N_26",
+        "N_27",
+        "N_33",
+        "N_40",
+        "N_47",
+        "N_49"
+      ]
+    },
+    "E_4": {
+      "type": "feature",
+      "name": "Tailwind",
+      "aliases": [
+        "offline sync",
+        "Work Offline"
+      ],
+      "mentioned_in": [
+        "N_5",
+        "N_6",
+        "N_13",
+        "N_14",
+        "N_15",
+        "N_36",
+        "N_37",
+        "N_38",
+        "N_39",
+        "N_41",
+        "N_42",
+        "N_43",
+        "N_47",
+        "N_49"
+      ]
+    },
+    "E_5": {
+      "type": "feature",
+      "name": "Smart Rota",
+      "aliases": [
+        "auto-scheduler"
+      ],
+      "mentioned_in": [
+        "N_5",
+        "N_11",
+        "N_17",
+        "N_18",
+        "N_47"
+      ]
+    },
+    "E_6": {
+      "type": "feature",
+      "name": "Slack integration",
+      "aliases": [],
+      "mentioned_in": [
+        "N_16",
+        "N_44",
+        "N_45",
+        "N_46",
+        "N_47",
+        "N_49"
+      ]
+    },
+    "E_7": {
+      "type": "product",
+      "name": "Falcon Pro",
+      "aliases": [
+        "Nimbus Team"
+      ],
+      "mentioned_in": [
+        "N_9",
+        "N_18",
+        "N_28",
+        "N_30",
+        "N_36",
+        "N_45",
+        "N_46",
+        "N_47",
+        "N_48",
+        "N_49"
+      ]
+    },
+    "E_8": {
+      "type": "product",
+      "name": "Falcon Lite",
+      "aliases": [
+        "Nimbus Free"
+      ],
+      "mentioned_in": [
+        "N_9",
+        "N_18",
+        "N_28",
+        "N_45",
+        "N_46",
+        "N_47",
+        "N_49"
+      ]
+    },
+    "E_9": {
+      "type": "organization",
+      "name": "Falcon Systems Ltd",
+      "aliases": [],
+      "mentioned_in": [
+        "N_19",
+        "N_20",
+        "N_49"
+      ]
+    },
+    "E_10": {
+      "type": "person",
+      "name": "Marcus",
+      "aliases": [],
+      "mentioned_in": [
+        "N_12",
+        "N_13",
+        "N_29",
+        "N_35",
+        "N_44",
+        "N_49"
+      ]
+    },
+    "E_11": {
+      "type": "person",
+      "name": "Elena",
+      "aliases": [],
+      "mentioned_in": [
+        "N_25"
+      ]
+    },
+    "E_12": {
+      "type": "event",
+      "name": "public launch",
+      "aliases": [],
+      "mentioned_in": [
+        "N_3",
+        "N_24",
+        "N_40",
+        "N_48"
+      ]
+    },
+    "E_13": {
+      "type": "event",
+      "name": "Café Aurora beta",
+      "aliases": [],
+      "mentioned_in": [
+        "N_10",
+        "N_31"
+      ]
+    },
+    "E_14": {
+      "type": "organization",
+      "name": "Café Aurora",
+      "aliases": [],
+      "mentioned_in": [
+        "N_10",
+        "N_11",
+        "N_15",
+        "N_18",
+        "N_29",
+        "N_30",
+        "N_31",
+        "N_43",
+        "N_47",
+        "N_48",
+        "N_49"
+      ]
+    },
+    "E_15": {
+      "type": "metric",
+      "name": "activation rate",
+      "aliases": [],
+      "mentioned_in": [
+        "N_50"
+      ]
+    },
+    "E_16": {
+      "type": "measurement",
+      "name": "per-seat monthly price",
+      "aliases": [],
+      "mentioned_in": [
+        "N_7",
+        "N_9",
+        "N_28"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Launch Nimbus (originally codenamed Falcon) publicly with a paying beta customer",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_48",
+            "achieved"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_2": {
+      "type": "decision",
+      "label": "Public launch on 23 June (originally: 2 June, then 16 June)",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_3",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_24",
+            "revised"
+          ],
+          [
+            "N_40",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_23",
+            "contradicts"
+          ],
+          [
+            "N_26",
+            "supports"
+          ],
+          [
+            "N_39",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "decision",
+      "label": "Tailwind (offline sync) is in the launch scope",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_6",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_14",
+            "reverted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_13",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "decision",
+      "label": "Two tiers: Nimbus Free (up to 3 seats) and Nimbus Team (€6 per seat per month); originally Falcon Lite (5 seats) and Falcon Pro (€5)",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_9",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_28",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_30",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_5": {
+      "type": "constraint",
+      "label": "Engineering capacity until launch: 2 backend engineers and 2 mobile engineers (a 4-week mobile contractor added)",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_12",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_35",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_16",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_6": {
+      "type": "open_question",
+      "label": "Can we keep the name Falcon?",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_19",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_21",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_21",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_7": {
+      "type": "decision",
+      "label": "The product is named Nimbus",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_21",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_8": {
+      "type": "decision",
+      "label": "Smart Rota ships labelled as beta",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_17",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_9": {
+      "type": "decision",
+      "label": "Café Aurora is the beta customer",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_10",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_31",
+            "contradicts"
+          ],
+          [
+            "N_36",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_10": {
+      "type": "decision",
+      "label": "Work Offline (offline access) is in the launch scope, Team tier only",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_36",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_43",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_11": {
+      "type": "constraint",
+      "label": "No Slack integration until after launch",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_16",
+      "status": "lifted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_44",
+            "lifted"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_12": {
+      "type": "open_question",
+      "label": "Why is Café Aurora threatening to drop the beta?",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_31",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_34",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_34",
+            "resolves"
+          ]
+        ]
+      }
+    }
+  }
+}

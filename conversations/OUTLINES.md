@@ -1,5 +1,36 @@
 # Testbed outlines (7 new corpora)
 
+**Status: all 7 built.** Each folder has `outline.md`, `build.py`, `validate.py`,
+`domain_config.json`, `probes.json`, and the generated `corpus.json` / `ground_truth.json`
+(rebuild with `python build.py`, check with `python validate.py`). The flat eval gold files
+are in `main/data/eval_corpora/<id>.json`. Where a corpus departs from its outline, the
+reason is recorded in that corpus's `ground_truth.json` → `schema_findings`.
+
+## Built: actual gold counts
+
+| Corpus | turns | state_nodes | probes | subcase | same_level | supercase | depends_on | references | resolves | revises | contradicts |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| hpc_support | 50 | 13 | 9 | 42 | 3 | 4 | 26 | 4 | 17 | 1 | 2 |
+| ml_debugging | 50 | 12 | 9 | 35 | 3 | 6 | 27 | 5 | 8 | 4 | 5 |
+| product_rename | 50 | 12 | 9 | 39 | 2 | 9 | 35 | 3 | 7 | 4 | 3 |
+| tutoring_stats | 50 | 12 | 9 | 32 | 9 | 9 | 20 | 11 | 9 | 4 | 3 |
+| kitchen_reno | 50 | 13 | 9 | 37 | 7 | 8 | 28 | 5 | 9 | 5 | 3 |
+| thesis_planning | 80 | 14 | 10 | 58 | 7 | 10 | 43 | 13 | 14 | 4 | 4 |
+| relocation | 80 | 16 | 11 | 72 | 7 | 12 | 48 | 7 | 16 | 5 | 2 |
+| **total** | 410 | 92 | 66 | 315 | 38 | 58 | 227 | 48 | 80 | 27 | 22 |
+
+State-node outcomes (total): `decision: reverted` 10 · `decision: revised` 14 ·
+`goal: abandoned` 2 · `goal: achieved` 8 · `constraint: lifted` 5 · `constraint: revised` 7 ·
+`open_question: resolved` 18.
+
+Versus the plan below: `subcase` came out about twice as high (turns naturally narrow into
+sub-topics), and `contradicts`, `revises` and `same_level` somewhat lower. `contradicts`
+still goes from ~3 to ~25 gold examples across all corpora.
+
+---
+
+*Original planning notes below (written before building).*
+
 Draft outlines for review **before** writing any `build.py` / `corpus.json` /
 `ground_truth.json`. Each outline lives next to where its corpus will go:
 `conversations/<id>/outline.md`.

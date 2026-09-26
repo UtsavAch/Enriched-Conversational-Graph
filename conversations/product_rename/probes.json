@@ -3,8 +3,13 @@
     "probe_id": "p1",
     "question": "Is Work Offline part of the Nimbus launch, and on which tier?",
     "target": "SN_10",
-    "expected_any": ["Team"],
-    "forbidden_any": ["Work Offline is not in the launch", "Work Offline is not part of the launch"],
+    "expected_any": [
+      "Team"
+    ],
+    "forbidden_any": [
+      "Work Offline is not in the launch",
+      "Work Offline is not part of the launch"
+    ],
     "valid_from_turn": 36,
     "decision_text": "Work Offline (offline access) is in the launch scope, Team tier only.",
     "designed_to_defeat": "anti-semantic: the cut decision (N_14) is phrased with 'Tailwind', not 'Work Offline'"
@@ -13,7 +18,12 @@
     "probe_id": "p2",
     "question": "Was Work Offline ever dropped from the Nimbus launch plan, and if so why?",
     "target": "SN_3",
-    "expected_any": ["capacity", "mobile engineer", "three weeks", "3 weeks"],
+    "expected_any": [
+      "capacity",
+      "mobile engineer",
+      "three weeks",
+      "3 weeks"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 37,
     "decision_text": "Yes: as 'Tailwind' (its original codename) it was cut on 8 May because it needed about three weeks of the only mobile engineer's time; it was restored as Work Offline after a mobile contractor was hired.",
@@ -23,7 +33,10 @@
     "probe_id": "p3",
     "question": "When does Nimbus launch publicly?",
     "target": "SN_2",
-    "expected_any": ["23 June", "June 23"],
+    "expected_any": [
+      "23 June",
+      "June 23"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 40,
     "decision_text": "Public launch on 23 June (originally 2 June, then 16 June).",
@@ -33,7 +46,11 @@
     "probe_id": "p4",
     "question": "How much does a Nimbus Team seat cost for a new customer?",
     "target": "SN_4",
-    "expected_any": ["€6", "6 per seat", "6 euros"],
+    "expected_any": [
+      "€6",
+      "6 per seat",
+      "6 euros"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 30,
     "decision_text": "Nimbus Team costs €6 per seat per month for new customers; Café Aurora is grandfathered at €5.",
@@ -43,7 +60,11 @@
     "probe_id": "p5",
     "question": "How many seats does the Nimbus Free tier allow?",
     "target": "SN_4",
-    "expected_any": ["3 seats", "three seats", "up to 3"],
+    "expected_any": [
+      "3 seats",
+      "three seats",
+      "up to 3"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 28,
     "decision_text": "Nimbus Free allows up to 3 seats (Falcon Lite originally allowed 5).",
@@ -53,7 +74,10 @@
     "probe_id": "p6",
     "question": "Why was the product renamed to Nimbus?",
     "target": "SN_6",
-    "expected_any": ["trademark", "Falcon Systems"],
+    "expected_any": [
+      "trademark",
+      "Falcon Systems"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 21,
     "decision_text": "Falcon Systems Ltd holds the 'Falcon' trademark in Tessellate's software class, so the product was renamed before launch.",
@@ -63,8 +87,15 @@
     "probe_id": "p7",
     "question": "Does Nimbus ship with a Slack integration at launch?",
     "target": "SN_11",
-    "expected_any": ["both tiers", "Free and Team", "yes"],
-    "forbidden_any": ["no Slack integration at launch", "Slack will come after launch"],
+    "expected_any": [
+      "both tiers",
+      "Free and Team",
+      "ships with"
+    ],
+    "forbidden_any": [
+      "no Slack integration at launch",
+      "Slack will come after launch"
+    ],
     "valid_from_turn": 46,
     "decision_text": "Yes: the no-Slack-before-launch constraint was lifted after Marcus built it in a hack week; it ships on both Nimbus Free and Nimbus Team.",
     "designed_to_defeat": "anti-semantic: N_16 defers Slack until after launch"
@@ -73,7 +104,9 @@
     "probe_id": "p8",
     "question": "Is Smart Rota labelled as beta in the Nimbus launch?",
     "target": "SN_8",
-    "expected_any": ["beta"],
+    "expected_any": [
+      "beta"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 17,
     "decision_text": "Smart Rota ships labelled as beta (decided before the rename, restated in the launch-day scope).",
@@ -83,7 +116,10 @@
     "probe_id": "p9",
     "question": "Who is the Nimbus beta customer?",
     "target": "SN_9",
-    "expected_any": ["Café Aurora", "Cafe Aurora"],
+    "expected_any": [
+      "Café Aurora",
+      "Cafe Aurora"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 10,
     "decision_text": "Café Aurora (a chain of 12 cafés) is the beta customer.",

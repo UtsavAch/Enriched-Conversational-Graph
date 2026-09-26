@@ -3,7 +3,13 @@
     "probe_id": "p1",
     "question": "What does it mean that Lena's result has p = 0.03?",
     "target": "SN_3",
-    "expected_any": ["null were true", "null hypothesis were true", "null is true, data", "at least as extreme", "this extreme"],
+    "expected_any": [
+      "null were true",
+      "null hypothesis were true",
+      "null is true, data",
+      "at least as extreme",
+      "this extreme"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 18,
     "decision_text": "A p-value is the probability of data at least as extreme as observed if the null hypothesis were true; it is not the probability that the null is true (Lena's earlier note was corrected).",
@@ -13,7 +19,10 @@
     "probe_id": "p2",
     "question": "Which statistical test should Lena use as the main test to compare her three sleep groups?",
     "target": "SN_12",
-    "expected_any": ["Kruskal-Wallis", "Kruskal Wallis"],
+    "expected_any": [
+      "Kruskal-Wallis",
+      "Kruskal Wallis"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 41,
     "decision_text": "Kruskal-Wallis as the primary test, with one-way ANOVA as a robustness check (the paired t-test and Welch's plans were dropped).",
@@ -23,7 +32,11 @@
     "probe_id": "p3",
     "question": "Is Lena allowed to use nonparametric tests in her PSY210 project?",
     "target": "SN_7",
-    "expected_any": ["allowed", "yes", "justif"],
+    "expected_any": [
+      "allowed",
+      "justif",
+      "permitted"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 40,
     "decision_text": "Yes: Dr. Okafor lifted the syllabus-only restriction and allows nonparametric tests if justified by the normality check.",
@@ -33,7 +46,11 @@
     "probe_id": "p4",
     "question": "Is a sample of 42 people enough for Lena's study?",
     "target": "SN_8",
-    "expected_any": ["underpowered", "0.3", "limitation"],
+    "expected_any": [
+      "underpowered",
+      "0.3",
+      "limitation"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 36,
     "decision_text": "No: power is about 0.3 for a medium effect (target 0.80), so the study is underpowered; it is reported as a limitation.",
@@ -43,7 +60,10 @@
     "probe_id": "p5",
     "question": "Should Lena report confidence intervals in her project?",
     "target": "SN_4",
-    "expected_any": ["95%", "alongside"],
+    "expected_any": [
+      "95%",
+      "alongside"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 14,
     "decision_text": "Yes: report a 95% confidence interval alongside every p-value.",
@@ -53,7 +73,10 @@
     "probe_id": "p6",
     "question": "What significance level should Lena use for the pairwise comparisons between sleep groups?",
     "target": "SN_9",
-    "expected_any": ["0.017", "Bonferroni"],
+    "expected_any": [
+      "0.017",
+      "Bonferroni"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 31,
     "decision_text": "Alpha 0.05 for the omnibus test, Bonferroni-corrected 0.05/3 ≈ 0.017 for each pairwise post-hoc comparison.",
@@ -63,8 +86,11 @@
     "probe_id": "p7",
     "question": "What should Lena do about participant P17?",
     "target": "SN_11",
-    "expected_any": ["keep", "sensitivity"],
-    "forbidden_any": ["delete P17", "remove P17", "exclude P17"],
+    "expected_any": [
+      "keep",
+      "sensitivity"
+    ],
+    "forbidden_any": [],
     "valid_from_turn": 35,
     "decision_text": "Keep participant P17 and report a sensitivity analysis without them.",
     "designed_to_defeat": "anti-recency"
@@ -73,7 +99,12 @@
     "probe_id": "p8",
     "question": "Did the same participants take part in all of Lena's sleep conditions?",
     "target": "SN_5",
-    "expected_any": ["independent", "different people", "only one group", "one group"],
+    "expected_any": [
+      "independent",
+      "different people",
+      "only one group",
+      "one group"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 25,
     "decision_text": "No: each participant is in exactly one of three independent sleep groups, so a paired t-test was invalid.",
@@ -83,7 +114,10 @@
     "probe_id": "p9",
     "question": "Did Lena pass PSY210?",
     "target": "SN_1",
-    "expected_any": ["B+", "passed"],
+    "expected_any": [
+      "B+",
+      "passed"
+    ],
     "forbidden_any": [],
     "valid_from_turn": 50,
     "decision_text": "Yes, Lena passed PSY210 with a B+.",

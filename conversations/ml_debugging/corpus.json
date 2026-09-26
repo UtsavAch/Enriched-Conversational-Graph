@@ -1,0 +1,702 @@
+[
+  {
+    "id": "N_1",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I need help debugging a model. LeafScan-v3, our plant-disease classifier (a ResNet-50), gets 94% validation accuracy, but in the field app it's around 61%. Management wants the field number at 85% or better. Where do I start?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "A 33-point gap between validation and deployment almost always means the validation number is inflated, the deployment inputs differ from training inputs, or the deployment data distribution differs. Before guessing, let's pin down exactly how the 61% is measured."
+      }
+    ]
+  },
+  {
+    "id": "N_2",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What exactly do you need to know about how the field accuracy is measured?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Where the field images come from, who labelled them, and how many there are. If the 61% comes from a few dozen images it may just be noise; if it's a properly labelled set, it's a real gap."
+      }
+    ]
+  },
+  {
+    "id": "N_3",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "It's 1,200 photos taken through the app by farmers last season, labelled by Joana's agronomy team. So it's a solid number."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then the gap is real. 1,200 expert-labelled images is plenty to trust a 30-point difference."
+      }
+    ]
+  },
+  {
+    "id": "N_4",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, so what could be causing it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Five usual suspects, roughly cheapest to check first: (1) train/validation leakage inflating the 94%; (2) a preprocessing mismatch such as normalisation; (3) a resize or interpolation mismatch; (4) a shift in the class distribution; (5) image-quality differences such as compression or lighting. Each can be tested with a small experiment."
+      }
+    ]
+  },
+  {
+    "id": "N_5",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Let's go through them in that order then, cheapest first."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Agreed. I'll keep each one as an explicit hypothesis so we can record what we ruled in or out and how many points it explains."
+      }
+    ]
+  },
+  {
+    "id": "N_6",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Starting with leakage: could the validation accuracy be inflated by duplicate images across the train and validation splits?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "It's worth checking first because it's cheap and common."
+      }
+    ]
+  },
+  {
+    "id": "N_7",
+    "date": "2026-03-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How likely do you think leakage is, honestly?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Very likely, and probably the main cause. PlantVillage-style datasets are known for near-duplicate photos of the same leaf, and a random split puts them on both sides. I'd expect deduplication alone to close most of the gap."
+      }
+    ]
+  },
+  {
+    "id": "N_8",
+    "date": "2026-03-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How do I find the duplicates?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Compute a perceptual hash (pHash) for every image and flag pairs across splits with a Hamming distance of 6 or less. Exact file hashes miss re-saved or slightly cropped copies; pHash catches them."
+      }
+    ]
+  },
+  {
+    "id": "N_9",
+    "date": "2026-03-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Script is written. Should I just drop the flagged validation images?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Drop them from validation, re-split by leaf/plant ID if you have it, and log it as its own run so we can see the before/after cleanly. Call it exp-dedup."
+      }
+    ]
+  },
+  {
+    "id": "N_10",
+    "date": "2026-03-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Running exp-dedup now; I'm tracking everything in Weights & Biases."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good. When it finishes, look at both the number of duplicates found and the new validation accuracy."
+      }
+    ]
+  },
+  {
+    "id": "N_11",
+    "date": "2026-03-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Results: only 3% of validation images had near-duplicates in train. After removing them, validation drops from 94% to 91%. That's it."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then I was wrong that leakage is the main cause: it's real but minor, worth about 3 points. Most of the gap has to be somewhere else."
+      }
+    ]
+  },
+  {
+    "id": "N_12",
+    "date": "2026-03-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Should we keep the dedup step anyway?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. It's cheap and stops the validation number from lying again. Make it a fixed step: deduplicate the splits with perceptual hashing before every retrain. H1 is closed: leakage exists but explains about 3 points."
+      }
+    ]
+  },
+  {
+    "id": "N_13",
+    "date": "2026-03-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So we're at 91% validation versus 61% field. The gap is still 30 points."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Right, and that's actually informative: a clean validation set is still far above the field, so the problem is in how field images differ from training images, not in how we measure."
+      }
+    ]
+  },
+  {
+    "id": "N_14",
+    "date": "2026-03-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What's the next hypothesis to check?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Preprocessing. My bet is the app skips the ImageNet mean/std normalisation the model was trained with; that's the most common deployment bug with ResNets, and it would easily cost 30 points."
+      }
+    ]
+  },
+  {
+    "id": "N_15",
+    "date": "2026-03-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How would I check that without reading all of the mobile team's code?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Compare what the model actually receives rather than reading code."
+      }
+    ]
+  },
+  {
+    "id": "N_16",
+    "date": "2026-03-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Compare it how, concretely?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Run the same 20 photos through the training dataloader and through the app's preprocessing (the mobile team can dump the input tensors), then compare per-channel mean and std and a few raw pixel values."
+      }
+    ]
+  },
+  {
+    "id": "N_17",
+    "date": "2026-03-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Got the dumps. The per-channel mean and std are identical: the app normalises exactly like training."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then my normalisation guess was wrong. The app applies the same ImageNet normalisation."
+      }
+    ]
+  },
+  {
+    "id": "N_18",
+    "date": "2026-03-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So H2 is out?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, H2 is ruled out: normalisation is not the problem."
+      }
+    ]
+  },
+  {
+    "id": "N_19",
+    "date": "2026-03-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "One odd thing though: even with the same normalisation stats, the individual pixel values in the dumps don't match between the two pipelines."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a good catch. Matching statistics but different pixels points at the resize step: different resampling produces slightly different images from the same photo."
+      }
+    ]
+  },
+  {
+    "id": "N_20",
+    "date": "2026-03-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "You're right. Training resizes with Pillow's bilinear filter; the app uses OpenCV with nearest-neighbour."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Nearest-neighbour downscaling from a 12-megapixel phone photo to 224×224 produces heavy aliasing, which destroys exactly the fine lesion texture the model relies on."
+      }
+    ]
+  },
+  {
+    "id": "N_21",
+    "date": "2026-03-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What's the fix?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Make the app match training: switch the app to Pillow's bilinear resize so both pipelines are identical."
+      }
+    ]
+  },
+  {
+    "id": "N_22",
+    "date": "2026-03-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The mobile team says that's not possible: the app runs on-device and can't ship Pillow. OpenCV is the only image library they have."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then the app can't match training; training has to match the app instead."
+      }
+    ]
+  },
+  {
+    "id": "N_23",
+    "date": "2026-03-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So which setting should both use?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Standardise on OpenCV's INTER_AREA in both training and the app: it's available on-device and is the right filter for downscaling. I reran with that as exp-interp, and field accuracy goes from 61% to 67%. H3 confirmed: interpolation was worth about 6 points."
+      }
+    ]
+  },
+  {
+    "id": "N_24",
+    "date": "2026-03-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Quick recap before we continue. Where are we?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Leakage [N_12] explained about 3 points of validation inflation, and the interpolation mismatch [N_23] about 6 points of field accuracy. Normalisation was ruled out. Field is at 67%, so about 18 points remain."
+      }
+    ]
+  },
+  {
+    "id": "N_25",
+    "date": "2026-03-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Next one: I looked at the labels, and the field set is 48% 'healthy' leaves, while training is only 12% healthy. Is that a problem?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a large prior shift. A model trained on 12% healthy will under-predict 'healthy' on data that is 48% healthy."
+      }
+    ]
+  },
+  {
+    "id": "N_26",
+    "date": "2026-03-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How much can a prior shift like that cost?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Potentially a lot, if 'healthy' leaves are being misclassified as mild diseases. The usual first remedy is class reweighting during training."
+      }
+    ]
+  },
+  {
+    "id": "N_27",
+    "date": "2026-03-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, let's try that: retrain with class weights."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Use inverse-frequency class weights in the loss, keep everything else fixed, and compare on the field set."
+      }
+    ]
+  },
+  {
+    "id": "N_28",
+    "date": "2026-03-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Weighted model results: field accuracy 66%, down 1 point. Recall on rare diseases went up, but recall on 'healthy' dropped a lot."
+      },
+      {
+        "speaker": "assistant",
+        "text": "So reweighting traded 'healthy' recall for rare-class recall, and with 48% healthy in the field that's a net loss in accuracy."
+      }
+    ]
+  },
+  {
+    "id": "N_29",
+    "date": "2026-03-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "That's worse! Reweighting was supposed to fix this."
+      },
+      {
+        "speaker": "assistant",
+        "text": "On accuracy, yes, it's worse, but macro-F1 actually improved, so the model didn't get worse at telling classes apart. That tells us the problem is calibration to the field prior, not the features."
+      }
+    ]
+  },
+  {
+    "id": "N_30",
+    "date": "2026-03-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So what does that mean for H4?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "H4 is confirmed, but as a calibration problem: the field class prior differs, and the fix belongs at inference time rather than in training. Adjust the logits by the log-ratio of field to training priors."
+      }
+    ]
+  },
+  {
+    "id": "N_31",
+    "date": "2026-03-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then do we keep the class weights?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "No, drop the class weights entirely and go back to the unweighted model, with the logit prior adjustment at inference."
+      }
+    ]
+  },
+  {
+    "id": "N_32",
+    "date": "2026-03-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "With the prior adjustment, field accuracy is 69%."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good: +2 points over 67%, and no training change needed. 16 points still to go."
+      }
+    ]
+  },
+  {
+    "id": "N_33",
+    "date": "2026-03-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Last hypothesis. The app saves photos as heavily compressed JPEGs (quality around 40) before uploading, while all our training images are PNGs. Could that matter?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Let's think about how much compression artefacts would affect a CNN."
+      }
+    ]
+  },
+  {
+    "id": "N_34",
+    "date": "2026-03-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What's your intuition?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Honestly, I think it's unlikely to matter much. ResNets are fairly robust to JPEG artefacts at moderate quality; I'd expect a point or two at most."
+      }
+    ]
+  },
+  {
+    "id": "N_35",
+    "date": "2026-03-13",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I tested it anyway: I re-compressed the clean validation set to JPEG quality 40, and validation accuracy drops from 91% to 74%."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a 17-point drop, which is not marginal at all."
+      }
+    ]
+  },
+  {
+    "id": "N_36",
+    "date": "2026-03-13",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So you were wrong about this one too?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, I retract it. Compression is the biggest remaining factor, not a minor one. At quality 40 the blocking artefacts wipe out the fine lesion textures, and the model has never seen them during training."
+      }
+    ]
+  },
+  {
+    "id": "N_37",
+    "date": "2026-03-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How do we fix it without changing the app?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Train with the artefacts: add random JPEG re-compression at quality 30–90 as an augmentation. As exp-jpeg-aug, field accuracy reaches 78%. H5 confirmed."
+      }
+    ]
+  },
+  {
+    "id": "N_38",
+    "date": "2026-03-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "78% is great progress, but it's still short of 85%."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Agreed. We've fixed the input mismatches we know about. The remaining 7 points are probably field conditions the training data never covered, like lighting, backgrounds and leaf angles, so the next step is some real field data in training."
+      }
+    ]
+  },
+  {
+    "id": "N_39",
+    "date": "2026-03-16",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Joana says her team can label 500 more field images for us, beyond the 1,200 test set."
+      },
+      {
+        "speaker": "assistant",
+        "text": "500 labelled field images is enough to fine-tune on, as long as the 1,200 set stays untouched for testing."
+      }
+    ]
+  },
+  {
+    "id": "N_40",
+    "date": "2026-03-16",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then let's fine-tune the whole model on those 500 once they're labelled."
+      },
+      {
+        "speaker": "assistant",
+        "text": "OK: fine-tune all layers on the 500 field images with a low learning rate, and evaluate on the untouched field test set."
+      }
+    ]
+  },
+  {
+    "id": "N_41",
+    "date": "2026-03-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The full fine-tune overfits: training accuracy on the 500 goes to 99%, but the held-out field set only reaches 80%."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Classic: 500 images is too few to move 25 million parameters safely."
+      }
+    ]
+  },
+  {
+    "id": "N_42",
+    "date": "2026-03-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What would you change?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Freeze the backbone and train only the classifier head plus the last residual block. Far fewer parameters, much less overfitting."
+      }
+    ]
+  },
+  {
+    "id": "N_43",
+    "date": "2026-03-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Also, good news: Joana got approval to label 800 images instead of 500."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Even better: more data plus a frozen backbone should reduce overfitting further."
+      }
+    ]
+  },
+  {
+    "id": "N_44",
+    "date": "2026-03-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So the plan is the frozen backbone with all 800 images?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: fine-tune on the 800 labelled field images with the backbone frozen, training only the head and the last block, with JPEG augmentation and INTER_AREA resizing kept on."
+      }
+    ]
+  },
+  {
+    "id": "N_45",
+    "date": "2026-03-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Does the dedup rule we set earlier also apply to the new field images?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "It does apply, and it matters even more here."
+      }
+    ]
+  },
+  {
+    "id": "N_46",
+    "date": "2026-03-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Why even more?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Farmers often take burst shots of the same leaf. If near-identical frames land in both the 800 fine-tuning images and the 1,200 test set, the field number gets inflated exactly as validation was. Run the pHash dedup across both sets before fine-tuning."
+      }
+    ]
+  },
+  {
+    "id": "N_47",
+    "date": "2026-03-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "exp-finetune-field is done: after dedup, 86% on the field test set."
+      },
+      {
+        "speaker": "assistant",
+        "text": "86%! That clears the 85% target, on a deduplicated test set, so the number is trustworthy."
+      }
+    ]
+  },
+  {
+    "id": "N_48",
+    "date": "2026-03-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So we're done with the target."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, the 85% goal is met."
+      }
+    ]
+  },
+  {
+    "id": "N_49",
+    "date": "2026-03-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I need to write the post-mortem. Can you list every cause we found and roughly what each was worth?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Starting from 61% field: interpolation mismatch fixed with OpenCV INTER_AREA [N_23], +6; field class prior fixed with inference-time logit adjustment, class weights dropped [N_31], +2; JPEG compression fixed with quality 30–90 augmentation [N_37], +9; frozen-backbone fine-tuning on 800 deduplicated field images [N_44], +8, for 86% in total. Separately, leakage inflated validation by about 3 points and is now prevented by dedup before every retrain."
+      }
+    ]
+  },
+  {
+    "id": "N_50",
+    "date": "2026-03-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And for honesty's sake: which of your early guesses turned out to be wrong?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Three: I called leakage the main cause [N_7] (it was about 3 points), I bet on a normalisation bug [N_14] (normalisation was identical), and I said JPEG compression was unlikely to matter [N_34] (it was the largest single factor)."
+      }
+    ]
+  }
+]

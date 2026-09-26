@@ -1,0 +1,2578 @@
+{
+  "conversation_id": "ml_debugging",
+  "domain": "Debugging an ML image classifier's validation-vs-field accuracy gap",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip and hpc_support. Domain entity types (domain_config.json): model, dataset, experiment, hyperparameter. Built to exercise dense contradicts (experiments refuting the assistant's hypotheses: N_11->N_7, N_17->N_14, N_22->N_21, N_31->N_27, N_35->N_34), hypotheses as open_question state nodes (H1-H5, all resolved), and assistant self-correction (N_36 revises N_34).",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_11",
+      "issue": "An experiment refuting a hypothesis is recorded twice: at the interaction level (N_11 contradicts N_7, the turn that asserted it) and at the state-node level (SN_2 resolved at N_12, where the conclusion is drawn). Refutation and resolution fall on different turns.",
+      "proposed_direction": "Keep both. The interaction edge marks where the claim was contradicted; the state-node update marks where the open question was closed. Annotators should not force them onto the same turn."
+    },
+    {
+      "raised_at_node": "N_30",
+      "issue": "A hypothesis can be 'confirmed' with a different mechanism than proposed (H4: the class shift is real, but it's a calibration problem, not a training one). open_question only has open/resolved, so 'resolved' covers confirmed, refuted and reframed alike.",
+      "proposed_direction": "Record the outcome in the resolving turn's summary rather than extending the status enum. Flag if Phase 4 needs to distinguish confirmed from refuted."
+    },
+    {
+      "raised_at_node": "N_31",
+      "issue": "N_31 contradicts N_27 (a decision turn by the user, not an assistant claim) and reverts SN_7. Using contradicts, not revises, because the class-weight decision is abandoned, not refined.",
+      "proposed_direction": "Convention: revises when a decision is adjusted and still stands in modified form (e.g. N_44 revises N_40); contradicts when it is dropped outright."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "I need help debugging a model. LeafScan-v3, our plant-disease classifier (a ResNet-50), gets 94% validation accuracy, but in the field app it's around 61%. Management wants the field number at 85% or better. Where do I start?",
+      "answer": "A 33-point gap between validation and deployment almost always means the validation number is inflated, the deployment inputs differ from training inputs, or the deployment data distribution differs. Before guessing, let's pin down exactly how the 61% is measured.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_7",
+        "E_8",
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_48",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "LeafScan scores 94% validation but ~61% in the field; goal set to reach 85% field accuracy.",
+      "reference": "Field gap reported, 85% goal",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "What exactly do you need to know about how the field accuracy is measured?",
+      "answer": "Where the field images come from, who labelled them, and how many there are. If the 61% comes from a few dozen images it may just be noise; if it's a properly labelled set, it's a real gap.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "open"
+        ],
+        [
+          "N_3",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Assistant asks how the field accuracy is measured.",
+      "reference": "Field measurement questioned",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_3": {
+      "question": "It's 1,200 photos taken through the app by farmers last season, labelled by Joana's agronomy team. So it's a solid number.",
+      "answer": "Then the gap is real. 1,200 expert-labelled images is plenty to trust a 30-point difference.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [
+        "E_5",
+        "E_18",
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Field accuracy is measured on 1,200 expert-labelled app photos, so the gap is real.",
+      "reference": "Field set: 1,200 labelled photos",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_4": {
+      "question": "OK, so what could be causing it?",
+      "answer": "Five usual suspects, roughly cheapest to check first: (1) train/validation leakage inflating the 94%; (2) a preprocessing mismatch such as normalisation; (3) a resize or interpolation mismatch; (4) a shift in the class distribution; (5) image-quality differences such as compression or lighting. Each can be tested with a small experiment.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "suggestion",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Assistant lists five candidate causes of the gap.",
+      "reference": "Five candidate causes",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "Let's go through them in that order then, cheapest first.",
+      "answer": "Agreed. I'll keep each one as an explicit hypothesis so we can record what we ruled in or out and how many points it explains.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Agree to test the hypotheses cheapest first.",
+      "reference": "Test cheapest first",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_4",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_6": {
+      "question": "Starting with leakage: could the validation accuracy be inflated by duplicate images across the train and validation splits?",
+      "answer": "It's worth checking first because it's cheap and common.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "open"
+        ],
+        [
+          "N_12",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Opens H1: train/validation leakage via duplicate images.",
+      "reference": "H1 leakage opened",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_4",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_7": {
+      "question": "How likely do you think leakage is, honestly?",
+      "answer": "Very likely, and probably the main cause. PlantVillage-style datasets are known for near-duplicate photos of the same leaf, and a random split puts them on both sides. I'd expect deduplication alone to close most of the gap.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "open"
+        ],
+        [
+          "N_11",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Assistant predicts leakage is very likely the main cause of the gap.",
+      "reference": "Leakage predicted as main cause",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "How do I find the duplicates?",
+      "answer": "Compute a perceptual hash (pHash) for every image and flag pairs across splits with a Hamming distance of 6 or less. Exact file hashes miss re-saved or slightly cropped copies; pHash catches them.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks how to find duplicates; answer: perceptual hashing across splits.",
+      "reference": "pHash method",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_9": {
+      "question": "Script is written. Should I just drop the flagged validation images?",
+      "answer": "Drop them from validation, re-split by leaf/plant ID if you have it, and log it as its own run so we can see the before/after cleanly. Call it exp-dedup.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Plan exp-dedup: drop flagged validation duplicates and log the run.",
+      "reference": "exp-dedup planned",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_10": {
+      "question": "Running exp-dedup now; I'm tracking everything in Weights & Biases.",
+      "answer": "Good. When it finishes, look at both the number of duplicates found and the new validation accuracy.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_19"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "exp-dedup running, tracked in Weights & Biases.",
+      "reference": "exp-dedup running",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_11": {
+      "question": "Results: only 3% of validation images had near-duplicates in train. After removing them, validation drops from 94% to 91%. That's it.",
+      "answer": "Then I was wrong that leakage is the main cause: it's real but minor, worth about 3 points. Most of the gap has to be somewhere else.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "exp-dedup: 3% duplicates, validation 94% -> 91%; leakage is real but minor.",
+      "reference": "Leakage only ~3 points",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "Should we keep the dedup step anyway?",
+      "answer": "Yes. It's cheap and stops the validation number from lying again. Make it a fixed step: deduplicate the splits with perceptual hashing before every retrain. H1 is closed: leakage exists but explains about 3 points.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "H1 closed (minor leakage); perceptual-hash dedup before every retrain adopted.",
+      "reference": "Dedup before every retrain",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_11",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ],
+        "updates": [
+          [
+            "SN_2",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_2",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_13": {
+      "question": "So we're at 91% validation versus 61% field. The gap is still 30 points.",
+      "answer": "Right, and that's actually informative: a clean validation set is still far above the field, so the problem is in how field images differ from training images, not in how we measure.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "After dedup the gap is still 30 points; the cause lies in field-vs-training inputs.",
+      "reference": "Gap still 30 points",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_11",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_1",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_14": {
+      "question": "What's the next hypothesis to check?",
+      "answer": "Preprocessing. My bet is the app skips the ImageNet mean/std normalisation the model was trained with; that's the most common deployment bug with ResNets, and it would easily cost 30 points.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "suggestion",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_17",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Assistant proposes H2: the app skips ImageNet normalisation.",
+      "reference": "H2 normalisation proposed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ]
+      }
+    },
+    "N_15": {
+      "question": "How would I check that without reading all of the mobile team's code?",
+      "answer": "Compare what the model actually receives rather than reading code.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_16",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks how to check normalisation without reading the app code.",
+      "reference": "How to check preprocessing",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_16": {
+      "question": "Compare it how, concretely?",
+      "answer": "Run the same 20 photos through the training dataloader and through the app's preprocessing (the mobile team can dump the input tensors), then compare per-channel mean and std and a few raw pixel values.",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Dump app input tensors and compare channel statistics with the training pipeline.",
+      "reference": "Tensor-dump comparison",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_15",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_17": {
+      "question": "Got the dumps. The per-channel mean and std are identical: the app normalises exactly like training.",
+      "answer": "Then my normalisation guess was wrong. The app applies the same ImageNet normalisation.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Tensor dumps show identical normalisation; the H2 guess is wrong.",
+      "reference": "Normalisation identical",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_16",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_18": {
+      "question": "So H2 is out?",
+      "answer": "Yes, H2 is ruled out: normalisation is not the problem.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "H2 ruled out.",
+      "reference": "H2 ruled out",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_17",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_3",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_19": {
+      "question": "One odd thing though: even with the same normalisation stats, the individual pixel values in the dumps don't match between the two pipelines.",
+      "answer": "That's a good catch. Matching statistics but different pixels points at the resize step: different resampling produces slightly different images from the same photo.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_23",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Pixel values differ despite matching statistics; opens H3 on resize interpolation.",
+      "reference": "H3 resize opened",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_16",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4"
+        ]
+      }
+    },
+    "N_20": {
+      "question": "You're right. Training resizes with Pillow's bilinear filter; the app uses OpenCV with nearest-neighbour.",
+      "answer": "Nearest-neighbour downscaling from a 12-megapixel phone photo to 224×224 produces heavy aliasing, which destroys exactly the fine lesion texture the model relies on.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [
+        "E_17",
+        "E_16",
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Training uses Pillow bilinear, the app uses OpenCV nearest-neighbour resizing.",
+      "reference": "Pillow bilinear vs OpenCV nearest",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_21": {
+      "question": "What's the fix?",
+      "answer": "Make the app match training: switch the app to Pillow's bilinear resize so both pipelines are identical.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_17",
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "suggestion",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_22",
+          "contradicts",
+          "contested"
+        ],
+        [
+          "N_23",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Assistant suggests switching the app to Pillow bilinear resizing.",
+      "reference": "Switch app to Pillow suggested",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_20",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_20",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_22": {
+      "question": "The mobile team says that's not possible: the app runs on-device and can't ship Pillow. OpenCV is the only image library they have.",
+      "answer": "Then the app can't match training; training has to match the app instead.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_17",
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The app cannot ship Pillow, so the suggested fix is not possible.",
+      "reference": "Pillow not possible on-device",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_23": {
+      "question": "So which setting should both use?",
+      "answer": "Standardise on OpenCV's INTER_AREA in both training and the app: it's available on-device and is the right filter for downscaling. I reran with that as exp-interp, and field accuracy goes from 61% to 67%. H3 confirmed: interpolation was worth about 6 points.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_10",
+        "E_13",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Both pipelines standardise on OpenCV INTER_AREA; exp-interp raises field accuracy 61% -> 67%.",
+      "reference": "OpenCV INTER_AREA everywhere",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "revises"
+          ],
+          [
+            "N_19",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ],
+        "updates": [
+          [
+            "SN_4",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_4",
+            "resolves"
+          ],
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "Quick recap before we continue. Where are we?",
+      "answer": "Leakage [N_12] explained about 3 points of validation inflation, and the interpolation mismatch [N_23] about 6 points of field accuracy. Normalisation was ruled out. Field is at 67%, so about 18 points remain.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [
+        "N_12",
+        "N_23"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Recap: leakage ~3 points, interpolation ~6 points; field at 67%, 18 points to go.",
+      "reference": "Recap after H1-H3",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "supercase"
+          ],
+          [
+            "N_23",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_25": {
+      "question": "Next one: I looked at the labels, and the field set is 48% 'healthy' leaves, while training is only 12% healthy. Is that a problem?",
+      "answer": "That's a large prior shift. A model trained on 12% healthy will under-predict 'healthy' on data that is 48% healthy.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [
+        "E_5",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "open"
+        ],
+        [
+          "N_30",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Field set is 48% healthy vs 12% in training; opens H4 on class shift.",
+      "reference": "H4 class shift opened",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ]
+      }
+    },
+    "N_26": {
+      "question": "How much can a prior shift like that cost?",
+      "answer": "Potentially a lot, if 'healthy' leaves are being misclassified as mild diseases. The usual first remedy is class reweighting during training.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "A prior shift can cost a lot; class reweighting suggested.",
+      "reference": "Prior shift can hurt",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_27": {
+      "question": "OK, let's try that: retrain with class weights.",
+      "answer": "Use inverse-frequency class weights in the loss, keep everything else fixed, and compare on the field set.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_31",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Decides to retrain with inverse-frequency class weights.",
+      "reference": "Class-weighted retrain",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_26",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ]
+      }
+    },
+    "N_28": {
+      "question": "Weighted model results: field accuracy 66%, down 1 point. Recall on rare diseases went up, but recall on 'healthy' dropped a lot.",
+      "answer": "So reweighting traded 'healthy' recall for rare-class recall, and with 48% healthy in the field that's a net loss in accuracy.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_15",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Class weights lower field accuracy to 66% by hurting 'healthy' recall.",
+      "reference": "Class weights: 66%",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_7",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_29": {
+      "question": "That's worse! Reweighting was supposed to fix this.",
+      "answer": "On accuracy, yes, it's worse, but macro-F1 actually improved, so the model didn't get worse at telling classes apart. That tells us the problem is calibration to the field prior, not the features.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Sam objects the result is worse; assistant points to improved macro-F1 and a calibration issue.",
+      "reference": "Worse accuracy, better macro-F1",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_30": {
+      "question": "So what does that mean for H4?",
+      "answer": "H4 is confirmed, but as a calibration problem: the field class prior differs, and the fix belongs at inference time rather than in training. Adjust the logits by the log-ratio of field to training priors.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "H4 confirmed as a calibration issue, to be fixed with logit prior adjustment at inference.",
+      "reference": "H4: fix at inference",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_29",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_6",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_6",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_31": {
+      "question": "Then do we keep the class weights?",
+      "answer": "No, drop the class weights entirely and go back to the unweighted model, with the logit prior adjustment at inference.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Class weights dropped; unweighted model with inference-time prior adjustment.",
+      "reference": "Drop class weights",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "contradicts"
+          ],
+          [
+            "N_30",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_7",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_32": {
+      "question": "With the prior adjustment, field accuracy is 69%.",
+      "answer": "Good: +2 points over 67%, and no training change needed. 16 points still to go.",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Prior adjustment brings field accuracy to 69%.",
+      "reference": "Field at 69%",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_31",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_33": {
+      "question": "Last hypothesis. The app saves photos as heavily compressed JPEGs (quality around 40) before uploading, while all our training images are PNGs. Could that matter?",
+      "answer": "Let's think about how much compression artefacts would affect a CNN.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "open"
+        ],
+        [
+          "N_37",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Opens H5: app photos are heavily compressed JPEGs, training images are PNG.",
+      "reference": "H5 JPEG opened",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_34": {
+      "question": "What's your intuition?",
+      "answer": "Honestly, I think it's unlikely to matter much. ResNets are fairly robust to JPEG artefacts at moderate quality; I'd expect a point or two at most.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "open"
+        ],
+        [
+          "N_35",
+          "contradicts",
+          "contested"
+        ],
+        [
+          "N_36",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Assistant expects JPEG compression to matter only marginally.",
+      "reference": "JPEG predicted minor",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_35": {
+      "question": "I tested it anyway: I re-compressed the clean validation set to JPEG quality 40, and validation accuracy drops from 91% to 74%.",
+      "answer": "That's a 17-point drop, which is not marginal at all.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Re-compressing validation to JPEG q=40 drops accuracy 91% -> 74%.",
+      "reference": "JPEG costs 17 points",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_34",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_34",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_36": {
+      "question": "So you were wrong about this one too?",
+      "answer": "Yes, I retract it. Compression is the biggest remaining factor, not a minor one. At quality 40 the blocking artefacts wipe out the fine lesion textures, and the model has never seen them during training.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Assistant retracts: compression is the biggest remaining factor.",
+      "reference": "Compression biggest factor",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_35",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_34",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_37": {
+      "question": "How do we fix it without changing the app?",
+      "answer": "Train with the artefacts: add random JPEG re-compression at quality 30–90 as an augmentation. As exp-jpeg-aug, field accuracy reaches 78%. H5 confirmed.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_11",
+        "E_14",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Random JPEG-quality augmentation added; exp-jpeg-aug reaches 78% field accuracy.",
+      "reference": "JPEG augmentation: 78%",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ],
+        "updates": [
+          [
+            "SN_8",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_8",
+            "resolves"
+          ],
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_38": {
+      "question": "78% is great progress, but it's still short of 85%.",
+      "answer": "Agreed. We've fixed the input mismatches we know about. The remaining 7 points are probably field conditions the training data never covered, like lighting, backgrounds and leaf angles, so the next step is some real field data in training.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "78% still short of 85%; next step is training on real field data.",
+      "reference": "Still 7 points short",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_1",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_39": {
+      "question": "Joana says her team can label 500 more field images for us, beyond the 1,200 test set.",
+      "answer": "500 labelled field images is enough to fine-tune on, as long as the 1,200 set stays untouched for testing.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_18",
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_43",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Labelling budget: 500 extra field images from Joana's team.",
+      "reference": "500-image labelling budget",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_38",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ]
+      }
+    },
+    "N_40": {
+      "question": "Then let's fine-tune the whole model on those 500 once they're labelled.",
+      "answer": "OK: fine-tune all layers on the 500 field images with a low learning rate, and evaluate on the untouched field test set.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_44",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Decides to fine-tune the full model on the 500 field images.",
+      "reference": "Full fine-tune decided",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_39",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ],
+        "relates": [
+          [
+            "SN_10",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_41": {
+      "question": "The full fine-tune overfits: training accuracy on the 500 goes to 99%, but the held-out field set only reaches 80%.",
+      "answer": "Classic: 500 images is too few to move 25 million parameters safely.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Full fine-tune overfits: 80% on held-out field data.",
+      "reference": "Full fine-tune overfits",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_40",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_40",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_11",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_42": {
+      "question": "What would you change?",
+      "answer": "Freeze the backbone and train only the classifier head plus the last residual block. Far fewer parameters, much less overfitting.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "suggestion",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Assistant suggests freezing the backbone and training only the head and last block.",
+      "reference": "Freeze backbone suggested",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_41",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_41",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_43": {
+      "question": "Also, good news: Joana got approval to label 800 images instead of 500.",
+      "answer": "Even better: more data plus a frozen backbone should reduce overfitting further.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Labelling budget raised from 500 to 800 images.",
+      "reference": "Budget raised to 800",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_39",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_10",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_44": {
+      "question": "So the plan is the frozen backbone with all 800 images?",
+      "answer": "Yes: fine-tune on the 800 labelled field images with the backbone frozen, training only the head and the last block, with JPEG augmentation and INTER_AREA resizing kept on.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_14",
+        "E_16"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Plan revised: frozen-backbone fine-tune on 800 field images.",
+      "reference": "Frozen-backbone fine-tune",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_40",
+            "revises"
+          ],
+          [
+            "N_43",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_11",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_5",
+            "supports"
+          ],
+          [
+            "SN_9",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_45": {
+      "question": "Does the dedup rule we set earlier also apply to the new field images?",
+      "answer": "It does apply, and it matters even more here.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "open"
+        ],
+        [
+          "N_46",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether the dedup rule applies to field images.",
+      "reference": "Dedup for field images?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_46": {
+      "question": "Why even more?",
+      "answer": "Farmers often take burst shots of the same leaf. If near-identical frames land in both the 800 fine-tuning images and the 1,200 test set, the field number gets inflated exactly as validation was. Run the pHash dedup across both sets before fine-tuning.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Burst-shot duplicates make dedup essential between fine-tuning and test field sets.",
+      "reference": "Burst-shot duplicates",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_45",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_45",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_12",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_47": {
+      "question": "exp-finetune-field is done: after dedup, 86% on the field test set.",
+      "answer": "86%! That clears the 85% target, on a deduplicated test set, so the number is trustworthy.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "exp-finetune-field reaches 86% field accuracy after dedup.",
+      "reference": "Field at 86%",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_44",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "So we're done with the target.",
+      "answer": "Yes, the 85% goal is met.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The 85% field accuracy goal is achieved.",
+      "reference": "Goal achieved",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_47",
+            "depends_on"
+          ],
+          [
+            "N_1",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    },
+    "N_49": {
+      "question": "I need to write the post-mortem. Can you list every cause we found and roughly what each was worth?",
+      "answer": "Starting from 61% field: interpolation mismatch fixed with OpenCV INTER_AREA [N_23], +6; field class prior fixed with inference-time logit adjustment, class weights dropped [N_31], +2; JPEG compression fixed with quality 30–90 augmentation [N_37], +9; frozen-backbone fine-tuning on 800 deduplicated field images [N_44], +8, for 86% in total. Separately, leakage inflated validation by about 3 points and is now prevented by dedup before every retrain.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [
+        "N_23",
+        "N_31",
+        "N_37",
+        "N_44"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Post-mortem: each cause and its effect on field accuracy, 61% -> 86%.",
+      "reference": "Post-mortem summary",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "supercase"
+          ],
+          [
+            "N_31",
+            "supercase"
+          ],
+          [
+            "N_37",
+            "supercase"
+          ],
+          [
+            "N_44",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_50": {
+      "question": "And for honesty's sake: which of your early guesses turned out to be wrong?",
+      "answer": "Three: I called leakage the main cause [N_7] (it was about 3 points), I bet on a normalisation bug [N_14] (normalisation was identical), and I said JPEG compression was unlikely to matter [N_34] (it was the largest single factor).",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_7",
+        "N_14",
+        "N_34"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Assistant lists its three wrong early guesses for the post-mortem.",
+      "reference": "Wrong guesses listed",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_7",
+            "references"
+          ],
+          [
+            "N_14",
+            "references"
+          ],
+          [
+            "N_34",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Sam",
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_2": {
+      "type": "model",
+      "name": "LeafScan-v3",
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_3": {
+      "type": "model",
+      "name": "ResNet-50",
+      "mentioned_in": [
+        "N_1",
+        "N_14",
+        "N_34",
+        "N_42"
+      ]
+    },
+    "E_4": {
+      "type": "dataset",
+      "name": "PlantVillage-ext",
+      "mentioned_in": [
+        "N_6",
+        "N_7",
+        "N_25",
+        "N_33"
+      ]
+    },
+    "E_5": {
+      "type": "dataset",
+      "name": "field set",
+      "mentioned_in": [
+        "N_3",
+        "N_25",
+        "N_39",
+        "N_45",
+        "N_46"
+      ]
+    },
+    "E_6": {
+      "type": "system",
+      "name": "LeafScan field app",
+      "mentioned_in": [
+        "N_1",
+        "N_3",
+        "N_14",
+        "N_16",
+        "N_17",
+        "N_21",
+        "N_22",
+        "N_33"
+      ]
+    },
+    "E_7": {
+      "type": "measurement",
+      "name": "validation accuracy",
+      "mentioned_in": [
+        "N_1",
+        "N_6",
+        "N_11",
+        "N_13",
+        "N_35"
+      ]
+    },
+    "E_8": {
+      "type": "measurement",
+      "name": "field accuracy",
+      "mentioned_in": [
+        "N_1",
+        "N_2",
+        "N_13",
+        "N_23",
+        "N_24",
+        "N_28",
+        "N_32",
+        "N_37",
+        "N_38",
+        "N_41",
+        "N_47",
+        "N_49"
+      ]
+    },
+    "E_9": {
+      "type": "experiment",
+      "name": "exp-dedup",
+      "mentioned_in": [
+        "N_9",
+        "N_10",
+        "N_11",
+        "N_12"
+      ]
+    },
+    "E_10": {
+      "type": "experiment",
+      "name": "exp-interp",
+      "mentioned_in": [
+        "N_23"
+      ]
+    },
+    "E_11": {
+      "type": "experiment",
+      "name": "exp-jpeg-aug",
+      "mentioned_in": [
+        "N_37"
+      ]
+    },
+    "E_12": {
+      "type": "experiment",
+      "name": "exp-finetune-field",
+      "mentioned_in": [
+        "N_40",
+        "N_41",
+        "N_44",
+        "N_47"
+      ]
+    },
+    "E_13": {
+      "type": "hyperparameter",
+      "name": "resize interpolation",
+      "mentioned_in": [
+        "N_19",
+        "N_20",
+        "N_23"
+      ]
+    },
+    "E_14": {
+      "type": "hyperparameter",
+      "name": "JPEG-quality augmentation",
+      "mentioned_in": [
+        "N_37",
+        "N_44"
+      ]
+    },
+    "E_15": {
+      "type": "hyperparameter",
+      "name": "class weights",
+      "mentioned_in": [
+        "N_27",
+        "N_28",
+        "N_31"
+      ]
+    },
+    "E_16": {
+      "type": "tool",
+      "name": "OpenCV",
+      "mentioned_in": [
+        "N_20",
+        "N_22",
+        "N_23",
+        "N_44"
+      ]
+    },
+    "E_17": {
+      "type": "tool",
+      "name": "Pillow",
+      "mentioned_in": [
+        "N_20",
+        "N_21",
+        "N_22"
+      ]
+    },
+    "E_18": {
+      "type": "person",
+      "name": "Joana",
+      "mentioned_in": [
+        "N_3",
+        "N_39",
+        "N_43"
+      ]
+    },
+    "E_19": {
+      "type": "tool",
+      "name": "Weights & Biases",
+      "mentioned_in": [
+        "N_10"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Raise LeafScan field accuracy to at least 85%",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_48",
+            "achieved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_13",
+            "constrained_by"
+          ],
+          [
+            "N_23",
+            "supports"
+          ],
+          [
+            "N_32",
+            "supports"
+          ],
+          [
+            "N_37",
+            "supports"
+          ],
+          [
+            "N_38",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_2": {
+      "type": "open_question",
+      "label": "H1: Is there train/validation leakage inflating validation accuracy?",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_6",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_12",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_12",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "open_question",
+      "label": "H2: Does the field app normalise images differently from training?",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_14",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_18",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_18",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "open_question",
+      "label": "H3: Does resize interpolation differ between training and the field app?",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_19",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_23",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_23",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_5": {
+      "type": "decision",
+      "label": "Use OpenCV INTER_AREA resizing in both the training pipeline and the field app",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_23",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_44",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_6": {
+      "type": "open_question",
+      "label": "H4: Is the field class distribution shifted relative to training?",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_25",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_30",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_30",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_7": {
+      "type": "decision",
+      "label": "Retrain LeafScan with inverse-frequency class weights",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_27",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_31",
+            "reverted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_28",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_8": {
+      "type": "open_question",
+      "label": "H5: Is phone JPEG compression causing the remaining accuracy gap?",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_33",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_37",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_37",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_9": {
+      "type": "decision",
+      "label": "Add random JPEG-quality (30-90) augmentation to training",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_37",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_44",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_10": {
+      "type": "constraint",
+      "label": "Labelling budget of 800 field images (originally: 500)",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_39",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_43",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_40",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_11": {
+      "type": "decision",
+      "label": "Fine-tune on 800 labelled field images with the backbone frozen, training only the head and last block (originally: full fine-tune)",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_40",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_44",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_41",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_12": {
+      "type": "decision",
+      "label": "Deduplicate data splits with perceptual hashing before every retrain",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_12",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_46",
+            "supports"
+          ]
+        ]
+      }
+    }
+  }
+}

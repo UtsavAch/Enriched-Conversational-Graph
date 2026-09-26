@@ -1,0 +1,6 @@
+{
+  "model": "A named ML model, architecture, or checkpoint (e.g. LeafScan-v3, ResNet-50).",
+  "dataset": "A named dataset or data split (e.g. PlantVillage-ext, the field set).",
+  "experiment": "A named experiment or training run id (e.g. exp-dedup).",
+  "hyperparameter": "A named training or preprocessing setting (e.g. resize interpolation, class weights)."
+}

@@ -1,0 +1,5 @@
+{
+  "concept": "A named statistical concept or quantity (e.g. p-value, standard error, effect size).",
+  "method": "A named statistical test or procedure (e.g. Welch's t-test, one-way ANOVA, Kruskal-Wallis test).",
+  "dataset": "A named dataset or data file (e.g. the sleep-and-focus survey)."
+}

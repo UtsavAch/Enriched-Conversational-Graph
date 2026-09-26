@@ -1,0 +1,2538 @@
+{
+  "conversation_id": "tutoring_stats",
+  "domain": "Tutoring dialogue: introductory statistics over six weekly sessions",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip. Domain entity types (domain_config.json): concept, method, dataset. Built to exercise supercase via recap turns (N_24, N_32, N_43, N_46), a misconception accepted early (N_6/N_7) and corrected later (N_18 contradicts N_7, N_19 revises N_7), a decision revised then reverted (SN_5: paired -> Welch's -> dropped for ANOVA), and constraint: lifted (SN_7). First tutoring corpus, as named in the workplan.",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_6",
+      "issue": "The tutor's vague answer at N_6 neither confirms nor corrects Lena's misreading, but the misconception is only recorded at N_7 (Lena writing it down). The error is a joint product of two turns, and only N_7 states it explicitly.",
+      "proposed_direction": "N_18 contradicts N_7 (the explicit false statement) and resolves N_6 (the open question). Annotators should target the turn that states the claim, not the one that merely failed to correct it."
+    },
+    {
+      "raised_at_node": "N_29",
+      "issue": "SN_5 is revised (N_26, paired -> Welch's) and then reverted in the same session (N_29), replaced by SN_6. The interaction edge N_29 -> N_26 is revises, because the analysis plan is refined further (two-group test -> multi-group test), even though the state node itself is reverted.",
+      "proposed_direction": "Interaction edges describe what the turn does to the earlier turn; state-node status describes the fate of the decision. They can legitimately differ, and the gold keeps both as authored."
+    },
+    {
+      "raised_at_node": "N_36",
+      "issue": "The outline assumed power of about 0.45; the correct value for a one-way ANOVA with three groups of ~14 and f = 0.25 is about 0.3. The corpus uses 0.3.",
+      "proposed_direction": "No schema change; recorded so the outline and corpus aren't read as inconsistent."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "Hi, I'm Lena. My PSY210 Research Methods exam is in seven weeks and I've been lost since week 3, when the course got into inference. Where should I start?",
+      "answer": "We'll get you there. Inference builds on a few ideas in a strict order, so we'll start at the bottom: means and spread, then how sample statistics vary, then p-values and intervals. Seven weeks is enough if we go step by step.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_50",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Lena wants to pass the PSY210 exam in seven weeks after getting lost at inference.",
+      "reference": "Goal: pass PSY210",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "OK, so where exactly is the bottom?",
+      "answer": "The mean and the standard deviation. The SD measures how spread out individual scores are around the mean, and almost everything later, from standard errors to t-tests, is built from it.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Starts from the mean and standard deviation as the foundation.",
+      "reference": "Mean and SD first",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_3": {
+      "question": "There's also my course project: I ran a survey on sleep and concentration, 42 participants, sleep hours plus a focus score. I have to analyse it for PSY210.",
+      "answer": "Good, a real dataset makes this much easier to learn. We'll use your sleep-and-focus survey as the running example and build the project analysis as we go.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Lena also has to analyse her 42-person sleep-and-focus survey for the course project.",
+      "reference": "Project: sleep survey",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_4": {
+      "question": "Why does the SD formula divide by n−1 instead of n? That always confused me.",
+      "answer": "Because the sample mean is computed from the same data, so the scores sit slightly closer to it than to the true population mean. Dividing by n−1 corrects that underestimate of the spread.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Explains why the sample SD divides by n-1.",
+      "reference": "Why n-1",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "And how do we get from the spread of scores to inference?",
+      "answer": "Through the sampling distribution: if you repeated your study many times, the sample mean would vary from study to study. The SD of that variation is the standard error, SD divided by the square root of n. It tells you how much your mean would wobble between studies.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 7,
+      "retrieval_count": 7,
+      "summary": "Introduces the sampling distribution and the standard error.",
+      "reference": "Sampling distribution and SE",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_4",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_6": {
+      "question": "And where do p-values come in? Like, if I get p = 0.03, that means there's a 3% chance that the null hypothesis is true, right?",
+      "answer": "Roughly, yes. A p-value is about how surprising your data are; a small one means the result would be unlikely to happen just by chance.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "open"
+        ],
+        [
+          "N_18",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Lena reads p = 0.03 as a 3% chance the null is true; the tutor answers vaguely without correcting it.",
+      "reference": "p-value misreading unchallenged",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ]
+      }
+    },
+    "N_7": {
+      "question": "Great, I'll write that in my summary notes: p = the probability that the null hypothesis is true.",
+      "answer": "Sounds good. Keep your notes short and in your own words.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_18",
+          "contradicts",
+          "contested"
+        ],
+        [
+          "N_19",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Lena records the incorrect p-value definition in her notes.",
+      "reference": "Wrong definition in notes",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "What should I do before next week?",
+      "answer": "Practise standard errors: compute the SE for a few made-up samples so the formula becomes automatic.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Homework: practise standard error calculations.",
+      "reference": "SE homework",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_5",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_9": {
+      "question": "Homework check: for n = 25 and SD = 10, I got a standard error of 2. Is that right?",
+      "answer": "Yes: 10 divided by the square root of 25 is 10/5 = 2.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Homework check: SE = 2 for n=25, SD=10.",
+      "reference": "SE homework correct",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_10": {
+      "question": "What's the next idea after the standard error?",
+      "answer": "Confidence intervals. A 95% CI is your estimate plus or minus about two standard errors. With your numbers, a mean of 50 would give roughly 46 to 54.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 7,
+      "retrieval_count": 7,
+      "summary": "Introduces 95% confidence intervals as estimate ± about 2 SE.",
+      "reference": "Confidence intervals",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_11": {
+      "question": "Where does the 'about two' come from? My notes say 1.96.",
+      "answer": "It is 1.96: in a normal distribution, 95% of values lie within 1.96 standard deviations of the mean. 'About two' is just a mental shortcut.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "open"
+        ],
+        [
+          "N_12",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks where the 1.96 multiplier comes from.",
+      "reference": "Why 1.96",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "But my textbook sometimes uses 2.06 instead. Why?",
+      "answer": "With small samples you use the t distribution instead of the normal, because the SD itself is estimated. For n = 25 the t critical value is 2.06; it gets closer to 1.96 as n grows.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Explains z vs t critical values (1.96 vs 2.06 for n=25).",
+      "reference": "z vs t critical values",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_11",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_11",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_13": {
+      "question": "So a 95% CI means there's a 95% chance the true mean is inside my interval?",
+      "answer": "That's close, but not quite. Let's be careful with the wording.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "open"
+        ],
+        [
+          "N_14",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether a 95% CI has a 95% chance of containing the true mean.",
+      "reference": "CI interpretation asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_14": {
+      "question": "What's the careful version? And should I use CIs in my project?",
+      "answer": "The careful version: if you repeated the study many times, 95% of the intervals built this way would contain the true mean; any single interval either does or doesn't. And yes, for your project, report a 95% confidence interval alongside every p-value. It shows the size and precision of each effect, not just whether it's significant.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_5",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Corrects the CI interpretation; decides to report 95% CIs alongside every p-value in the project.",
+      "reference": "Report 95% CIs",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_13",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4"
+        ],
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_15": {
+      "question": "Are confidence intervals and hypothesis tests related?",
+      "answer": "They're two views of the same thing: a 95% CI that excludes zero corresponds to p < 0.05 for that difference.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "CIs and hypothesis tests are two views of the same inference.",
+      "reference": "CI-test duality",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_16": {
+      "question": "Makes sense. See you next week!",
+      "answer": "See you. Try building 95% CIs for a couple of your survey variables before then.",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Session 2 wrap-up with a CI exercise on the survey.",
+      "reference": "Session 2 wrap-up",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_14",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_17": {
+      "question": "I got my quiz back and lost points on the p-value question. I wrote exactly what's in my notes.",
+      "answer": "Let's look at what's in your notes then; this matters for the exam.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Lena lost quiz points on the p-value question using her notes.",
+      "reference": "Quiz points lost",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_7",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_18": {
+      "question": "My notes say: p = the probability that the null hypothesis is true.",
+      "answer": "That's the problem, and I should have corrected it when you first said it [N_6]. A p-value is the probability of getting data at least as extreme as yours if the null hypothesis were true. It is not the probability that the null is true. p = 0.03 means: if there were really no effect, results this extreme would appear only 3% of the time.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [
+        "N_6"
+      ],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Tutor corrects the note: p is P(data this extreme | null true), not P(null true).",
+      "reference": "p-value corrected",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_17",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "contradicts"
+          ],
+          [
+            "N_6",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_3",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_19": {
+      "question": "OK, I rewrote the note: 'p = how likely data at least this extreme would be if the null were true.'",
+      "answer": "That's correct, and exam-proof.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Lena rewrites her p-value note correctly.",
+      "reference": "Note rewritten",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_18",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_20": {
+      "question": "Now t-tests. What's the difference between a one-sample and a two-sample t-test?",
+      "answer": "A one-sample t-test compares one mean to a fixed value; a two-sample t-test compares two means. Both divide a difference by its standard error.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "open"
+        ],
+        [
+          "N_21",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Asks the difference between one-sample and two-sample t-tests.",
+      "reference": "t-test types",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_18",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_21": {
+      "question": "And within two-sample tests?",
+      "answer": "It depends on the design. If the same people are measured twice, the scores are paired and you use a paired t-test; if the two groups are different people, they're independent and you use an independent-samples test.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Paired vs independent designs determine which two-sample test to use.",
+      "reference": "Paired vs independent",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_20",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_20",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_22": {
+      "question": "My participants did both conditions, so I should use a paired t-test for the project, right?",
+      "answer": "If each participant contributed a score in both conditions, then yes, a paired t-test fits. Plan on that for the project.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_26",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Lena plans a paired t-test, believing participants did both conditions.",
+      "reference": "Paired t-test planned",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ]
+      }
+    },
+    "N_23": {
+      "question": "Oh, and Dr. Okafor said the project can only use methods from the syllabus. No nonparametric tests.",
+      "answer": "Noted. We'll stick to t-tests, ANOVA and regression, which are all in the PSY210 syllabus.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_40",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Dr. Okafor restricts the project to syllabus methods, no nonparametrics.",
+      "reference": "Syllabus-only rule",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ],
+        "relates": [
+          [
+            "SN_2",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "Can you tie together everything so far? It feels like a lot of separate formulas.",
+      "answer": "It's really one idea: signal divided by noise. The standard error measures the noise; a confidence interval is the estimate ± noise; a t-test divides the difference by the noise; and the p-value says how surprising that ratio would be if there were no effect.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8",
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Recap: SE, CIs, t-tests and p-values are one signal-over-noise idea.",
+      "reference": "Signal-over-noise recap",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "supercase"
+          ],
+          [
+            "N_10",
+            "supercase"
+          ],
+          [
+            "N_20",
+            "supercase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_18",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_25": {
+      "question": "I brought the data. It's split into three sleep groups (under 6 hours, 6–8 hours, over 8 hours) with 14, 15 and 13 people, and each person is in exactly one group.",
+      "answer": "That changes things: each person is in only one group, so nobody did 'both conditions'.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "The data has three independent sleep groups (14/15/13), not paired measurements.",
+      "reference": "Three independent groups",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_5",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_26": {
+      "question": "So the paired t-test is wrong?",
+      "answer": "Yes. With different people in each group the scores are independent, not paired, so a paired t-test is invalid. For comparing two independent groups you'd use Welch's t-test instead.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "correction",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_29",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Paired t-test ruled invalid; Welch's t-test for independent groups instead.",
+      "reference": "Switch to Welch's",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_5",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_27": {
+      "question": "Why Welch's and not the regular Student's t-test?",
+      "answer": "Student's t-test assumes both groups have equal variances.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "open"
+        ],
+        [
+          "N_28",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks why Welch's rather than Student's t-test.",
+      "reference": "Why Welch's",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_26",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_26",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_28": {
+      "question": "And is that a problem for my data?",
+      "answer": "Your groups have different sizes and noticeably different spreads, so the equal-variance assumption is doubtful. Welch's doesn't need it and loses almost nothing when variances happen to be equal.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Unequal variances and group sizes favour Welch's test.",
+      "reference": "Unequal variances",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_29": {
+      "question": "Wait, but I have three groups, not two. Doesn't a t-test only compare two?",
+      "answer": "Right, and that settles it: with three groups, running several t-tests inflates false positives. The correct approach is a one-way ANOVA across all three groups, not t-tests.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_41",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 8,
+      "retrieval_count": 8,
+      "summary": "Three groups call for a one-way ANOVA; the t-test plan is dropped.",
+      "reference": "One-way ANOVA",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_26",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_26",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ],
+        "updates": [
+          [
+            "SN_5",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_30": {
+      "question": "Which significance level should I use?",
+      "answer": "The standard alpha = 0.05.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_31",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Alpha set at 0.05.",
+      "reference": "Alpha 0.05",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_29",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_29",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ]
+      }
+    },
+    "N_31": {
+      "question": "And if the ANOVA is significant, I compare the pairs of groups with 0.05 too?",
+      "answer": "Not quite. The ANOVA itself uses 0.05, but the three pairwise post-hoc comparisons each need a correction. With Bonferroni, that's 0.05 / 3 ≈ 0.017 per comparison.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Post-hoc pairwise comparisons use a Bonferroni-corrected alpha of about 0.017.",
+      "reference": "Bonferroni 0.017",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_30",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_30",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_9",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_32": {
+      "question": "So t-tests and ANOVA are basically doing the same thing?",
+      "answer": "Yes: both compare variation between groups with variation within groups. A t-test is the special case with two groups, and post-hoc tests are just t-tests with a stricter alpha.",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "t-tests and ANOVA both compare between-group to within-group variation.",
+      "reference": "t-test as special ANOVA",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_20",
+            "supercase"
+          ],
+          [
+            "N_29",
+            "supercase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_33": {
+      "question": "Is 42 people even enough for this analysis?",
+      "answer": "That depends on how big an effect you're trying to detect; let's work it out properly.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "open"
+        ],
+        [
+          "N_36",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks whether n=42 is enough for the analysis.",
+      "reference": "Sample size question",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_29",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_34": {
+      "question": "What do I need to know to work it out?",
+      "answer": "Two ideas: effect size, how big the difference is in standardised units (for ANOVA, Cohen's f, where 0.25 counts as medium), and power, the probability that your study detects an effect of that size if it exists. People aim for 0.80.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [
+        "E_13",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Introduces effect size (Cohen's f) and power (target 0.80).",
+      "reference": "Effect size and power",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_35": {
+      "question": "Different problem: one participant, P17, has a focus score way below everyone else's. Should I delete them?",
+      "answer": "Don't delete a participant just for being extreme; that's a common way to bias results. Keep P17, and add a sensitivity analysis that reruns the test without them. If the conclusion doesn't change, you're fine; if it does, you report both.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Keep outlier P17 and report a sensitivity analysis without them.",
+      "reference": "Keep P17, sensitivity check",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ]
+      }
+    },
+    "N_36": {
+      "question": "Back to the sample size: what's the answer for my study?",
+      "answer": "For a one-way ANOVA with three groups of about 14 and a medium effect (f = 0.25), power is only about 0.3, far below 0.80. Your study is underpowered for a medium effect. That's normal for a course project; state it clearly as a limitation rather than overclaiming a non-significant result.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Power is about 0.3 for a medium effect: the study is underpowered, reported as a limitation.",
+      "reference": "Underpowered (~0.3)",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_34",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "resolves"
+          ],
+          [
+            "N_34",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_8",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_8",
+            "resolves"
+          ],
+          [
+            "SN_2",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_37": {
+      "question": "The focus scores look really skewed when I plot them. Does ANOVA still work?",
+      "answer": "ANOVA assumes the residuals are roughly normal within each group. With skewed data and small groups, that assumption is worth checking before trusting it.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "open"
+        ],
+        [
+          "N_39",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Skewed focus scores raise the question of whether ANOVA's normality assumption holds.",
+      "reference": "Normality question",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_29",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ],
+        "relates": [
+          [
+            "SN_6",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_38": {
+      "question": "How do I check it?",
+      "answer": "Run a Shapiro-Wilk test on the residuals in JASP and look at a Q-Q plot. If normality fails, a nonparametric test would normally be the better choice, but that runs into Dr. Okafor's syllabus rule.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [
+        "E_17",
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Check normality with Shapiro-Wilk and a Q-Q plot in JASP; nonparametrics clash with the syllabus rule.",
+      "reference": "Shapiro-Wilk in JASP",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_7",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_39": {
+      "question": "Shapiro-Wilk gives p < .01, and the Q-Q plot bends away badly at the top.",
+      "answer": "Then normality is clearly violated for the focus scores. With groups this small, ANOVA isn't a safe primary test.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Normality is clearly violated (Shapiro-Wilk p < .01).",
+      "reference": "Normality violated",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_38",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_10",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_10",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_40": {
+      "question": "I emailed Dr. Okafor. She says nonparametric tests are allowed if I justify them with the normality check.",
+      "answer": "That removes the syllabus restriction for your case, so we can use the right test.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Dr. Okafor allows nonparametric tests with justification; the syllabus rule is lifted.",
+      "reference": "Nonparametrics allowed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_23",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_23",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_7",
+            "lifted"
+          ]
+        ]
+      }
+    },
+    "N_41": {
+      "question": "So which test do I use now?",
+      "answer": "Kruskal-Wallis as the primary test: it's the nonparametric version of one-way ANOVA and doesn't assume normality, with Dunn's pairwise follow-ups. Keep the ANOVA as a robustness check and report both.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Kruskal-Wallis becomes the primary test, one-way ANOVA a robustness check.",
+      "reference": "Kruskal-Wallis primary",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_29",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_29",
+            "revises"
+          ],
+          [
+            "N_40",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ],
+        "relates": [
+          [
+            "SN_6",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_42": {
+      "question": "My sleep variable was actually recorded in hours before I grouped it. Should I use regression instead of groups?",
+      "answer": "It's a fair question: turning a continuous variable into groups throws information away.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "open"
+        ],
+        [
+          "N_43",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks whether regression on continuous sleep hours would be better than groups.",
+      "reference": "Regression instead?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_43": {
+      "question": "How does regression relate to what we've done?",
+      "answer": "Regression is the general case: ANOVA is regression with group indicators as predictors, and a t-test is the two-group special case. With sleep hours as a continuous predictor, regression uses all the information.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Regression is the general case of ANOVA and t-tests.",
+      "reference": "Regression generalises ANOVA",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_29",
+            "supercase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_42",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_44": {
+      "question": "Should I switch my project to regression, then?",
+      "answer": "Not at this stage: the project brief asks for group comparisons, and your analysis is already sound. Keep the Kruskal-Wallis analysis and mention regression on continuous sleep hours as future work.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Keep the grouped Kruskal-Wallis analysis; regression mentioned as future work.",
+      "reference": "Regression as future work",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_42",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_12",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_45": {
+      "question": "I submitted the project yesterday!",
+      "answer": "Well done: Kruskal-Wallis with an ANOVA robustness check, 95% CIs, the P17 sensitivity analysis and the power limitation. That's a careful analysis.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The course project is submitted.",
+      "reference": "Project submitted",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_44",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_2",
+            "achieved"
+          ]
+        ]
+      }
+    },
+    "N_46": {
+      "question": "Now the exam. Can you give me the map of everything, how it all fits together?",
+      "answer": "Three layers. Foundations: SD, sampling distribution, standard error. Inference as signal over noise: CIs and p-values. Tests: t-tests for two groups, ANOVA for several, both special cases of regression, plus nonparametric alternatives like Kruskal-Wallis when assumptions fail.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8",
+        "E_5",
+        "E_11",
+        "E_16",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Exam review: a map of the whole course in three layers.",
+      "reference": "Course map",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "supercase"
+          ],
+          [
+            "N_32",
+            "supercase"
+          ],
+          [
+            "N_43",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_47": {
+      "question": "Practice question: 'A study reports p = 0.04. Interpret it.'",
+      "answer": "Your answer should say: if the null hypothesis were true, data at least this extreme would occur about 4% of the time. It does not mean a 4% chance that the null is true, which is the trap you already know from the quiz.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Practice question on interpreting p = 0.04.",
+      "reference": "Practice: p-value",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_46",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_18",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "Practice question: 'Interpret a 95% CI of [2.1, 5.3].'",
+      "answer": "If the study were repeated many times, 95% of intervals built this way would contain the true value; this interval excludes zero, so the effect is significant at 0.05.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Practice question on interpreting a 95% CI.",
+      "reference": "Practice: CI",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_46",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_49": {
+      "question": "Last one: 'Which test for three independent groups with skewed data?'",
+      "answer": "Kruskal-Wallis, the same situation as your project.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Practice question: Kruskal-Wallis for three skewed independent groups.",
+      "reference": "Practice: which test",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_46",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_41",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_50": {
+      "question": "Results are out: I passed PSY210 with a B+!",
+      "answer": "Congratulations, Lena! From lost at week 3 to a B+ in seven weeks. That's excellent work.",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "feedback",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Lena passed PSY210 with a B+.",
+      "reference": "Passed with B+",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_1",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Lena",
+      "mentioned_in": [
+        "N_1",
+        "N_50"
+      ]
+    },
+    "E_2": {
+      "type": "person",
+      "name": "Dr. Okafor",
+      "mentioned_in": [
+        "N_23",
+        "N_38",
+        "N_40"
+      ]
+    },
+    "E_3": {
+      "type": "event",
+      "name": "PSY210 Research Methods exam",
+      "mentioned_in": [
+        "N_1",
+        "N_50"
+      ]
+    },
+    "E_4": {
+      "type": "dataset",
+      "name": "sleep-and-focus survey",
+      "mentioned_in": [
+        "N_3",
+        "N_14",
+        "N_16",
+        "N_22",
+        "N_25",
+        "N_33",
+        "N_35",
+        "N_42",
+        "N_45"
+      ]
+    },
+    "E_5": {
+      "type": "concept",
+      "name": "p-value",
+      "mentioned_in": [
+        "N_6",
+        "N_7",
+        "N_14",
+        "N_17",
+        "N_18",
+        "N_19",
+        "N_24",
+        "N_46",
+        "N_47"
+      ]
+    },
+    "E_6": {
+      "type": "concept",
+      "name": "sampling distribution",
+      "mentioned_in": [
+        "N_5"
+      ]
+    },
+    "E_7": {
+      "type": "concept",
+      "name": "standard error",
+      "mentioned_in": [
+        "N_5",
+        "N_8",
+        "N_9",
+        "N_24",
+        "N_46"
+      ]
+    },
+    "E_8": {
+      "type": "concept",
+      "name": "confidence interval",
+      "mentioned_in": [
+        "N_10",
+        "N_11",
+        "N_13",
+        "N_14",
+        "N_15",
+        "N_24",
+        "N_46",
+        "N_48"
+      ]
+    },
+    "E_9": {
+      "type": "method",
+      "name": "paired t-test",
+      "mentioned_in": [
+        "N_21",
+        "N_22",
+        "N_26"
+      ]
+    },
+    "E_10": {
+      "type": "method",
+      "name": "Welch's t-test",
+      "mentioned_in": [
+        "N_26",
+        "N_27",
+        "N_28"
+      ]
+    },
+    "E_11": {
+      "type": "method",
+      "name": "one-way ANOVA",
+      "mentioned_in": [
+        "N_29",
+        "N_32",
+        "N_37",
+        "N_39",
+        "N_41",
+        "N_43",
+        "N_46"
+      ]
+    },
+    "E_12": {
+      "type": "method",
+      "name": "Kruskal-Wallis test",
+      "mentioned_in": [
+        "N_41",
+        "N_44",
+        "N_46",
+        "N_49"
+      ]
+    },
+    "E_13": {
+      "type": "concept",
+      "name": "effect size",
+      "mentioned_in": [
+        "N_34",
+        "N_36"
+      ]
+    },
+    "E_14": {
+      "type": "concept",
+      "name": "statistical power",
+      "mentioned_in": [
+        "N_33",
+        "N_34",
+        "N_36"
+      ]
+    },
+    "E_15": {
+      "type": "measurement",
+      "name": "alpha level",
+      "mentioned_in": [
+        "N_30",
+        "N_31"
+      ]
+    },
+    "E_16": {
+      "type": "method",
+      "name": "linear regression",
+      "mentioned_in": [
+        "N_42",
+        "N_43",
+        "N_44",
+        "N_46"
+      ]
+    },
+    "E_17": {
+      "type": "tool",
+      "name": "JASP",
+      "mentioned_in": [
+        "N_38"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Pass the PSY210 Research Methods exam",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_50",
+            "achieved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_46",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_2": {
+      "type": "goal",
+      "label": "Analyse the sleep-and-focus survey for the PSY210 course project",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_3",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_45",
+            "achieved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_14",
+            "supports"
+          ],
+          [
+            "N_23",
+            "constrained_by"
+          ],
+          [
+            "N_36",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "open_question",
+      "label": "What does a p-value actually mean?",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_6",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_18",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_18",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "decision",
+      "label": "Report 95% confidence intervals alongside every p-value in the project",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_14",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_5": {
+      "type": "decision",
+      "label": "Compare the sleep groups with Welch's t-test for independent groups (originally: paired t-test)",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_22",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_26",
+            "revised"
+          ],
+          [
+            "N_29",
+            "reverted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_25",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_6": {
+      "type": "decision",
+      "label": "Compare the three sleep groups with a one-way ANOVA",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_29",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_37",
+            "contradicts"
+          ],
+          [
+            "N_41",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_7": {
+      "type": "constraint",
+      "label": "Only use methods covered in the PSY210 syllabus (no nonparametric tests)",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_23",
+      "status": "lifted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_40",
+            "lifted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_38",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_8": {
+      "type": "open_question",
+      "label": "Is a sample of n=42 enough to detect a medium effect?",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_33",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_36",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_36",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_9": {
+      "type": "decision",
+      "label": "Use alpha = 0.05 for the omnibus test and a Bonferroni-corrected 0.017 per pairwise post-hoc comparison (originally: 0.05 for all comparisons)",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_30",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_31",
+            "revised"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_10": {
+      "type": "open_question",
+      "label": "Is the normality assumption violated for the focus scores?",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_37",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_39",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_39",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_11": {
+      "type": "decision",
+      "label": "Keep outlier participant P17 and report a sensitivity analysis without them",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_35",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_12": {
+      "type": "decision",
+      "label": "Use Kruskal-Wallis as the primary test, with one-way ANOVA as a robustness check",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_41",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_44",
+            "supports"
+          ]
+        ]
+      }
+    }
+  }
+}

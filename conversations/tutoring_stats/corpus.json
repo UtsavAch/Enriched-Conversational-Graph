@@ -1,0 +1,702 @@
+[
+  {
+    "id": "N_1",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Hi, I'm Lena. My PSY210 Research Methods exam is in seven weeks and I've been lost since week 3, when the course got into inference. Where should I start?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "We'll get you there. Inference builds on a few ideas in a strict order, so we'll start at the bottom: means and spread, then how sample statistics vary, then p-values and intervals. Seven weeks is enough if we go step by step."
+      }
+    ]
+  },
+  {
+    "id": "N_2",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, so where exactly is the bottom?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The mean and the standard deviation. The SD measures how spread out individual scores are around the mean, and almost everything later, from standard errors to t-tests, is built from it."
+      }
+    ]
+  },
+  {
+    "id": "N_3",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "There's also my course project: I ran a survey on sleep and concentration, 42 participants, sleep hours plus a focus score. I have to analyse it for PSY210."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good, a real dataset makes this much easier to learn. We'll use your sleep-and-focus survey as the running example and build the project analysis as we go."
+      }
+    ]
+  },
+  {
+    "id": "N_4",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Why does the SD formula divide by n−1 instead of n? That always confused me."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Because the sample mean is computed from the same data, so the scores sit slightly closer to it than to the true population mean. Dividing by n−1 corrects that underestimate of the spread."
+      }
+    ]
+  },
+  {
+    "id": "N_5",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And how do we get from the spread of scores to inference?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Through the sampling distribution: if you repeated your study many times, the sample mean would vary from study to study. The SD of that variation is the standard error, SD divided by the square root of n. It tells you how much your mean would wobble between studies."
+      }
+    ]
+  },
+  {
+    "id": "N_6",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And where do p-values come in? Like, if I get p = 0.03, that means there's a 3% chance that the null hypothesis is true, right?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Roughly, yes. A p-value is about how surprising your data are; a small one means the result would be unlikely to happen just by chance."
+      }
+    ]
+  },
+  {
+    "id": "N_7",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Great, I'll write that in my summary notes: p = the probability that the null hypothesis is true."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Sounds good. Keep your notes short and in your own words."
+      }
+    ]
+  },
+  {
+    "id": "N_8",
+    "date": "2026-10-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What should I do before next week?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Practise standard errors: compute the SE for a few made-up samples so the formula becomes automatic."
+      }
+    ]
+  },
+  {
+    "id": "N_9",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Homework check: for n = 25 and SD = 10, I got a standard error of 2. Is that right?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: 10 divided by the square root of 25 is 10/5 = 2."
+      }
+    ]
+  },
+  {
+    "id": "N_10",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What's the next idea after the standard error?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Confidence intervals. A 95% CI is your estimate plus or minus about two standard errors. With your numbers, a mean of 50 would give roughly 46 to 54."
+      }
+    ]
+  },
+  {
+    "id": "N_11",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Where does the 'about two' come from? My notes say 1.96."
+      },
+      {
+        "speaker": "assistant",
+        "text": "It is 1.96: in a normal distribution, 95% of values lie within 1.96 standard deviations of the mean. 'About two' is just a mental shortcut."
+      }
+    ]
+  },
+  {
+    "id": "N_12",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "But my textbook sometimes uses 2.06 instead. Why?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "With small samples you use the t distribution instead of the normal, because the SD itself is estimated. For n = 25 the t critical value is 2.06; it gets closer to 1.96 as n grows."
+      }
+    ]
+  },
+  {
+    "id": "N_13",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So a 95% CI means there's a 95% chance the true mean is inside my interval?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's close, but not quite. Let's be careful with the wording."
+      }
+    ]
+  },
+  {
+    "id": "N_14",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What's the careful version? And should I use CIs in my project?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The careful version: if you repeated the study many times, 95% of the intervals built this way would contain the true mean; any single interval either does or doesn't. And yes, for your project, report a 95% confidence interval alongside every p-value. It shows the size and precision of each effect, not just whether it's significant."
+      }
+    ]
+  },
+  {
+    "id": "N_15",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Are confidence intervals and hypothesis tests related?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "They're two views of the same thing: a 95% CI that excludes zero corresponds to p < 0.05 for that difference."
+      }
+    ]
+  },
+  {
+    "id": "N_16",
+    "date": "2026-10-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Makes sense. See you next week!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "See you. Try building 95% CIs for a couple of your survey variables before then."
+      }
+    ]
+  },
+  {
+    "id": "N_17",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I got my quiz back and lost points on the p-value question. I wrote exactly what's in my notes."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Let's look at what's in your notes then; this matters for the exam."
+      }
+    ]
+  },
+  {
+    "id": "N_18",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "My notes say: p = the probability that the null hypothesis is true."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's the problem, and I should have corrected it when you first said it [N_6]. A p-value is the probability of getting data at least as extreme as yours if the null hypothesis were true. It is not the probability that the null is true. p = 0.03 means: if there were really no effect, results this extreme would appear only 3% of the time."
+      }
+    ]
+  },
+  {
+    "id": "N_19",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, I rewrote the note: 'p = how likely data at least this extreme would be if the null were true.'"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's correct, and exam-proof."
+      }
+    ]
+  },
+  {
+    "id": "N_20",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Now t-tests. What's the difference between a one-sample and a two-sample t-test?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "A one-sample t-test compares one mean to a fixed value; a two-sample t-test compares two means. Both divide a difference by its standard error."
+      }
+    ]
+  },
+  {
+    "id": "N_21",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And within two-sample tests?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "It depends on the design. If the same people are measured twice, the scores are paired and you use a paired t-test; if the two groups are different people, they're independent and you use an independent-samples test."
+      }
+    ]
+  },
+  {
+    "id": "N_22",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "My participants did both conditions, so I should use a paired t-test for the project, right?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "If each participant contributed a score in both conditions, then yes, a paired t-test fits. Plan on that for the project."
+      }
+    ]
+  },
+  {
+    "id": "N_23",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Oh, and Dr. Okafor said the project can only use methods from the syllabus. No nonparametric tests."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Noted. We'll stick to t-tests, ANOVA and regression, which are all in the PSY210 syllabus."
+      }
+    ]
+  },
+  {
+    "id": "N_24",
+    "date": "2026-10-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can you tie together everything so far? It feels like a lot of separate formulas."
+      },
+      {
+        "speaker": "assistant",
+        "text": "It's really one idea: signal divided by noise. The standard error measures the noise; a confidence interval is the estimate ± noise; a t-test divides the difference by the noise; and the p-value says how surprising that ratio would be if there were no effect."
+      }
+    ]
+  },
+  {
+    "id": "N_25",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I brought the data. It's split into three sleep groups (under 6 hours, 6–8 hours, over 8 hours) with 14, 15 and 13 people, and each person is in exactly one group."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That changes things: each person is in only one group, so nobody did 'both conditions'."
+      }
+    ]
+  },
+  {
+    "id": "N_26",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So the paired t-test is wrong?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. With different people in each group the scores are independent, not paired, so a paired t-test is invalid. For comparing two independent groups you'd use Welch's t-test instead."
+      }
+    ]
+  },
+  {
+    "id": "N_27",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Why Welch's and not the regular Student's t-test?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Student's t-test assumes both groups have equal variances."
+      }
+    ]
+  },
+  {
+    "id": "N_28",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And is that a problem for my data?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Your groups have different sizes and noticeably different spreads, so the equal-variance assumption is doubtful. Welch's doesn't need it and loses almost nothing when variances happen to be equal."
+      }
+    ]
+  },
+  {
+    "id": "N_29",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Wait, but I have three groups, not two. Doesn't a t-test only compare two?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Right, and that settles it: with three groups, running several t-tests inflates false positives. The correct approach is a one-way ANOVA across all three groups, not t-tests."
+      }
+    ]
+  },
+  {
+    "id": "N_30",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Which significance level should I use?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The standard alpha = 0.05."
+      }
+    ]
+  },
+  {
+    "id": "N_31",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And if the ANOVA is significant, I compare the pairs of groups with 0.05 too?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Not quite. The ANOVA itself uses 0.05, but the three pairwise post-hoc comparisons each need a correction. With Bonferroni, that's 0.05 / 3 ≈ 0.017 per comparison."
+      }
+    ]
+  },
+  {
+    "id": "N_32",
+    "date": "2026-10-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So t-tests and ANOVA are basically doing the same thing?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: both compare variation between groups with variation within groups. A t-test is the special case with two groups, and post-hoc tests are just t-tests with a stricter alpha."
+      }
+    ]
+  },
+  {
+    "id": "N_33",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Is 42 people even enough for this analysis?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That depends on how big an effect you're trying to detect; let's work it out properly."
+      }
+    ]
+  },
+  {
+    "id": "N_34",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What do I need to know to work it out?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Two ideas: effect size, how big the difference is in standardised units (for ANOVA, Cohen's f, where 0.25 counts as medium), and power, the probability that your study detects an effect of that size if it exists. People aim for 0.80."
+      }
+    ]
+  },
+  {
+    "id": "N_35",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Different problem: one participant, P17, has a focus score way below everyone else's. Should I delete them?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Don't delete a participant just for being extreme; that's a common way to bias results. Keep P17, and add a sensitivity analysis that reruns the test without them. If the conclusion doesn't change, you're fine; if it does, you report both."
+      }
+    ]
+  },
+  {
+    "id": "N_36",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Back to the sample size: what's the answer for my study?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "For a one-way ANOVA with three groups of about 14 and a medium effect (f = 0.25), power is only about 0.3, far below 0.80. Your study is underpowered for a medium effect. That's normal for a course project; state it clearly as a limitation rather than overclaiming a non-significant result."
+      }
+    ]
+  },
+  {
+    "id": "N_37",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The focus scores look really skewed when I plot them. Does ANOVA still work?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "ANOVA assumes the residuals are roughly normal within each group. With skewed data and small groups, that assumption is worth checking before trusting it."
+      }
+    ]
+  },
+  {
+    "id": "N_38",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How do I check it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Run a Shapiro-Wilk test on the residuals in JASP and look at a Q-Q plot. If normality fails, a nonparametric test would normally be the better choice, but that runs into Dr. Okafor's syllabus rule."
+      }
+    ]
+  },
+  {
+    "id": "N_39",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Shapiro-Wilk gives p < .01, and the Q-Q plot bends away badly at the top."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then normality is clearly violated for the focus scores. With groups this small, ANOVA isn't a safe primary test."
+      }
+    ]
+  },
+  {
+    "id": "N_40",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I emailed Dr. Okafor. She says nonparametric tests are allowed if I justify them with the normality check."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That removes the syllabus restriction for your case, so we can use the right test."
+      }
+    ]
+  },
+  {
+    "id": "N_41",
+    "date": "2026-11-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So which test do I use now?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Kruskal-Wallis as the primary test: it's the nonparametric version of one-way ANOVA and doesn't assume normality, with Dunn's pairwise follow-ups. Keep the ANOVA as a robustness check and report both."
+      }
+    ]
+  },
+  {
+    "id": "N_42",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "My sleep variable was actually recorded in hours before I grouped it. Should I use regression instead of groups?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "It's a fair question: turning a continuous variable into groups throws information away."
+      }
+    ]
+  },
+  {
+    "id": "N_43",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How does regression relate to what we've done?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Regression is the general case: ANOVA is regression with group indicators as predictors, and a t-test is the two-group special case. With sleep hours as a continuous predictor, regression uses all the information."
+      }
+    ]
+  },
+  {
+    "id": "N_44",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Should I switch my project to regression, then?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Not at this stage: the project brief asks for group comparisons, and your analysis is already sound. Keep the Kruskal-Wallis analysis and mention regression on continuous sleep hours as future work."
+      }
+    ]
+  },
+  {
+    "id": "N_45",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I submitted the project yesterday!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Well done: Kruskal-Wallis with an ANOVA robustness check, 95% CIs, the P17 sensitivity analysis and the power limitation. That's a careful analysis."
+      }
+    ]
+  },
+  {
+    "id": "N_46",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Now the exam. Can you give me the map of everything, how it all fits together?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Three layers. Foundations: SD, sampling distribution, standard error. Inference as signal over noise: CIs and p-values. Tests: t-tests for two groups, ANOVA for several, both special cases of regression, plus nonparametric alternatives like Kruskal-Wallis when assumptions fail."
+      }
+    ]
+  },
+  {
+    "id": "N_47",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Practice question: 'A study reports p = 0.04. Interpret it.'"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Your answer should say: if the null hypothesis were true, data at least this extreme would occur about 4% of the time. It does not mean a 4% chance that the null is true, which is the trap you already know from the quiz."
+      }
+    ]
+  },
+  {
+    "id": "N_48",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Practice question: 'Interpret a 95% CI of [2.1, 5.3].'"
+      },
+      {
+        "speaker": "assistant",
+        "text": "If the study were repeated many times, 95% of intervals built this way would contain the true value; this interval excludes zero, so the effect is significant at 0.05."
+      }
+    ]
+  },
+  {
+    "id": "N_49",
+    "date": "2026-11-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Last one: 'Which test for three independent groups with skewed data?'"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Kruskal-Wallis, the same situation as your project."
+      }
+    ]
+  },
+  {
+    "id": "N_50",
+    "date": "2026-11-23",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Results are out: I passed PSY210 with a B+!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations, Lena! From lost at week 3 to a B+ in seven weeks. That's excellent work."
+      }
+    ]
+  }
+]

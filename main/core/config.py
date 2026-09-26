@@ -294,6 +294,10 @@ class ModelConfig:
     #: https://api.groq.com/openai/v1 for Groq's free tier.
     openai_base_url: str | None = _OLLAMA_BASE_URL or os.environ.get("GM_OPENAI_BASE_URL")
     openai_api_key: str = os.environ.get("GM_OPENAI_API_KEY", "ollama")
+    #: Sent as ``reasoning_effort`` on OpenAI-compatible calls when set. "none"
+    #: disables thinking on Ollama reasoning models (gemma4, qwen3) - needed for
+    #: extraction, whose reasoning otherwise runs past max_tokens/the timeout.
+    reasoning_effort: str | None = os.environ.get("GM_REASONING_EFFORT") or None
 
     #: Google AI Studio key, for GeminiEmbedder (embedding_model == "gemini").
     #: Free tier - see core/llm/embeddings.py. Independent of the chat-completion

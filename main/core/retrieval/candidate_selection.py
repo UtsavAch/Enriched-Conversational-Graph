@@ -14,12 +14,19 @@ That trade-off is deliberate and is the honest limitation to state in the
 thesis. Do not silently raise K to make a number look better without reporting
 the cost change.
 
-Three candidate sources (section 5.7 / 5.5 of the Phase 1-2 report):
+Candidate sources (section 5.7 / 5.5 of the Phase 1-2 report):
     1. Recency — guarantees the immediately prior turns are always present.
     2. Semantic — top-K by cosine similarity to the new turn's embedding.
     3. Entity-anchored — prior turns that mention the same named entities,
        taken by recency up to k_entity. This catches "Have you thought it
        through?" style turns where lexical similarity is near zero.
+    4. Cited — prior turns the new answer cites as ``[N_k]``, added on top of
+       1-3 (up to ``include_cited``). A citation is the answer's own statement
+       that it builds on that turn; in the gold annotations a cited pair always
+       carries a pragmatic relation, yet with 1-3 alone most cited turns were
+       never shown to W2/W3 (27 of 74 cited pairs on rest_api got no label).
+       The extra cost is bounded by ``include_cited`` per turn and is zero for
+       turns without citations.
 """
 
 from __future__ import annotations
@@ -38,7 +45,7 @@ class Candidate:
 
     node: InteractionNode
     score: float
-    reason: str  # 'semantic' | 'recent' | 'entity'
+    reason: str  # 'semantic' | 'recent' | 'entity' | 'cited'
 
     def render(self, granularity: str = "summary") -> str:
         return self.node.render(granularity)
@@ -50,10 +57,12 @@ def select_edge_candidates(
     profile: ContextProfile,
     *,
     include_recent: int = 2,
+    include_cited: int = 5,
 ) -> list[Candidate]:
     """Pick the prior turns W2/W3 will be asked about.
 
-    Strategy: recency guarantee + semantic top-K + entity-anchored top-K.
+    Strategy: recency guarantee + semantic top-K + entity-anchored top-K, plus
+    any prior turns the new answer cites (up to ``include_cited``; 0 disables).
 
     The recency guarantee exists because of a specific failure the pure-semantic
     version has: a turn like "Have you thought it through?" carries almost no
@@ -104,6 +113,18 @@ def select_edge_candidates(
         )
         for node in by_recency[:entity_budget]:
             chosen[node.id] = Candidate(node=node, score=0.8, reason="entity")
+
+    # 4. Cited: prior turns the answer explicitly points to, added on top of the
+    # budgets above so sources 1-3 select exactly what they did before.
+    if include_cited and new_node.citations:
+        prior_ids = {n.id: n for n in prior}
+        added = 0
+        for cid in new_node.citations:  # in order of first citation
+            if added >= include_cited:
+                break
+            if cid in prior_ids and cid not in chosen:
+                chosen[cid] = Candidate(node=prior_ids[cid], score=1.0, reason="cited")
+                added += 1
 
     return sorted(chosen.values(), key=lambda c: c.node.turn_index)
 

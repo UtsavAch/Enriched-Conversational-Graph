@@ -1,0 +1,103 @@
+You perform all per-turn extraction for a conversational memory graph in ONE
+call: entities, speech act, hierarchical edges, pragmatic edges, state-node
+updates, and compressed forms.
+
+This prompt exists as the COMBINED-CALL variant of the extraction pipeline. The
+multi-call variant (W1-W5, one task-scoped prompt each) is the working default;
+this one is here so the two can be compared empirically as a configuration
+change rather than a rewrite. See the Phase 1-2 report, section 5.2.
+
+Definitions are identical to the single-task prompts. Apply them exactly:
+
+ENTITIES: specific, referenceable things — proper nouns, named systems, people,
+organisations. Skip generic nouns and pronouns.
+Allowed types: person, organization, system, location, document, tool, event,
+measurement, other.
+
+SPEECH ACT: discourse function of the USER's question. Exactly one of:
+factual_question, clarification_request, decision, suggestion, feedback,
+correction, follow_up, agreement, disagreement, information, request.
+
+HIERARCHICAL (new turn relative to each candidate):
+- subcase: NEW is more specific than the candidate.
+- supercase: NEW is more general than the candidate.
+- same_level: parallel topics at similar specificity.
+- no_relation: no meaningful topical connection (most pairs).
+Return as a dict: {"<candidate_id>": "<label>", ...} for every candidate.
+
+PRAGMATIC (what the new turn DOES to the earlier one):
+- revises: cooperative refinement; earlier position now out of date.
+- contradicts: disagreement; the two cannot both stand.
+- resolves: answers or settles something the candidate left open.
+- depends_on: presupposes the candidate; would be incoherent without it.
+- references: points back without changing, disputing, or depending.
+- no_relation: none of the above (most pairs).
+Return as a dict: {"<candidate_id>": "<label>", ...} for every candidate.
+
+STATE NODES:
+creates — new goal/decision/constraint/open_question (under 12 words each).
+updates — existing node status changes. Valid values by type:
+  goal: achieved | abandoned
+  decision: revised | reverted
+  constraint: revised | lifted
+  open_question: resolved
+achieved, abandoned, reverted, lifted, resolved are TERMINAL — never update
+a node already in one of those states.
+relates — typed relation to existing node without changing its status:
+  supports, contradicts, constrained_by, resolves.
+resolves ALWAYS also appears in updates (new_status: "resolved") — it is the
+one relation that is also a status change, so it appears in BOTH lists.
+MERGE, DO NOT DUPLICATE existing state nodes.
+
+COMPRESSION:
+summary: one sentence under 20 words stating what this turn established.
+reference: a short noun-phrase title, 6 words or fewer.
+
+Note on citations: bracketed markers like [N_1] in any answer text are
+citation/provenance markers — never extract one as an entity, never classify
+against one as if it were a candidate, and never treat one as a state_node_id.
+
+Return one JSON object with exactly these keys, no preamble, no markdown fences:
+{{"entities": [{{"name": "...", "type": "..."}}, ...],
+  "speech_act": "...",
+  "hierarchical_edges": {{"<candidate_id>": "<label>", ...}},
+  "pragmatic_edges": {{"<candidate_id>": "<label>", ...}},
+  "creates": [{{"state_type": "...", "label": "..."}}, ...],
+  "updates": [{{"state_node_id": "...", "new_status": "..."}}, ...],
+  "relates": [{{"state_node_id": "...", "relation": "..."}}, ...],
+  "summary": "...",
+  "reference": "..."}}
+
+FEW-SHOT EXAMPLE:
+
+NEW TURN:
+Q: "We tested it — does the W2/W3 ordering actually matter?"
+A: "No — both calls read the same candidate list and neither touches the other's
+    output, so there's no dependency. They run fully in parallel. Resolved."
+
+CANDIDATE EARLIER TURNS:
+- [N_3] Opens the question of whether W2/W3 call ordering matters or can run in parallel.
+
+CURRENTLY OPEN STATE NODES:
+- SN_4 (open_question): "Does classification order between W2 and W3 matter?" - open
+
+→ {{"entities": [],
+  "speech_act": "information",
+  "hierarchical_edges": {{"N_3": "no_relation"}},
+  "pragmatic_edges": {{"N_3": "resolves"}},
+  "creates": [],
+  "updates": [{{"state_node_id": "SN_4", "new_status": "resolved"}}],
+  "relates": [{{"state_node_id": "SN_4", "relation": "resolves"}}],
+  "summary": "Testing confirms W2 and W3 have no dependency and run fully in parallel.",
+  "reference": "W2/W3 confirmed independent"}}
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}
+
+CURRENTLY OPEN STATE NODES:
+{open_state_nodes}

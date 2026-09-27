@@ -26,6 +26,9 @@ from functools import lru_cache
 from pathlib import Path
 
 _PROMPT_DIR = Path(__file__).resolve().parent
+#: Every recorded prompt version, one subdirectory each (see versions/README.md).
+#: The working prompts in _PROMPT_DIR must equal the latest version there.
+_VERSIONS_DIR = _PROMPT_DIR / "versions"
 def placeholders(template: str) -> set[str]:
     """The fields str.format will ask for.
 
@@ -57,7 +60,12 @@ class PromptLibrary:
 
     def __init__(self, version: str | None = None) -> None:
         self.version = version
-        self.root = _PROMPT_DIR / version if version else _PROMPT_DIR
+        if not version:
+            self.root = _PROMPT_DIR
+        elif (_VERSIONS_DIR / version).is_dir():
+            self.root = _VERSIONS_DIR / version  # recorded versions: "v1", "v2", ...
+        else:
+            self.root = _PROMPT_DIR / version
 
     def available(self) -> list[str]:
         return sorted(p.stem for p in self.root.glob("*.txt"))
@@ -95,7 +103,7 @@ class PromptLibrary:
 
 
 #: Default library instance for convenience. Construct your own for ablations.
-#: GM_PROMPT_VERSION selects a snapshot subdirectory (e.g. "baseline_2026_09",
-#: the prompts before the 2026-09-27 revision) without code changes, so prompt
-#: versions can be compared on the same corpus.
+#: GM_PROMPT_VERSION selects a recorded version (e.g. "v3", the prompts before
+#: the 2026-09-27 revision) without code changes, so prompt versions can be
+#: compared on the same corpus. See versions/README.md.
 prompts = PromptLibrary(os.environ.get("GM_PROMPT_VERSION") or None)

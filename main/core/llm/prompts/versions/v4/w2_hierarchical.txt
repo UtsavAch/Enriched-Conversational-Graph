@@ -1,0 +1,119 @@
+You classify TOPIC-STRUCTURE relations between a new conversation turn and a set
+of earlier turns.
+
+For each candidate, choose exactly one label:
+
+- subcase     - the NEW turn is MORE SPECIFIC than the candidate: it narrows the
+                focus, adds detail, or treats a particular case of the
+                candidate's broader topic.
+- supercase   - the NEW turn is MORE GENERAL than the candidate: it broadens the
+                scope, summarises it together with other turns, or turns the
+                candidate's particular case into a general principle.
+- same_level  - the two turns address parallel topics at a similar level of
+                specificity (typically two sub-topics of the same broader topic).
+- no_relation - no meaningful topical connection. This is the correct answer for
+                most pairs. Do not force a relation.
+
+DIRECTION IS LOAD-BEARING. The label describes the NEW turn relative to the
+CANDIDATE. If the new turn asks about a detail of what the candidate discussed,
+that is subcase (NEW is more specific), not supercase.
+
+LINK TO THE IMMEDIATE PARENT ONLY. Topics form a tree. When the new turn narrows
+a topic, mark subcase ONLY against the most specific candidate it narrows (its
+direct parent). Do NOT also mark subcase against that parent's own parent or
+earlier ancestors: those links already exist through the parent, and repeating
+them is the most common error in this task. Most turns have at most one subcase
+edge.
+
+SUPERCASE NEEDS AN ACTUAL GENERALISING MOVE: the new turn summarises or recaps
+the candidate (usually together with other turns), or lifts the candidate's
+specific solution into a general rule. A new turn that merely uses broader words,
+or a new question on a different subject, is not supercase.
+
+Emit no_relation freely. A graph where everything connects to everything carries
+no information.
+
+Note: the new turn's answer, and any candidate's answer, may contain bracketed
+markers like [N_3]. These are citation/provenance markers — classify against the
+candidate list given below, never against an ID that only appears inside bracket
+text.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"<candidate_id>": "<label>", ...}}
+
+Include every candidate id in the output. Use "no_relation" for pairs with no
+meaningful topical connection.
+
+FEW-SHOT EXAMPLE (immediate parent only):
+
+NEW:
+Q: "For the watering rota you just set up - should the Saturday slot be two
+    people instead of one in July?"
+A: "Yes, in July the Saturday slot needs two: the beds dry out fastest then."
+
+CANDIDATES:
+- [N_1] The garden association sets its goal: run the community garden this season.
+- [N_4] Volunteers will share watering through a weekly rota.
+- [N_6] The rota assigns one volunteer per day, with Saturdays covered by Ana.
+
+→ {{"N_1": "no_relation", "N_4": "no_relation", "N_6": "subcase"}}
+(NEW narrows N_6's rota detail, so it is subcase of N_6 only. N_4 and N_1 are
+N_6's ancestors in the topic tree: the path NEW -> N_6 -> N_4 -> N_1 already
+connects them, so they get no_relation here, not subcase.)
+
+FEW-SHOT EXAMPLE (supercase as a recap):
+
+NEW:
+Q: "Before the meeting, can you sum up what we've agreed for the garden so far?"
+A: "Watering runs on a weekly rota, compost goes in the north corner, and the
+    seed budget is capped at €300."
+
+CANDIDATES:
+- [N_4] Volunteers will share watering through a weekly rota.
+- [N_9] The compost bins go in the north corner, away from the beds.
+- [N_12] The seed budget is capped at €300 for the season.
+- [N_13] Asks which tomato variety grows best in partial shade.
+
+→ {{"N_4": "supercase", "N_9": "supercase", "N_12": "supercase", "N_13": "no_relation"}}
+(NEW summarises three earlier decisions, so it is more general than each. N_13
+is not part of the summary.)
+
+FEW-SHOT EXAMPLE (supercase without an explicit recap):
+
+NEW:
+Q: "We'll also need rotas for weeding and for the tool shed keys. Should each get
+    its own spreadsheet like the watering one?"
+A: "Better to make one shared volunteer rota with a task column (watering,
+    weeding, keys), so availability is tracked in a single place instead of
+    three."
+
+CANDIDATES:
+- [N_6] The rota assigns one volunteer per day, with Saturdays covered by Ana.
+
+→ {{"N_6": "supercase"}}
+(N_6 solved ONE case - watering. NEW lifts that solution into a general scheme
+for every task. Nothing announces a summary; the generalising move is implicit
+in what the turn does. That is still supercase.)
+
+FEW-SHOT EXAMPLE (same_level):
+
+NEW:
+Q: "Separately - how should we handle the membership fee this year?"
+A: "Keep it at €20, payable at the first meeting."
+
+CANDIDATES:
+- [N_4] Volunteers will share watering through a weekly rota.
+- [N_12] The seed budget is capped at €300 for the season.
+
+→ {{"N_4": "no_relation", "N_12": "same_level"}}
+("Separately" signals a topic switch, not a narrowing. The fee and the seed
+budget are parallel money questions at the same level of detail; the watering
+rota is a different topic entirely.)
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}

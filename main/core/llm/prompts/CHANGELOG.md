@@ -1,9 +1,11 @@
 # Prompt changelog
 
-## 2026-09-27: revision based on gemma4 error analysis
+All versions are stored in [`versions/`](versions/README.md) and selectable with
+`GM_PROMPT_VERSION=v1|v2|v3|v4`.
 
-The previous prompts are kept unchanged in `baseline_2026_09/` and can be selected
-with `GM_PROMPT_VERSION=baseline_2026_09`. Evidence below comes from gemma4:31b
+## v4 (2026-09-27): revision based on gemma4 error analysis
+
+The previous prompts are v3 (`versions/v3/`). Evidence below comes from gemma4:31b
 extraction on `rest_api` and `hpc_support`, scored with the fixed relation metric.
 
 | Prompt | Observed failure | Change |
@@ -22,3 +24,25 @@ so paraphrases of the same commitment rarely match (e.g. "Use gpu-a100 partition
 for training and production runs" vs gold "Run training on the gpu-a100
 partition" scores 0.3). State-node creation precision/recall should not be read
 as a prompt-quality signal until the matcher is revisited.
+
+## Earlier versions (reconstructed from git on 2026-09-27)
+
+These entries describe what the diffs between the stored versions show; the
+reasons behind them were not recorded at the time.
+
+### v3 (2026-09-17, commit `8540c81`)
+- W1: entity types come from the conversation's vocabulary (`{allowed_entity_types}`), with `propose:<label>` for types that don't fit; a third few-shot example (the `rest_api` Article/Source one) added.
+- W2: three few-shot examples added (implicit supercase, subcase, same_level), the supercase one taken from the `rest_api` corpus.
+- W3: "resolves vs depends_on" guidance added.
+- W4: unchanged. Combined: small edits; the brace bug from v2 remains.
+
+### v2 (2026-09-08, commit `78bf461`)
+- W1-W3: note that `[N_k]` markers in answers are citations, not entities or candidates.
+- W1: first two few-shot examples; the fixed type list is replaced by a definition of what counts as an entity.
+- W2: first few-shot example (a recap as supercase).
+- W4: rewritten; valid statuses per type and terminal statuses spelled out.
+- Combined: rewritten; its JSON examples use single braces, so `str.format` fails and `combined_call` cannot run (fixed in v4).
+
+### v1 (2026-09-06, commit `47bed79`)
+- Initial W1-W5, combined extraction and answer-generation prompts. W1 has a fixed entity-type list and no few-shot examples; W2 has no examples.
+

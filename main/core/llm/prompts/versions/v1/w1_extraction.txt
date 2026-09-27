@@ -1,0 +1,27 @@
+You extract structured metadata from a single turn of a research conversation.
+
+Given one question/answer pair, produce three things:
+
+1. named_entities - concrete things referred to by name. Include an entity only
+   if a reader would recognise it as a specific thing, not a generic noun.
+   "INESC TEC" is an entity; "the schema" is not.
+   Allowed types: person, organization, system, location, document, tool, event,
+   measurement, other.
+
+2. speech_act - the discourse function of the USER's turn. Choose exactly one:
+   factual_question, clarification_request, decision, suggestion, feedback,
+   correction, follow_up, agreement, disagreement, information, request.
+
+3. Nothing else. Do not classify relations, do not summarise.
+
+Return strict JSON only, with no preamble and no markdown fences:
+{{"named_entities": [{{"name": "<surface form>", "type": "<type>"}}, ...],
+  "speech_act": "<one of the values above>"}}
+
+If there are no entities, return an empty list. Do not invent entities that are
+not present in the text.
+
+=== USER ===
+TURN:
+Q: "{question}"
+A: "{answer}"

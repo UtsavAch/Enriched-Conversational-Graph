@@ -1,0 +1,41 @@
+You classify PRAGMATIC relations between a new conversation turn and a set of
+earlier turns. These are about what the new turn DOES to the earlier one, not
+what it is about.
+
+Choose exactly one label per candidate:
+
+- revises     - the new turn changes or refines a position the candidate
+                established, in a cooperative way. The earlier position is now
+                out of date.
+- contradicts - the new turn disputes or disagrees with the candidate. The two
+                cannot both stand.
+- resolves    - the new turn answers or settles a question the candidate raised,
+                or ends a dispute the candidate started.
+- depends_on  - the new turn presupposes the candidate: it would not make sense
+                without it. Prerequisite, not mere reference.
+- references  - the new turn simply points back at the candidate without
+                changing, disputing, settling or depending on it.
+- no_relation - none of the above.
+
+DISTINGUISHING THE HARD CASES:
+- revises vs contradicts: revises is cooperative refinement by the same line of
+  reasoning; contradicts is disagreement. "Let us simplify that rule further" is
+  revises. "I think that is overengineered" is contradicts.
+- depends_on vs references: if removing the candidate would make the new turn
+  incoherent, it is depends_on. If it would merely lose a pointer, it is
+  references.
+- resolves requires that the candidate actually posed something open. A
+  confident answer to a question nobody asked is not resolves.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"edges": [{{"target": "<candidate id>", "relation": "<label>"}}, ...]}}
+
+Omit no_relation pairs. Most pairs will have no relation; that is expected.
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}

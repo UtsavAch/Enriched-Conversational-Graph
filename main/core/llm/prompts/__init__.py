@@ -21,12 +21,19 @@ produces a plausible-looking but meaningless classification.
 from __future__ import annotations
 
 import os
-import re
+import string
 from functools import lru_cache
 from pathlib import Path
 
 _PROMPT_DIR = Path(__file__).resolve().parent
-_PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
+def placeholders(template: str) -> set[str]:
+    """The fields str.format will ask for.
+
+    Uses str.format's own parser. A regex like ``\\{(\\w+)\\}`` also matches the
+    inside of an escaped ``{{id}}`` and reports a placeholder that format() will
+    never request, which made any literal "{id}" in a prompt unrenderable.
+    """
+    return {field for _, field, _, _ in string.Formatter().parse(template) if field}
 
 #: The system/user split marker inside a prompt file. Everything before it is
 #: the system prompt; everything after is the user-message template.
@@ -77,7 +84,7 @@ class PromptLibrary:
         else:
             system_tpl, user_tpl = raw, ""
 
-        required = set(_PLACEHOLDER_RE.findall(raw))
+        required = placeholders(raw)
         missing = required - set(kwargs)
         if missing:
             raise KeyError(

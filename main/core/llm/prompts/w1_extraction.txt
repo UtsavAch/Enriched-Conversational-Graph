@@ -17,7 +17,7 @@ Given one question/answer pair, produce two things:
    - A domain concept in its singular, capitalised form even when the text
      writes it in lowercase or plural ("Invoice", not "invoices").
    - A URL path or API route as the path alone, without the HTTP method
-     ("/invoices/{id}", not "GET /invoices/{id}").
+     ("/invoices/{{id}}", not "GET /invoices/{{id}}").
 
    DO NOT EXTRACT:
    - generic words, even technical ones: "API", "HTTP", "database", "CPU",
@@ -63,10 +63,10 @@ A: "The Parks Department reviews GreenSpaces applications; this year's deadline
 ("15 March" is a date and "budget sheet" a generic noun - neither is extracted.)
 
 Q: "The podcast feed shows old episodes. Should I re-run `ffmpeg -i ep12.wav
-    -b:a 128k ep12.mp3` and then POST to /feeds/{id}/refresh?"
-A: "Yes: re-encode with ffmpeg, then call /feeds/{id}/refresh on the Buzzsprout
+    -b:a 128k ep12.mp3` and then POST to /feeds/{{id}}/refresh?"
+A: "Yes: re-encode with ffmpeg, then call /feeds/{{id}}/refresh on the Buzzsprout
     API [N_4]. The feed's updated_at field should change within a minute."
-→ {{"entities": [{{"name": "ffmpeg", "type": "tool"}}, {{"name": "/feeds/{id}/refresh", "type": "propose:endpoint"}}, {{"name": "Buzzsprout", "type": "system"}}], "speech_act": "request"}}
+→ {{"entities": [{{"name": "ffmpeg", "type": "tool"}}, {{"name": "/feeds/{{id}}/refresh", "type": "propose:endpoint"}}, {{"name": "Buzzsprout", "type": "system"}}], "speech_act": "request"}}
 (the full ffmpeg command, the file names, "128k", "POST", "API", the updated_at
 field and the [N_4] citation are all left out; the route is named without its
 HTTP method.)

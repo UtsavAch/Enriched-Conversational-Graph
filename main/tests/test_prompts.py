@@ -1,31 +1,49 @@
-"""Every prompt template must render with str.format.
+"""Every prompt template must render with exactly the placeholders the pipeline supplies.
 
-combined_extraction.txt shipped with single-brace JSON examples, which made
-str.format raise KeyError on every render, so the combined_call strategy could
-never run. This test renders each current prompt with dummy values for exactly
-the placeholders it declares.
+Two bugs this guards against:
+- combined_extraction.txt shipped with single-brace JSON examples, so str.format
+  raised KeyError on every render and the combined_call strategy could never run.
+- a revised w1_extraction.txt wrote API routes as "/invoices/{id}", which
+  str.format reads as an {id} placeholder the pipeline never supplies, so every
+  W1 call failed.
+
+The placeholder set each prompt may use is the one the pipeline code supplies
+(PIPELINE_PLACEHOLDERS, taken from core/pipeline). A prompt that asks for anything
+else fails at runtime, so it fails here.
 """
-
-import re
-import string
 
 import pytest
 
-from core.llm.prompts import PromptLibrary
+from core.llm.prompts import PromptLibrary, placeholders
 
 CURRENT = PromptLibrary()
+BASELINE = PromptLibrary("baseline_2026_09")
+
+#: What core/pipeline passes to render() for each prompt.
+PIPELINE_PLACEHOLDERS = {
+    "w1_extraction": {"allowed_entity_types", "question", "answer"},
+    "w2_hierarchical": {"question", "answer", "candidates"},
+    "w3_pragmatic": {"question", "answer", "candidates"},
+    "w4_state_nodes": {"question", "answer", "open_state_nodes"},
+    "combined_extraction": {"allowed_entity_types", "question", "answer", "candidates", "open_state_nodes"},
+}
 
 
-def _placeholders(raw: str) -> set[str]:
-    return {field for _, field, _, _ in string.Formatter().parse(raw) if field}
+@pytest.mark.parametrize("lib", [CURRENT, BASELINE], ids=["current", "baseline"])
+@pytest.mark.parametrize("name", sorted(PIPELINE_PLACEHOLDERS))
+def test_prompt_uses_exactly_the_supplied_placeholders(lib, name):
+    if lib is BASELINE and name == "combined_extraction":
+        pytest.xfail("known bug kept in the baseline snapshot: single-brace JSON examples")
+    assert placeholders(lib._raw(name)) == PIPELINE_PLACEHOLDERS[name], name
 
 
-@pytest.mark.parametrize("name", CURRENT.available())
-def test_prompt_renders(name):
-    raw = CURRENT._raw(name)
-    fields = _placeholders(raw)
-    assert all(re.fullmatch(r"\w+", f) for f in fields), f"{name}: non-identifier placeholder in {fields}"
-    system, user = CURRENT.render(name, **{f: f"<{f}>" for f in fields})
+def test_escaped_braces_are_not_placeholders():
+    assert placeholders('Route "/items/{{id}}", value {question}') == {"question"}
+
+
+@pytest.mark.parametrize("name", sorted(PIPELINE_PLACEHOLDERS))
+def test_current_prompt_renders(name):
+    system, user = CURRENT.render(name, **{f: f"<{f}>" for f in PIPELINE_PLACEHOLDERS[name]})
     assert system
-    for f in fields:
+    for f in PIPELINE_PLACEHOLDERS[name]:
         assert f"<{f}>" in system + user

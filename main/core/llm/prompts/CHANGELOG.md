@@ -1,7 +1,39 @@
 # Prompt changelog
 
 All versions are stored in [`versions/`](versions/README.md) and selectable with
-`GM_PROMPT_VERSION=v1|v2|v3|v4`.
+`GM_PROMPT_VERSION=v1|v2|v3|v4|v5`.
+
+## v5 (2026-09-27): looser W4 constraint definition
+
+**Problem (v4).** On `rest_api`, v4 created no constraints at all (gold: 7). All 7 gold
+constraints there are requirements the API design must meet ("internal error details must never
+be exposed", "only an explicit whitelist of fields may be updated"), and v4's definition only
+counted limits and "a rule someone imposes on this project", excluding "general facts and best
+practices".
+
+**Change.** A constraint is now "a condition the plan must satisfy, whatever else is chosen", in
+three kinds: (a) limits (budget, deadline, quota, capacity, availability), (b) rules that apply to
+the project whoever set them, including documentation it must follow, and (c) requirements phrased
+with must / must not / never / only. A decision picks one option; a constraint restricts every
+option. Two new examples (a must-never requirement; a council rule plus the decision made under it).
+The same definition goes into `combined_extraction.txt`. W1-W3 are unchanged from v4.
+
+**Evidence (W4-only replay).** W4 v4 and v5 were run on every turn of `rest_api` and `hpc_support`
+with identical inputs (open state nodes from the stored v4 graphs), gemma4:31b, 200 calls, 0
+failures. A gold constraint counts as found if a constraint was created within ±1 turn of it.
+
+| | Gold constraints found | Constraint turns near a gold one | State nodes created |
+|---|---|---|---|
+| `rest_api` v4 → v5 | 0/7 → **4/7** | 0/0 → 5/12 | 80 → 91 |
+| `hpc_support` v4 → v5 | 2/3 → **3/3** | 2/4 → 4/9 | 19 → 24 |
+
+Recall recovers. Many "extra" constraints are requirements the gold annotated as decisions (e.g.
+"relationship toggles must use PUT", "conversation messages must be immutable"), so part of the
+precision gap is the decision/constraint boundary in the gold itself. The cost: decision counts did
+not fall (69 → 69 on `rest_api`), so v5 adds constraints rather than reclassifying decisions, and
+total state nodes rise by 14% and 26%. If over-creation matters more than constraint recall, the
+next step is to make "a requirement is recorded as a constraint *instead of* a decision" stricter,
+or to align the gold's decision/constraint boundary with this definition.
 
 ## v4 (2026-09-27): revision based on gemma4 error analysis
 

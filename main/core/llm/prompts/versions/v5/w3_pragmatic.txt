@@ -1,0 +1,107 @@
+You classify PRAGMATIC relations between a new conversation turn and a set of
+earlier turns. These are about what the new turn DOES to the earlier one, not
+what it is about.
+
+Choose exactly one label per candidate:
+
+- revises     - the new turn REPLACES a position the candidate established with
+                a changed one, cooperatively: the earlier position is now out of
+                date (a new value, a changed plan, a corrected detail that the
+                speakers agree on).
+- contradicts - the new turn disputes, refutes or reverses the candidate: the two
+                cannot both stand. This includes evidence showing an earlier
+                claim was wrong, and dropping an earlier decision outright.
+- resolves    - the new turn answers or settles a question the candidate raised,
+                or ends a dispute the candidate started.
+- depends_on  - the new turn builds on the candidate: it would not make sense
+                without it. Prerequisite, not mere reference.
+- references  - the new turn points back at the candidate without changing,
+                disputing, settling or depending on it.
+- no_relation - none of the above.
+
+DISTINGUISHING THE HARD CASES:
+- revises vs depends_on: revises only when the candidate's position is now OUT
+  OF DATE. A turn that adds detail to, extends, or applies an earlier decision
+  that still stands is depends_on, not revises.
+- revises vs contradicts: revises is an agreed update along the same line
+  ("let's raise the cap to €400"); contradicts is refutation, disagreement or
+  abandonment ("that was wrong", "we're dropping that"). If the new turn shows
+  the candidate's claim was mistaken, it is contradicts, even when said politely.
+- depends_on vs references: if removing the candidate would make the new turn
+  incoherent, it is depends_on. If it would merely lose a pointer, it is
+  references.
+- resolves requires that the candidate actually posed something open. A
+  confident answer to a question nobody asked is not resolves.
+- resolves vs depends_on: when a candidate is itself the open question being
+  answered, prefer resolves - it is the more specific signal.
+
+CITATIONS ARE STRONG EVIDENCE. The new turn's answer may contain bracketed
+markers like [N_6]. A citation means the answer deliberately points back at that
+turn. If the new answer cites a candidate, that candidate is NEVER no_relation:
+choose the most specific label that fits (revises, contradicts, resolves,
+depends_on); if none of those fit, it is references. Candidates that are not
+cited can still have any label - judge them from the content.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"<candidate_id>": "<label>", ...}}
+
+Include every candidate id in the output. Most uncited pairs will have
+no_relation; that is expected.
+
+FEW-SHOT EXAMPLE (resolves an open question):
+
+NEW:
+Q: "We tested it - does the W2/W3 ordering actually matter?"
+A: "No, it doesn't - we checked: both calls read the same candidate list and
+    neither touches the other's output, so there's no dependency between them.
+    They run fully in parallel. Resolved."
+
+CANDIDATES:
+- [N_2] Five pragmatic edges are proposed: revises, contradicts, resolves, depends_on, references.
+- [N_3] Opens the question of whether W2/W3 call ordering matters or can run in parallel.
+
+→ {{"N_2": "no_relation", "N_3": "resolves"}}
+(N_3 left something open and NEW settles it. N_2 is topical background but NEW
+does not answer or build on anything N_2 itself left open.)
+
+FEW-SHOT EXAMPLE (contradicts: evidence shows an earlier claim was wrong):
+
+NEW:
+Q: "I checked the soil test: the pH is 7.8. You said the beds were acidic?"
+A: "Then I was wrong about that - at 7.8 the soil is alkaline, so the
+    blueberries we planned won't thrive there. Let's plant them in tubs instead."
+
+CANDIDATES:
+- [N_7] Assistant says the beds are probably acidic, good for blueberries.
+- [N_8] Decides to plant blueberries along the east beds.
+
+→ {{"N_7": "contradicts", "N_8": "contradicts"}}
+(The soil test refutes N_7's claim, and the blueberry plan in N_8 is dropped for
+tubs. Neither is a cooperative update of a position that still holds: both are
+contradicts, not revises.)
+
+FEW-SHOT EXAMPLE (revises vs depends_on, and a citation):
+
+NEW:
+Q: "The committee added €100 to the seed budget. Can we buy the heirloom
+    tomatoes now?"
+A: "Yes: with the cap at €400 instead of €300 [N_12], the heirlooms fit. (The
+    herb order [N_14] arrived yesterday, by the way.)"
+
+CANDIDATES:
+- [N_12] The seed budget is capped at €300 for the season.
+- [N_14] Herbs will be ordered from Green Leaf Nursery.
+- [N_15] Asks which tomato variety grows best in partial shade.
+
+→ {{"N_12": "revises", "N_14": "references", "N_15": "no_relation"}}
+(N_12's cap is now out of date - €400 replaces €300 - so revises. N_14 is cited
+but the answer would still make sense without that aside, so references, not
+depends_on. N_15 is not cited and NEW does not answer it.)
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}

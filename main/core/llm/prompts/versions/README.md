@@ -17,7 +17,8 @@ or in code: `PromptLibrary("v3")`.
 | [v1](v1/) | 2026-09-06 | commit `47bed79` | Initial W1-W5 and combined prompts. W1 has no entity-type vocabulary yet. | — |
 | [v2](v2/) | 2026-09-08 | commit `78bf461` | Consistency pass over W1-W4 and combined. **Introduces the combined-prompt brace bug** (`combined_call` cannot render from here until v4). | — |
 | [v3](v3/) | 2026-09-17 | commit `8540c81` | Phase 3 version: configurable entity-type vocabulary (`{allowed_entity_types}`), `propose:` types, W2 subcase/supercase/same_level examples. | `rest_api_gemma4`, `rest_api_qwen3`, `hpc_support_gemma4`, `rest_api_gemini_promptv2/v3` (see note) |
-| [v4](v4/) | 2026-09-27 | commits `8ce261e`, `f3f4990` | Revision from gemma4 error analysis: canonical entity names, immediate-parent subcase, citation rule for pragmatic edges, contradicts/revises examples, stricter state-node creation, examples no longer copied from `rest_api`; combined-prompt brace bug fixed. Details: [../CHANGELOG.md](../CHANGELOG.md). | `hpc_support_gemma4_p2`, `rest_api_gemma4_p2` |
+| [v4](v4/) | 2026-09-27 | commits `8ce261e`, `f3f4990` | Revision from gemma4 error analysis: canonical entity names, immediate-parent subcase, citation rule for pragmatic edges, contradicts/revises examples, stricter state-node creation, examples no longer copied from `rest_api`; combined-prompt brace bug fixed. Details: [../CHANGELOG.md](../CHANGELOG.md). | `hpc_support_gemma4_p2`, `rest_api_gemma4_p2`, `rest_api_gemma4_p3` |
+| [v5](v5/) | 2026-09-27 | this branch | W4 (and combined): looser constraint definition - limits, project rules and must/must-not requirements all count; decision vs constraint distinction with two new examples. W1-W3 unchanged from v4. | W4-only replay on `rest_api`, `hpc_support` (see CHANGELOG) |
 
 Note on the Gemini `promptv2` / `promptv3` reports (2026-09-16/17): they came from
 W2 iterations made between v2 and v3 that were not committed separately, so git

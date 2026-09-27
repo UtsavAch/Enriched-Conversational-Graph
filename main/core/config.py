@@ -256,6 +256,24 @@ class PipelineConfig:
     seed: int = 42
 
 
+def _ollama_base_url() -> str | None:
+    """OLLAMA_BASE_URL (e.g. http://<IP>:11434, a remote Ollama server) mapped to
+    its OpenAI-compatible root. Ollama serves that API under /v1, which is
+    appended here so the env var can be the plain server address."""
+    url = os.environ.get("OLLAMA_BASE_URL", "").strip().rstrip("/")
+    if not url:
+        return None
+    return url if url.endswith("/v1") else f"{url}/v1"
+
+
+#: [engineering] OLLAMA_BASE_URL / OLLAMA_MODEL are a shorthand for pointing the
+#: OpenAI-compatible path at an Ollama server. They take priority over the
+#: GM_OPENAI_BASE_URL / GM_*_MODEL equivalents, so switching to the remote
+#: machine is adding two lines to .env, and switching back is commenting them out.
+_OLLAMA_BASE_URL = _ollama_base_url()
+_OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL") or None
+
+
 @dataclass
 class ModelConfig:
     """Model identifiers. Swapping models — including to a local SLM via an
@@ -264,16 +282,22 @@ class ModelConfig:
     #: "claude-sonnet-4-6" was never a real model id - corrected to the current
     #: Claude default. Only takes effect when no OpenAI-compatible endpoint is
     #: configured (see build_client's priority order in scripts/ingest_conversation.py).
-    answer_model: str = os.environ.get("GM_ANSWER_MODEL", "claude-sonnet-5")
-    extraction_model: str = os.environ.get("GM_EXTRACTION_MODEL", "claude-sonnet-5")
+    answer_model: str = _OLLAMA_MODEL or os.environ.get("GM_ANSWER_MODEL", "claude-sonnet-5")
+    extraction_model: str = _OLLAMA_MODEL or os.environ.get(
+        "GM_EXTRACTION_MODEL", "claude-sonnet-5"
+    )
     embedding_model: str = os.environ.get("GM_EMBEDDING_MODEL", "hashing")
     embedding_dim: int = 768  # [thesis] 768-d vectors compared by dot product
 
     #: Base URL for an OpenAI-compatible endpoint (Ollama, vLLM, Groq, etc.).
     #: Set GM_OPENAI_BASE_URL to use one instead of Anthropic directly - e.g.
     #: https://api.groq.com/openai/v1 for Groq's free tier.
-    openai_base_url: str | None = os.environ.get("GM_OPENAI_BASE_URL")
+    openai_base_url: str | None = _OLLAMA_BASE_URL or os.environ.get("GM_OPENAI_BASE_URL")
     openai_api_key: str = os.environ.get("GM_OPENAI_API_KEY", "ollama")
+    #: Sent as ``reasoning_effort`` on OpenAI-compatible calls when set. "none"
+    #: disables thinking on Ollama reasoning models (gemma4, qwen3) - needed for
+    #: extraction, whose reasoning otherwise runs past max_tokens/the timeout.
+    reasoning_effort: str | None = os.environ.get("GM_REASONING_EFFORT") or None
 
     #: Google AI Studio key, for GeminiEmbedder (embedding_model == "gemini").
     #: Free tier - see core/llm/embeddings.py. Independent of the chat-completion

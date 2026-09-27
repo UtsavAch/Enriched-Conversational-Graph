@@ -59,6 +59,7 @@ def get_llm_client() -> LLMClient:
             model=s.models.extraction_model,
             base_url=s.models.openai_base_url,
             api_key=s.models.openai_api_key,
+            reasoning_effort=s.models.reasoning_effort,
         )
     elif os.environ.get("ANTHROPIC_API_KEY"):
         from core.llm.client import AnthropicClient  # noqa: PLC0415

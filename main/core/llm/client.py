@@ -262,6 +262,7 @@ class OpenAICompatClient:
         base_url: str,
         api_key: str = "ollama",
         timeout_s: float = 60.0,
+        reasoning_effort: str | None = None,
     ):
         try:
             from openai import OpenAI  # noqa: PLC0415
@@ -272,6 +273,12 @@ class OpenAICompatClient:
             ) from exc
         self.model = model
         self._client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout_s)
+        # Only sent when set: "none" turns thinking off on Ollama's reasoning
+        # models (gemma4, qwen3), whose reasoning otherwise eats the max_tokens
+        # budget and the timeout. Servers without the parameter never see it.
+        self._extra: dict[str, Any] = (
+            {"reasoning_effort": reasoning_effort} if reasoning_effort else {}
+        )
 
     def complete(
         self, system: str, user: str, *, max_tokens: int = 1024, temperature: float = 0.0
@@ -288,6 +295,7 @@ class OpenAICompatClient:
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
+                **self._extra,
             )
         except Exception as exc:
             raise LLMError(f"completion failed: {exc}") from exc
@@ -305,7 +313,9 @@ class OpenAICompatClient:
     def complete_stream(
         self, system: str, user: str, *, max_tokens: int = 1024, temperature: float = 0.0
     ) -> StreamingCompletion:
-        return _OpenAICompatStream(self._client, self.model, system, user, max_tokens, temperature)
+        return _OpenAICompatStream(
+            self._client, self.model, system, user, max_tokens, temperature, self._extra
+        )
 
 
 class _OpenAICompatStream:
@@ -322,7 +332,14 @@ class _OpenAICompatStream:
     """
 
     def __init__(
-        self, client: Any, model: str, system: str, user: str, max_tokens: int, temperature: float
+        self,
+        client: Any,
+        model: str,
+        system: str,
+        user: str,
+        max_tokens: int,
+        temperature: float,
+        extra: dict[str, Any] | None = None,
     ) -> None:
         self._client = client
         self._model = model
@@ -330,6 +347,7 @@ class _OpenAICompatStream:
         self._user = user
         self._max_tokens = max_tokens
         self._temperature = temperature
+        self._extra = extra or {}
         self._final: LLMResponse | None = None
 
     def __iter__(self) -> Iterator[str]:
@@ -347,6 +365,7 @@ class _OpenAICompatStream:
                     {"role": "user", "content": self._user},
                 ],
                 stream=True,
+                **self._extra,
             )
             for chunk in stream:
                 if not chunk.choices:

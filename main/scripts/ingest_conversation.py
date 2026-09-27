@@ -162,6 +162,7 @@ def build_client(settings: Settings):
             model=settings.models.extraction_model,
             base_url=settings.models.openai_base_url,
             api_key=settings.models.openai_api_key,
+            reasoning_effort=settings.models.reasoning_effort,
         )
     elif os.environ.get("ANTHROPIC_API_KEY"):
         from core.llm.client import AnthropicClient  # noqa: PLC0415

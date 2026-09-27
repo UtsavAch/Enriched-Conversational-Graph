@@ -1,0 +1,126 @@
+You classify TOPIC-STRUCTURE relations between a new conversation turn and a set
+of earlier turns.
+
+For each candidate, choose exactly one label:
+
+- subcase     - the NEW turn is MORE SPECIFIC than the candidate: it narrows the
+                focus, adds detail, or treats a particular case of the
+                candidate's broader topic.
+- supercase   - the NEW turn is MORE GENERAL than the candidate: it broadens the
+                scope or abstracts away from the candidate's particular case.
+- same_level  - the two turns address parallel topics at a similar level of
+                specificity.
+- no_relation - no meaningful topical connection. This is the correct answer for
+                most pairs. Do not force a relation.
+
+DIRECTION IS LOAD-BEARING. The label describes the NEW turn relative to the
+CANDIDATE. If the new turn asks about a detail of what the candidate discussed,
+that is subcase (NEW is more specific), not supercase.
+
+Emit no_relation freely. A graph where everything connects to everything carries
+no information.
+
+Note: the new turn's answer, and any candidate's answer, may contain bracketed
+markers like [N_3]. These are citation/provenance markers — classify against the
+candidate list given below, never against an ID that only appears inside bracket
+text.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"<candidate_id>": "<label>", ...}}
+
+Include every candidate id in the output. Use "no_relation" for pairs with no
+meaningful topical connection.
+
+FEW-SHOT EXAMPLE:
+
+NEW:
+Q: "Can you summarize the schema decisions in the Phase 1-2 report so far?"
+A: "Sure — we're adding five pragmatic edge types while staying within the
+    bounded per-turn cost constraint [N_1], defaulting new nodes to resolved
+    unless they're a question, and we still haven't settled whether W2 and W3
+    need a fixed order."
+
+CANDIDATES:
+- [N_1] Sets the goal (enriched schema) and constraint (bounded per-turn cost).
+- [N_2] Five pragmatic edge types are proposed: revises, contradicts, resolves, depends_on, references.
+- [N_4] Sets the default epistemic_status rule: open for questions, resolved otherwise.
+
+→ {{"N_1": "no_relation", "N_2": "supercase", "N_4": "supercase"}}
+(NEW is a summary spanning both the edge-type decision and the default-status decision,
+so it is a supercase of each individually. N_1 sets up the project goal/constraint
+but is not itself one of the things being summarized.)
+
+FEW-SHOT EXAMPLE (supercase, without an explicit "let me summarize"):
+
+NEW:
+Q: "If we later have other asynchronous operations — entity extraction, article
+    ingestion, embedding generation, etc. — would you make Job a generic
+    top-level resource like /jobs/<id>, or keep jobs nested under the
+    resource that created them, as with /articles/<id>/summary-jobs/<job_id>?"
+A: "Generic top-level resource — /jobs/<id>, with a job_type field
+    (summary_generation, entity_extraction, ingestion, embedding, etc.) and a
+    reference to whatever it produced. That avoids re-implementing status
+    tracking, polling, and lifecycle handling separately for every future
+    async operation type."
+
+CANDIDATES:
+- [N_31] Async summary generation uses a separate Job resource, nested as /articles/<id>/summary-jobs — Summary is only created once the job succeeds.
+
+→ {{"N_31": "supercase"}}
+(N_31 solved ONE specific case — summary jobs, nested under articles. NEW takes
+that same solution and generalises it into a principle covering EVERY async
+operation, as a generic top-level resource. Nothing here announces itself as a
+summary or review — the generalising move is implicit in what the turn actually
+does, not signalled by phrasing like "let me recap." That is the more common
+and easier-to-miss supercase shape; do not require an explicit review/summary
+framing before considering supercase.)
+
+FEW-SHOT EXAMPLE (subcase):
+
+NEW:
+Q: "When you said pragmatic edges get their own classification call — does that
+    mean W2 and W3 always run fully independently in parallel, or could the
+    order actually matter?"
+A: "Good question to pin down — that's not settled yet. I'd flag it as an open
+    question: does W3 need W2's hierarchical labels first, or can they run
+    fully in parallel? We won't know for certain until we test it end to end."
+
+CANDIDATES:
+- [N_1] Sets the goal (enriched schema) and constraint (bounded per-turn cost).
+- [N_2] Five pragmatic edges are proposed: revises, contradicts, resolves, depends_on, references — one classification call each.
+
+→ {{"N_1": "no_relation", "N_2": "subcase"}}
+(NEW zooms into one specific detail of what N_2 established — the call ordering
+between two of the classification calls N_2 introduced — without broadening or
+paralleling it. That narrowing is exactly what makes it subcase, not same_level:
+same_level is for two turns addressing DIFFERENT topics at matching specificity,
+not one turn drilling into a detail of the other.)
+
+FEW-SHOT EXAMPLE (same_level):
+
+NEW:
+Q: "Separately, what should the default epistemic_status be when a new node is
+    created?"
+A: "I'd default to open only for factual_question and clarification_request,
+    and resolved for every other speech act."
+
+CANDIDATES:
+- [N_1] Sets the goal (enriched schema) and constraint (bounded per-turn cost).
+- [N_2] Five pragmatic edges are proposed: revises, contradicts, resolves, depends_on, references.
+- [N_3] Opens the question of whether W2/W3 call ordering matters or can run in parallel.
+
+→ {{"N_1": "no_relation", "N_2": "no_relation", "N_3": "same_level"}}
+("Separately" signals a topic switch, not a narrowing — NEW addresses a different
+open design question (default status) at the same specificity as N_3 (call
+ordering), neither one a detail of the other. That parallelism, not shared
+subject matter alone, is what makes it same_level: N_2 also concerns the
+extraction design but at a different level of specificity, so it stays
+no_relation rather than same_level.)
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CANDIDATE EARLIER TURNS:
+{candidates}

@@ -20,6 +20,7 @@ produces a plausible-looking but meaningless classification.
 
 from __future__ import annotations
 
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -87,4 +88,7 @@ class PromptLibrary:
 
 
 #: Default library instance for convenience. Construct your own for ablations.
-prompts = PromptLibrary()
+#: GM_PROMPT_VERSION selects a snapshot subdirectory (e.g. "baseline_2026_09",
+#: the prompts before the 2026-09-27 revision) without code changes, so prompt
+#: versions can be compared on the same corpus.
+prompts = PromptLibrary(os.environ.get("GM_PROMPT_VERSION") or None)

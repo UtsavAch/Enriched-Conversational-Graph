@@ -9,14 +9,8 @@ change rather than a rewrite. See the Phase 1-2 report, section 5.2.
 
 Definitions are identical to the single-task prompts. Apply them exactly:
 
-ENTITIES: specific, named things a reader would put in an index — people,
-organisations, places, named systems, products, tools, documents, events, the
-domain's own named concepts. Use the canonical form: bare names without
-arguments, values or paths ("--mem", not "--mem=32G"), singular capitalised
-concepts ("Invoice", not "invoices"), API routes without the HTTP method. Do NOT
-extract generic words (API, CPU, database), field names, HTTP methods, status
-codes, plain numbers or settings, or incidental file names. When unsure, leave
-it out.
+ENTITIES: specific, referenceable things — proper nouns, named systems, people,
+organisations. Skip generic nouns and pronouns.
 Allowed types for this conversation:
 {allowed_entity_types}
 If an entity genuinely fits none of these, use "propose:<short_label>" instead
@@ -32,31 +26,19 @@ HIERARCHICAL (new turn relative to each candidate):
 - supercase: NEW is more general than the candidate.
 - same_level: parallel topics at similar specificity.
 - no_relation: no meaningful topical connection (most pairs).
-Mark subcase ONLY against the immediate parent (the most specific candidate the
-new turn narrows), never also against that parent's ancestors. Supercase needs
-an actual generalising move (a recap, or turning a specific case into a rule).
-Return as a dict: {{"<candidate_id>": "<label>", ...}} for every candidate.
+Return as a dict: {"<candidate_id>": "<label>", ...} for every candidate.
 
 PRAGMATIC (what the new turn DOES to the earlier one):
-- revises: agreed update; the candidate's position is now out of date.
-- contradicts: refutation, disagreement or abandonment; the two cannot both
-  stand (includes evidence that an earlier claim was wrong).
+- revises: cooperative refinement; earlier position now out of date.
+- contradicts: disagreement; the two cannot both stand.
 - resolves: answers or settles something the candidate left open.
-- depends_on: builds on the candidate; would be incoherent without it. Adding
-  detail to a decision that still stands is depends_on, not revises.
+- depends_on: presupposes the candidate; would be incoherent without it.
 - references: points back without changing, disputing, or depending.
-- no_relation: none of the above (most uncited pairs).
-If the new answer cites a candidate as [N_k], that candidate is never
-no_relation: use the most specific label that fits, otherwise references.
-Return as a dict: {{"<candidate_id>": "<label>", ...}} for every candidate.
+- no_relation: none of the above (most pairs).
+Return as a dict: {"<candidate_id>": "<label>", ...} for every candidate.
 
-STATE NODES (commitments later turns may need to honour, check or revise; most
-turns create none):
-creates — new goal (an overall objective, not a single request) / decision (a
-choice the user adopts, not advice) / constraint (a limit binding this plan, not
-a general fact) / open_question (still open AFTER this turn; if the same answer
-settles it, create nothing). Labels: one specific sentence under 15 words naming
-the key value.
+STATE NODES:
+creates — new goal/decision/constraint/open_question (under 12 words each).
 updates — existing node status changes. Valid values by type:
   goal: achieved | abandoned
   decision: revised | reverted
@@ -68,17 +50,15 @@ relates — typed relation to existing node without changing its status:
   supports, contradicts, constrained_by, resolves.
 resolves ALWAYS also appears in updates (new_status: "resolved") — it is the
 one relation that is also a status change, so it appears in BOTH lists.
-MERGE, DO NOT DUPLICATE existing state nodes: a changed value for the same thing
-is an update (revised) of the existing node, not a new create.
+MERGE, DO NOT DUPLICATE existing state nodes.
 
 COMPRESSION:
 summary: one sentence under 20 words stating what this turn established.
 reference: a short noun-phrase title, 6 words or fewer.
 
 Note on citations: bracketed markers like [N_1] in any answer text are
-citation/provenance markers — never extract one as an entity, never treat one as
-a state_node_id, and only classify against ids that appear in the candidate
-list (a cited candidate is strong evidence of a pragmatic relation, see above).
+citation/provenance markers — never extract one as an entity, never classify
+against one as if it were a candidate, and never treat one as a state_node_id.
 
 Return one JSON object with exactly these keys, no preamble, no markdown fences:
 {{"entities": [{{"name": "...", "type": "..."}}, ...],

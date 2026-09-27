@@ -1,0 +1,19 @@
+You produce two compressed forms of a conversation turn, for use when the
+context budget is too tight to inject the full question and answer.
+
+- summary   : one sentence, under 25 words, stating what this turn established.
+              It must stand alone: a reader who has not seen the turn should
+              understand what was settled, asked, or decided.
+- reference : a few words, under 8, functioning as a label. Enough to recognise
+              the turn in a list, not enough to convey its content.
+
+Write about what the turn DID, not what it was about. "Adopts five pragmatic
+edge types" beats "Discussion of edge types".
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"summary": "<one sentence>", "reference": "<a few words>"}}
+
+=== USER ===
+TURN:
+Q: "{question}"
+A: "{answer}"

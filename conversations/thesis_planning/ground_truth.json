@@ -1,0 +1,3761 @@
+{
+  "conversation_id": "thesis_planning",
+  "domain": "MSc thesis planning over seven months (misleading health claims in Portuguese news)",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip. Domain entity types (domain_config.json): dataset, model, venue, concept. 80 turns with real gaps between sessions (up to 11 weeks before N_80). Built to exercise goal: abandoned (SN_4, the first in any corpus), decision reverted and later partly brought back in a different form (SN_5 fine-tuning -> SN_7 LLMs -> SN_10 XLM-R baseline), scope and deadline constraints revised (SN_3, SN_11), and long-range recall (RQs set at N_6, recalled at N_74).",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_39",
+      "issue": "Abandoning a goal (SN_4) has no StateRelation label, the same issue marathon_trip and tech_support raised. Recorded via state_node_links.updates alone.",
+      "proposed_direction": "Same resolution as the earlier corpora: status change via updates, no paired relates entry."
+    },
+    {
+      "raised_at_node": "N_55",
+      "issue": "Fine-tuning returns as a baseline (SN_10) after being reverted as the main method (SN_5). SN_5 cannot be re-activated (terminal), and the new decision differs in model (XLM-R, not BERTimbau) and role (baseline, not main method). N_53 contradicts N_36, the turn that dropped it.",
+      "proposed_direction": "New state node, plus the contradicts edge to the dropping turn. The graph links SN_5 and SN_10 only through interaction edges; probe p2 tests whether answers follow that link."
+    },
+    {
+      "raised_at_node": "N_80",
+      "issue": "The outline left open whether SN_1 'achieved' means a finished draft or the submission. The corpus uses the actual submission (N_80, 11 September, after an 11-week gap).",
+      "proposed_direction": "Goals are achieved when their stated outcome happens ('submit a thesis'), not when work towards it is mostly done."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "Hi, I'm Rita, an MSc student. My thesis topic was just approved: 'misinformation in Portuguese news'. My supervisor, Prof. Almeida, says it's far too broad. Can you help me plan it?",
+      "answer": "Of course. 'Misinformation in Portuguese news' could be a whole research group's agenda, so the first job is narrowing it to something you can finish in one MSc. We'll plan the thesis in stages: scope, research questions, data, method, then writing.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_80",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Rita needs to plan an MSc thesis on misinformation in Portuguese news; the topic is too broad.",
+      "reference": "Thesis goal, topic too broad",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "How would you narrow it?",
+      "answer": "Pick one kind of misinformation. Health claims are a good candidate: there was a huge amount of it in Portuguese media during COVID, fact-checkers labelled much of it, and the harm is concrete.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "suggestion",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Suggests narrowing to misleading health claims.",
+      "reference": "Narrow to health claims",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_3": {
+      "question": "I like that. Health claims it is.",
+      "answer": "Great. The thesis is now about misleading health claims in Portuguese news.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Rita agrees to focus on health claims.",
+      "reference": "Health claims agreed",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_2",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_4": {
+      "question": "Next: what makes a good research question?",
+      "answer": "One you can answer with the data and time you have, whose answer isn't already known, and that is specific enough to tell whether you answered it.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "open"
+        ],
+        [
+          "N_5",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks what makes a good research question.",
+      "reference": "Good RQ criteria",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "Can you give examples for my topic?",
+      "answer": "A feasibility question ('can current models detect misleading health claims in Portuguese news, and how well?') and a comparison question, for instance about the two main varieties of Portuguese, where resources are very unequal.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Example RQs: detection feasibility and a Portuguese-variety comparison.",
+      "reference": "Example RQs",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_4",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_6": {
+      "question": "Then my RQs are: RQ1, can models detect misleading health claims in Portuguese news? RQ2, does performance differ between European and Brazilian Portuguese?",
+      "answer": "Those are clear and answerable. RQ1 is feasibility, RQ2 is the variety comparison. Write them at the top of your thesis document; everything else should serve them.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_42",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 7,
+      "retrieval_count": 7,
+      "summary": "RQ1 (detection feasibility) and RQ2 (PT-PT vs PT-BR difference) set.",
+      "reference": "RQs set",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_7": {
+      "question": "I met Prof. Almeida. He liked both RQs, but told me to keep the focus on European Portuguese, since that's the gap.",
+      "answer": "Makes sense: PT-BR has far more resources, so PT-PT is where a contribution is most needed.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Supervisor approves the RQs and asks for a PT-PT focus.",
+      "reference": "Supervisor: focus PT-PT",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_6",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_8": {
+      "question": "So I limit the scope to European Portuguese news only?",
+      "answer": "Yes: scope limited to PT-PT news. RQ2 can still use PT-BR material as a point of comparison later if needed.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_41",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Scope limited to PT-PT news.",
+      "reference": "Scope: PT-PT only",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ]
+      }
+    },
+    "N_9": {
+      "question": "Which Portuguese outlets should I collect from?",
+      "answer": "Pick outlets that fact-checkers cover, so you can get labels.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "open"
+        ],
+        [
+          "N_10",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks which PT-PT outlets to collect from.",
+      "reference": "Which outlets?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_10": {
+      "question": "Which ones do fact-checkers cover most?",
+      "answer": "Público, Observador, Expresso and Jornal de Notícias, plus claims the fact-checker Polígrafo has already rated, which gives you labels for free.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Suggested outlets: Público, Observador, Expresso, JN, plus Polígrafo ratings.",
+      "reference": "Outlets listed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_11": {
+      "question": "Many 2020–2021 articles are gone from the sites. How do I get older ones?",
+      "answer": "Arquivo.pt, the Portuguese web archive, has most of them, and it has an API for bulk access.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [
+        "E_20"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Older articles can be retrieved from Arquivo.pt.",
+      "reference": "Use Arquivo.pt",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "Oh, and the submission deadline is 30 June.",
+      "answer": "Then we have about 21 weeks. Let's plan backwards: data by mid-April, experiments by the end of May, writing in June.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_64",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Submission deadline is 30 June.",
+      "reference": "Deadline 30 June",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ]
+      }
+    },
+    "N_13": {
+      "question": "Starting the literature review. Where do I begin?",
+      "answer": "With claim detection, the task your RQ1 is about.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "open"
+        ],
+        [
+          "N_14",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Starts the literature review with claim detection.",
+      "reference": "Lit review start",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_14": {
+      "question": "What's the core literature on claim detection?",
+      "answer": "The CheckThat! lab series is the anchor: claim-worthiness detection and verification tasks, several languages, strong baselines to cite.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "CheckThat! lab is the core claim-detection literature.",
+      "reference": "CheckThat! lab",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_13",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_15": {
+      "question": "Should I also cover full fact-checking pipelines, with evidence retrieval and verdicts?",
+      "answer": "Briefly, to position your work: you do detection, not verification. One section is enough.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Full fact-checking pipelines get one positioning section.",
+      "reference": "Pipelines briefly",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_16": {
+      "question": "Second strand: health misinformation specifically.",
+      "answer": "Health misinformation datasets and studies, especially COVID-era ones. This strand justifies the focus you chose in RQ1.",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Second strand: health misinformation datasets and studies.",
+      "reference": "Health misinfo strand",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_17": {
+      "question": "Are there Portuguese-specific resources?",
+      "answer": "Let's check what exists for each variety.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "open"
+        ],
+        [
+          "N_18",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks about Portuguese-specific resources.",
+      "reference": "PT resources?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_16",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_16",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_18": {
+      "question": "What did you find?",
+      "answer": "Very little for PT-PT. For PT-BR there's the Fake.br corpus and the BERTimbau language model, which is trained on Brazilian Portuguese but often used for both.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Few PT-PT resources; PT-BR has Fake.br and BERTimbau.",
+      "reference": "Few PT-PT resources",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_17",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_17",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_19": {
+      "question": "Third strand: using LLMs directly as classifiers.",
+      "answer": "Zero-shot and few-shot classification with instruction-tuned LLMs, a fast-growing literature, with mixed results on non-English data.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Third strand: LLMs as zero/few-shot classifiers.",
+      "reference": "LLM classifier strand",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_20": {
+      "question": "Do they work for Portuguese?",
+      "answer": "Decently for PT-BR, largely untested for PT-PT. That's another gap your thesis sits in.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "LLMs work decently for PT-BR; PT-PT is largely untested.",
+      "reference": "LLMs on Portuguese",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_21": {
+      "question": "I found FakeRecogna: a labelled fake-news dataset in Portuguese, including health. But it's all Brazilian.",
+      "answer": "Useful, but only PT-BR.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Found FakeRecogna, a PT-BR-only labelled dataset.",
+      "reference": "FakeRecogna found",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_17",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_22": {
+      "question": "Can you summarise the literature so far?",
+      "answer": "Three strands: claim detection (CheckThat!), health misinformation (datasets and studies), and LLMs as classifiers. Across all three, PT-PT is the gap.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Literature recap: three strands, with PT-PT as the common gap.",
+      "reference": "Three-strand recap",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "supercase"
+          ],
+          [
+            "N_16",
+            "supercase"
+          ],
+          [
+            "N_19",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_23": {
+      "question": "Can I use FakeRecogna even though my scope is PT-PT?",
+      "answer": "Not as your main data. It's Brazilian, and your scope is PT-PT only.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "FakeRecogna doesn't fit the PT-PT-only scope.",
+      "reference": "FakeRecogna out of scope",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "Then I'll build my own PT-PT dataset: at least 2,000 annotated health claims.",
+      "answer": "Ambitious but valuable: it would be the first PT-PT resource of its kind. Plan the annotation carefully, since it will be the slowest part.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_39",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Rita decides to build her own PT-PT dataset of at least 2,000 claims.",
+      "reference": "Own 2,000-claim dataset",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_23",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_23",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4"
+        ]
+      }
+    },
+    "N_25": {
+      "question": "How should I set up the annotation?",
+      "answer": "Write guidelines first: what counts as a health claim, what counts as misleading, with examples.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "open"
+        ],
+        [
+          "N_26",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks how to set up annotation; guidelines first.",
+      "reference": "Annotation setup",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_26": {
+      "question": "And to show the labels are reliable?",
+      "answer": "A second annotator on a subset. Your colleague Duarte could double-annotate part of the data, and you report Cohen's kappa for agreement.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Duarte double-annotates a subset; agreement reported with Cohen's kappa.",
+      "reference": "Second annotator Duarte",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_27": {
+      "question": "For the model, I'll fine-tune BERTimbau as my main method.",
+      "answer": "A reasonable default: it's the standard Portuguese encoder, and fine-tuning is well understood.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_36",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Main method: fine-tune BERTimbau.",
+      "reference": "Fine-tune BERTimbau",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ]
+      }
+    },
+    "N_28": {
+      "question": "What hyperparameters should I start with?",
+      "answer": "Learning rate 2e-5, batch size 16, 3–4 epochs, and early stopping on a validation split.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_29",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Starting hyperparameters for fine-tuning.",
+      "reference": "Hyperparameters",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_29": {
+      "question": "Base or large model?",
+      "answer": "BERTimbau-large usually scores a few points higher, but needs much more GPU memory and time.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Large scores higher but needs more GPU memory.",
+      "reference": "Base vs large",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_28",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_28",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_30": {
+      "question": "The only GPU I can use is the faculty server: one 16 GB card, shared.",
+      "answer": "That's a hard limit. 16 GB is tight for BERTimbau-large even with small batches.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [
+        "E_18",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Compute is limited to one shared 16 GB GPU.",
+      "reference": "16 GB GPU only",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_29",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ],
+        "relates": [
+          [
+            "SN_5",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_31": {
+      "question": "Annotation update: in three weeks, Duarte and I have annotated 180 claims.",
+      "answer": "That's about 60 a week. Let's see what that means for the 2,000 target.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Only 180 claims annotated in three weeks.",
+      "reference": "180 claims annotated",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_26",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_32": {
+      "question": "How long would 2,000 take at this rate?",
+      "answer": "About 33 weeks. That's well past 30 June.",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "At this rate, 2,000 claims would take ~33 weeks.",
+      "reference": "33 weeks needed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_31",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_31",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_4",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_33": {
+      "question": "I tried BERTimbau-large on the server: out of memory, even at batch size 4.",
+      "answer": "As feared. 16 GB isn't enough for large.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_18"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "BERTimbau-large runs out of memory on 16 GB.",
+      "reference": "Large OOMs",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_30",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_34": {
+      "question": "And BERTimbau-base fits, but on my 180 claims it's barely above chance.",
+      "answer": "With so few labelled examples, base underfits. Fine-tuning needs far more data than you'll have.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "BERTimbau-base fits but underfits on 180 claims.",
+      "reference": "Base underfits",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_35": {
+      "question": "I'm worried. Where does this leave the plan?",
+      "answer": "Two problems at once: the annotation pace [N_31] makes 2,000 claims impossible by June, and the GPU limit [N_33] makes fine-tuning large models impossible. The plan needs to change.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_31",
+        "N_33"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Annotation pace and GPU limit both break the current plan.",
+      "reference": "Plan is broken",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_31",
+            "references"
+          ],
+          [
+            "N_33",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_36": {
+      "question": "So I drop fine-tuning as the main method?",
+      "answer": "Yes. Drop fine-tuning BERTimbau as the main method: it can't work with this data and this hardware.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [
+        "E_6"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_53",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Fine-tuning dropped as the main method.",
+      "reference": "Drop fine-tuning",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_35",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_5",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_37": {
+      "question": "What replaces it?",
+      "answer": "Zero-shot and few-shot classification with an LLM through an API (GPT-4o-mini, for example). It needs no training data beyond a few examples and no GPU of your own.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_55",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 7,
+      "retrieval_count": 7,
+      "summary": "Main method becomes zero/few-shot LLM classification.",
+      "reference": "LLM zero/few-shot",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ],
+        "relates": [
+          [
+            "SN_6",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_38": {
+      "question": "But doesn't that weaken the thesis? Anyone can call an API.",
+      "answer": "The novelty was never the model. It's the PT-PT question: whether classifiers built on Brazilian data work on European Portuguese. That question stays, and an LLM makes it easier to test.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Rita worries about novelty; the variety question is the contribution.",
+      "reference": "Novelty concern",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_39": {
+      "question": "And the 2,000-claim dataset? Honestly, it's not going to happen.",
+      "answer": "Agreed. Abandon the 2,000-claim goal; the time is better spent on experiments.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "The 2,000-claim dataset goal is abandoned.",
+      "reference": "Dataset goal abandoned",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_4",
+            "abandoned"
+          ]
+        ]
+      }
+    },
+    "N_40": {
+      "question": "Then what data do I use?",
+      "answer": "FakeRecogna for few-shot examples and development, and your own annotated PT-PT claims, topped up to 400, as the test set. 400 is reachable in a few more weeks.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Data: FakeRecogna plus 400 own PT-PT claims as test set.",
+      "reference": "FakeRecogna + 400 PT-PT",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_39",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_41": {
+      "question": "But FakeRecogna is Brazilian, and my scope is PT-PT only.",
+      "answer": "Then the scope has to widen: include both PT-PT and PT-BR. Without PT-BR data, there's nothing to learn from.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Scope widened to PT-PT plus PT-BR.",
+      "reference": "Scope: PT-PT + PT-BR",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_42": {
+      "question": "Does RQ2 still make sense then?",
+      "answer": "It gets sharper. Reframe RQ2 as a transfer question: how well does a classifier built with PT-BR data and examples work on PT-PT news? That's exactly what FakeRecogna plus your 400 PT-PT claims can answer.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "RQ2 reframed as a PT-BR to PT-PT transfer question.",
+      "reference": "RQ2 reframed as transfer",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_2",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_43": {
+      "question": "Let me make sure I have the new plan straight.",
+      "answer": "Method: LLM zero/few-shot [N_37]. Data: FakeRecogna plus 400 own PT-PT claims [N_40]. RQ2: transfer from PT-BR to PT-PT [N_42]. Scope: both varieties.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_37",
+        "N_40",
+        "N_42"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Recap of the post-pivot plan.",
+      "reference": "New plan recap",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "supercase"
+          ],
+          [
+            "N_40",
+            "supercase"
+          ],
+          [
+            "N_42",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_44": {
+      "question": "With only two annotators, is my annotation reliable enough to report?",
+      "answer": "It can be, if the agreement is good; that's what the kappa will tell us.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "open"
+        ],
+        [
+          "N_52",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks whether two-annotator labels are reliable enough.",
+      "reference": "Annotation reliable?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_40",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ]
+      }
+    },
+    "N_45": {
+      "question": "How many claims should we both annotate for the kappa?",
+      "answer": "Around 100 of the 400, sampled at random, annotated independently before you compare.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Double-annotate ~100 random claims for kappa.",
+      "reference": "100 for kappa",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_44",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_44",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_46": {
+      "question": "How should I design the zero-shot prompt?",
+      "answer": "Give the model a precise definition of a misleading health claim and a fixed label set, and ask for the label only.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "open"
+        ],
+        [
+          "N_47",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks how to design the zero-shot prompt.",
+      "reference": "Prompt design",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_47": {
+      "question": "Should the definition come from my annotation guidelines?",
+      "answer": "Yes, use exactly the guideline definitions, so the model and the annotators apply the same criteria.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The prompt uses the annotation guideline definitions.",
+      "reference": "Guideline definitions",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_46",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_46",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "For few-shot, how do I pick the examples?",
+      "answer": "Balanced across labels, and short.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_49",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks how to select few-shot examples.",
+      "reference": "Few-shot selection",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_46",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_47",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_49": {
+      "question": "From which data, though?",
+      "answer": "From FakeRecogna (PT-BR), testing on your PT-PT claims. That makes the few-shot setting itself a test of RQ2's transfer question.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Few-shot examples come from PT-BR FakeRecogna, testing on PT-PT.",
+      "reference": "PT-BR examples, PT-PT test",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_48",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_48",
+            "resolves"
+          ],
+          [
+            "N_42",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_50": {
+      "question": "First results with GPT-4o-mini on the PT-PT test set: zero-shot macro-F1 0.61, few-shot 0.68. Just in time for my midterm presentation next week.",
+      "answer": "Good first numbers to present: few-shot helps by 7 points even with Brazilian examples.",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_17",
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "GPT-4o-mini: zero-shot 0.61, few-shot 0.68 macro-F1 on PT-PT.",
+      "reference": "First results 0.61/0.68",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_49",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_7",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_51": {
+      "question": "Is 0.68 actually good?",
+      "answer": "For a hard, subjective task with no PT-PT training data it's respectable; CheckThat! systems on similar tasks land in the 0.6–0.8 range.",
+      "embedding": "<vector: N_51 question+answer>",
+      "named_entities": [
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_51",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "0.68 is respectable for the task.",
+      "reference": "0.68 respectable",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_50",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_50",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_52": {
+      "question": "Duarte and I finished the 100 double-annotated claims: kappa is 0.71.",
+      "answer": "0.71 is 'substantial' agreement on the usual scale. The annotation is reliable enough to report.",
+      "embedding": "<vector: N_52 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_52",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Kappa 0.71: substantial agreement, reliable enough to report.",
+      "reference": "Kappa 0.71",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_45",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_44",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_9",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_9",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_53": {
+      "question": "Meeting with Prof. Almeida. He says having no fine-tuned baseline at all is a red flag for any examiner.",
+      "answer": "He has a point: without a trained baseline, examiners can't tell whether the LLM is actually good or just the only thing tried.",
+      "embedding": "<vector: N_53 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_53",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Supervisor insists on a fine-tuned baseline.",
+      "reference": "Baseline required",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_36",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_54": {
+      "question": "But we dropped fine-tuning because it didn't fit on the GPU!",
+      "answer": "BERTimbau-large didn't fit. A smaller multilingual model would, and it only needs to be a baseline, not the main method.",
+      "embedding": "<vector: N_54 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_54",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_55",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Rita objects that fine-tuning didn't fit on the GPU.",
+      "reference": "GPU objection",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_53",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_6",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_55": {
+      "question": "Which model then?",
+      "answer": "XLM-R-base: multilingual, fits comfortably on 16 GB, and fine-tuned on FakeRecogna it gives a proper trained baseline. The LLM stays the main method, compared against XLM-R.",
+      "embedding": "<vector: N_55 question+answer>",
+      "named_entities": [
+        "E_19",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_55",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Add a fine-tuned XLM-R-base baseline; the LLM remains the main method.",
+      "reference": "XLM-R baseline added",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_53",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "revises"
+          ],
+          [
+            "N_54",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ],
+        "updates": [
+          [
+            "SN_7",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_56": {
+      "question": "XLM-R results: fine-tuned on FakeRecogna, it gets 0.64 macro-F1 on held-out PT-BR data.",
+      "answer": "0.64 in-variety is a solid baseline.",
+      "embedding": "<vector: N_56 question+answer>",
+      "named_entities": [
+        "E_19",
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_56",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "XLM-R: 0.64 macro-F1 in-variety (PT-BR).",
+      "reference": "XLM-R 0.64 PT-BR",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_55",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_55",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_10",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_57": {
+      "question": "And on the PT-PT test set it drops to 0.52.",
+      "answer": "A 12-point drop across varieties. That's a clear transfer gap, exactly what RQ2 asks about, and the LLM's 0.68 holds up much better.",
+      "embedding": "<vector: N_57 question+answer>",
+      "named_entities": [
+        "E_19",
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_57",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "XLM-R drops to 0.52 on PT-PT: a clear transfer gap.",
+      "reference": "XLM-R 0.52 PT-PT",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_56",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_56",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_58": {
+      "question": "Should I replace GPT-4o-mini with Llama-3.1-8B running locally, for reproducibility?",
+      "answer": "Worth considering: API models change without notice.",
+      "embedding": "<vector: N_58 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_58",
+          "creation",
+          "open"
+        ],
+        [
+          "N_62",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Asks whether to replace GPT-4o-mini with a local Llama-3.1-8B.",
+      "reference": "Llama for reproducibility?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_14"
+        ]
+      }
+    },
+    "N_59": {
+      "question": "What are the trade-offs?",
+      "answer": "Llama is fully reproducible and free, but will likely score lower; GPT-4o-mini scores higher but may change or disappear. Reporting only one hides something either way.",
+      "embedding": "<vector: N_59 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_59",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Trade-offs between local Llama and API GPT-4o-mini.",
+      "reference": "Trade-offs",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_58",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_58",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_60": {
+      "question": "Prof. Almeida suggested also submitting a short paper to PROPOR 2026. Should I?",
+      "answer": "A paper would strengthen your CV, and the transfer result is publishable. Let's plan for it.",
+      "embedding": "<vector: N_60 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_60",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_66",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Decides to submit a short paper to PROPOR 2026.",
+      "reference": "PROPOR paper planned",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ]
+      }
+    },
+    "N_61": {
+      "question": "When is the PROPOR deadline?",
+      "answer": "20 June, so ten days before your thesis deadline.",
+      "embedding": "<vector: N_61 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_61",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "PROPOR deadline is 20 June.",
+      "reference": "PROPOR deadline 20 June",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_60",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_60",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_62": {
+      "question": "On the Llama question: can I just report both?",
+      "answer": "Yes, report both. GPT-4o-mini as the main result and Llama-3.1-8B as the reproducible reference; the gap between them is itself informative.",
+      "embedding": "<vector: N_62 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_62",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Both LLMs will be reported.",
+      "reference": "Report both LLMs",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_58",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_58",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_14",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_14",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_63": {
+      "question": "I'm behind. The error analysis isn't started and there's a month left before 30 June.",
+      "answer": "That's tight for experiments, error analysis and writing.",
+      "embedding": "<vector: N_63 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_63",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Analysis is behind schedule with a month left.",
+      "reference": "Behind schedule",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_12",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_11",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_64": {
+      "question": "Good news: the faculty approved my extension request. The new deadline is 15 September.",
+      "answer": "That changes everything: the deadline is now 15 September, which leaves room for a proper error analysis.",
+      "embedding": "<vector: N_64 question+answer>",
+      "named_entities": [
+        "E_3",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_64",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Extension approved: deadline moves to 15 September.",
+      "reference": "Deadline 15 September",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_12",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_11",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_65": {
+      "question": "Should I still try for the PROPOR paper?",
+      "answer": "The paper deadline is 20 June regardless of your extension. Writing it now would take the time the extension just gave you.",
+      "embedding": "<vector: N_65 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_65",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Asks whether to still attempt the PROPOR paper.",
+      "reference": "PROPOR still?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_60",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_60",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_66": {
+      "question": "Then I'll skip PROPOR and focus on the thesis.",
+      "answer": "Sensible. You can turn the thesis into a paper for a later venue once it's submitted.",
+      "embedding": "<vector: N_66 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_66",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "PROPOR submission dropped.",
+      "reference": "Skip PROPOR",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_65",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_60",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_12",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_67": {
+      "question": "Starting the error analysis. Where does the transfer from PT-BR to PT-PT fail most?",
+      "answer": "Look at the PT-PT claims that XLM-R gets wrong but classifies correctly on similar PT-BR items.",
+      "embedding": "<vector: N_67 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_67",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Error analysis starts on PT-BR to PT-PT transfer failures.",
+      "reference": "Error analysis start",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_57",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_68": {
+      "question": "A lot of errors involve vocabulary and idioms that differ between the varieties.",
+      "answer": "That's a classic variety effect: everyday words and set phrases differ enough to confuse a model trained on Brazilian text.",
+      "embedding": "<vector: N_68 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_68",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Many errors involve vocabulary and idioms that differ between varieties.",
+      "reference": "Vocabulary errors",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_67",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_67",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_69": {
+      "question": "And institution names: claims about the SNS and the DGS get misclassified much more than claims about the SUS and Anvisa.",
+      "answer": "Health institutions are country-specific (Portugal's SNS and DGS vs Brazil's SUS and Anvisa), so claims about them look unfamiliar to a PT-BR-trained model.",
+      "embedding": "<vector: N_69 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_69",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Claims about Portuguese health institutions are misclassified more often.",
+      "reference": "Institution-name errors",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_67",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_67",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_70": {
+      "question": "How should I present the error analysis?",
+      "answer": "Group errors into categories (vocabulary, institutions, other), give counts per category, and two or three examples each.",
+      "embedding": "<vector: N_70 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_70",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Present errors by category with counts and examples.",
+      "reference": "Error categories",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_67",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_69",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_71": {
+      "question": "Time to plan the writing. What structure?",
+      "answer": "Six chapters: introduction, related work, data, method, results and error analysis, conclusions. Keep related work before method, so the reader knows the gap before seeing your approach.",
+      "embedding": "<vector: N_71 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_71",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Six-chapter thesis structure, related work before method.",
+      "reference": "Six chapters",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_13"
+        ]
+      }
+    },
+    "N_72": {
+      "question": "What goes into the method chapter?",
+      "answer": "The models, the prompts and the evaluation protocol.",
+      "embedding": "<vector: N_72 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_72",
+          "creation",
+          "open"
+        ],
+        [
+          "N_73",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks what goes into the method chapter.",
+      "reference": "Method chapter?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_71",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_71",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_73": {
+      "question": "Which models exactly, and in what role?",
+      "answer": "GPT-4o-mini and Llama-3.1-8B as the zero/few-shot classifiers, XLM-R-base as the fine-tuned baseline, and macro-F1 on the 400 PT-PT claims as the main metric.",
+      "embedding": "<vector: N_73 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8",
+        "E_19",
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_73",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Method chapter content: two LLMs, XLM-R baseline, macro-F1 on 400 PT-PT claims.",
+      "reference": "Method chapter content",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_72",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_72",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_74": {
+      "question": "Writing the introduction, I realised I'm not sure what my RQs are anymore. What were they, and do they still match what I did?",
+      "answer": "You set them back in February [N_6] and changed RQ2 in April [N_42]; let's check them against the current work.",
+      "embedding": "<vector: N_74 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_6",
+        "N_42"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_74",
+          "creation",
+          "open"
+        ],
+        [
+          "N_75",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Rita asks what her RQs are and whether they still match the work.",
+      "reference": "What are my RQs?",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_6",
+            "references"
+          ],
+          [
+            "N_42",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_75": {
+      "question": "So what do I write?",
+      "answer": "RQ1 is unchanged: can models detect misleading health claims in Portuguese news. RQ2 is now the transfer question: how well does a classifier built on PT-BR work on PT-PT. The introduction has to explain that pivot honestly.",
+      "embedding": "<vector: N_75 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_75",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "RQ1 unchanged, RQ2 is now transfer; the intro must explain the pivot.",
+      "reference": "RQs confirmed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_74",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_74",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_76": {
+      "question": "What goes in the limitations section?",
+      "answer": "Three things: the small test set, since the 2,000-claim dataset was abandoned [N_39]; only two annotators, though with kappa 0.71 [N_52]; and the single 16 GB GPU [N_30], which ruled out large fine-tuned models.",
+      "embedding": "<vector: N_76 question+answer>",
+      "named_entities": [
+        "E_5",
+        "E_10",
+        "E_18"
+      ],
+      "citations": [
+        "N_30",
+        "N_39",
+        "N_52"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_76",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Limitations: small test set, two annotators, single 16 GB GPU.",
+      "reference": "Limitations",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_71",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_39",
+            "references"
+          ],
+          [
+            "N_52",
+            "references"
+          ],
+          [
+            "N_30",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_77": {
+      "question": "Can you summarise every change of plan, so the story in the thesis is honest?",
+      "answer": "Four pivots: fine-tuning was dropped as the main method [N_36]; the scope widened from PT-PT to both varieties [N_41]; a fine-tuned XLM-R baseline came back at the supervisor's request [N_55]; and the PROPOR paper was dropped after the extension [N_66].",
+      "embedding": "<vector: N_77 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_36",
+        "N_41",
+        "N_55",
+        "N_66"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_77",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Summary of the four changes of plan.",
+      "reference": "All pivots summarised",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "supercase"
+          ],
+          [
+            "N_41",
+            "supercase"
+          ],
+          [
+            "N_55",
+            "supercase"
+          ],
+          [
+            "N_66",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_78": {
+      "question": "I sent chapters 1–3 to Prof. Almeida.",
+      "answer": "Good. Keep writing the results chapter while he reads.",
+      "embedding": "<vector: N_78 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_78",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Chapters 1-3 sent to the supervisor.",
+      "reference": "Chapters 1-3 sent",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_71",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_71",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_13",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_79": {
+      "question": "He's happy with them. His only comment: tighten the evaluation chapter.",
+      "answer": "That's a good position to be in by the end of June, with more than two months until the deadline.",
+      "embedding": "<vector: N_79 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_79",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Supervisor approves chapters 1-3.",
+      "reference": "Chapters approved",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_78",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_80": {
+      "question": "I submitted the thesis today, four days before the 15 September deadline!",
+      "answer": "Congratulations, Rita! From 'misinformation in Portuguese news' to a submitted thesis with a real transfer finding.",
+      "embedding": "<vector: N_80 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_80",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Thesis submitted on 11 September.",
+      "reference": "Thesis submitted",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_1",
+            "resolves"
+          ],
+          [
+            "N_64",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Rita",
+      "mentioned_in": [
+        "N_1",
+        "N_80"
+      ]
+    },
+    "E_2": {
+      "type": "person",
+      "name": "Prof. Almeida",
+      "mentioned_in": [
+        "N_1",
+        "N_7",
+        "N_53",
+        "N_60",
+        "N_78",
+        "N_79"
+      ]
+    },
+    "E_3": {
+      "type": "organization",
+      "name": "the faculty",
+      "mentioned_in": [
+        "N_30",
+        "N_64"
+      ]
+    },
+    "E_4": {
+      "type": "dataset",
+      "name": "FakeRecogna",
+      "mentioned_in": [
+        "N_21",
+        "N_23",
+        "N_40",
+        "N_42",
+        "N_49",
+        "N_55"
+      ]
+    },
+    "E_5": {
+      "type": "dataset",
+      "name": "own PT-PT health-claims set",
+      "mentioned_in": [
+        "N_24",
+        "N_25",
+        "N_31",
+        "N_32",
+        "N_39",
+        "N_40",
+        "N_76"
+      ]
+    },
+    "E_6": {
+      "type": "model",
+      "name": "BERTimbau",
+      "mentioned_in": [
+        "N_18",
+        "N_27",
+        "N_28",
+        "N_29",
+        "N_33",
+        "N_34",
+        "N_36"
+      ]
+    },
+    "E_7": {
+      "type": "model",
+      "name": "GPT-4o-mini",
+      "mentioned_in": [
+        "N_37",
+        "N_50",
+        "N_58",
+        "N_59",
+        "N_62",
+        "N_73"
+      ]
+    },
+    "E_8": {
+      "type": "model",
+      "name": "Llama-3.1-8B",
+      "mentioned_in": [
+        "N_58",
+        "N_59",
+        "N_62",
+        "N_73"
+      ]
+    },
+    "E_9": {
+      "type": "concept",
+      "name": "claim-worthiness detection",
+      "mentioned_in": [
+        "N_13",
+        "N_14"
+      ]
+    },
+    "E_10": {
+      "type": "concept",
+      "name": "Cohen's kappa",
+      "mentioned_in": [
+        "N_26",
+        "N_44",
+        "N_45",
+        "N_52",
+        "N_76"
+      ]
+    },
+    "E_11": {
+      "type": "venue",
+      "name": "PROPOR 2026",
+      "mentioned_in": [
+        "N_60",
+        "N_61",
+        "N_65",
+        "N_66"
+      ]
+    },
+    "E_12": {
+      "type": "event",
+      "name": "thesis submission deadline",
+      "mentioned_in": [
+        "N_12",
+        "N_63",
+        "N_64",
+        "N_80"
+      ]
+    },
+    "E_13": {
+      "type": "event",
+      "name": "midterm presentation",
+      "mentioned_in": [
+        "N_50"
+      ]
+    },
+    "E_14": {
+      "type": "location",
+      "name": "Portugal",
+      "mentioned_in": [
+        "N_6",
+        "N_7",
+        "N_8",
+        "N_20",
+        "N_41",
+        "N_68",
+        "N_69"
+      ]
+    },
+    "E_15": {
+      "type": "location",
+      "name": "Brazil",
+      "mentioned_in": [
+        "N_6",
+        "N_18",
+        "N_20",
+        "N_21",
+        "N_41",
+        "N_68",
+        "N_69"
+      ]
+    },
+    "E_16": {
+      "type": "person",
+      "name": "Duarte",
+      "mentioned_in": [
+        "N_26",
+        "N_31",
+        "N_44",
+        "N_52"
+      ]
+    },
+    "E_17": {
+      "type": "measurement",
+      "name": "macro-F1",
+      "mentioned_in": [
+        "N_50",
+        "N_51",
+        "N_56",
+        "N_57",
+        "N_73"
+      ]
+    },
+    "E_18": {
+      "type": "system",
+      "name": "faculty GPU server",
+      "mentioned_in": [
+        "N_30",
+        "N_33",
+        "N_54",
+        "N_76"
+      ]
+    },
+    "E_19": {
+      "type": "model",
+      "name": "XLM-R-base",
+      "mentioned_in": [
+        "N_55",
+        "N_56",
+        "N_57",
+        "N_73"
+      ]
+    },
+    "E_20": {
+      "type": "organization",
+      "name": "Arquivo.pt",
+      "mentioned_in": [
+        "N_11"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Submit an MSc thesis on detecting misleading health claims in Portuguese news",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_80",
+            "achieved"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_2": {
+      "type": "decision",
+      "label": "RQ1: can models detect misleading health claims in PT news? RQ2: how well does a classifier built on PT-BR transfer to PT-PT? (originally: RQ2 asked whether performance differs between PT-PT and PT-BR)",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_6",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_42",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_7",
+            "supports"
+          ],
+          [
+            "N_49",
+            "supports"
+          ],
+          [
+            "N_57",
+            "supports"
+          ],
+          [
+            "N_75",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "constraint",
+      "label": "Scope covers both European (PT-PT) and Brazilian (PT-BR) Portuguese news (originally: PT-PT only)",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_8",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_41",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_23",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "goal",
+      "label": "Build an own annotated PT-PT dataset of at least 2,000 health claims",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_24",
+      "status": "abandoned",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_39",
+            "abandoned"
+          ]
+        ],
+        "relates": [
+          [
+            "N_32",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_5": {
+      "type": "decision",
+      "label": "Main method: fine-tune BERTimbau",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_27",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_36",
+            "reverted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_30",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_6": {
+      "type": "constraint",
+      "label": "Compute limited to the faculty GPU server (one 16 GB GPU)",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_30",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_37",
+            "constrained_by"
+          ],
+          [
+            "N_54",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_7": {
+      "type": "decision",
+      "label": "Main method: zero-shot and few-shot LLM classification, compared against a fine-tuned XLM-R-base baseline",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_37",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_55",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_50",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_8": {
+      "type": "decision",
+      "label": "Data: FakeRecogna plus 400 own-annotated PT-PT claims as the test set",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_40",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_9": {
+      "type": "open_question",
+      "label": "Is the own annotation reliable enough to report?",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_44",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_52",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_52",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_10": {
+      "type": "decision",
+      "label": "Add a fine-tuned XLM-R-base baseline (fits on 16 GB), at the supervisor's request",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_55",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_56",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_11": {
+      "type": "constraint",
+      "label": "Thesis submission deadline: 15 September, after an approved extension (originally 30 June)",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_12",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_64",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_63",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_12": {
+      "type": "decision",
+      "label": "Submit a short paper to PROPOR 2026",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_60",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_66",
+            "reverted"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_13": {
+      "type": "decision",
+      "label": "Thesis structure: six chapters, related work before method",
+      "embedding": "<vector: SN_13 label>",
+      "creation_turn": "N_71",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_78",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_14": {
+      "type": "open_question",
+      "label": "Should local Llama-3.1-8B replace GPT-4o-mini for reproducibility?",
+      "embedding": "<vector: SN_14 label>",
+      "creation_turn": "N_58",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_62",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_62",
+            "resolves"
+          ]
+        ]
+      }
+    }
+  }
+}

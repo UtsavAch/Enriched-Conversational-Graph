@@ -1,0 +1,702 @@
+[
+  {
+    "id": "N_1",
+    "date": "2026-01-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Hi! I'm Carla. My partner Miguel and I want to redo the kitchen in our Alvalade apartment. His parents are visiting in early May and we want it done before then. Where do we start?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Nice project. Early May gives about four months, which is realistic for a kitchen if decisions don't drag. Start with the budget and the layout; almost everything else follows from those two."
+      }
+    ]
+  },
+  {
+    "id": "N_2",
+    "date": "2026-01-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Our total budget is €18,000, and we really can't go above it."
+      },
+      {
+        "speaker": "assistant",
+        "text": "€18,000 is workable for a mid-range kitchen in Lisbon if the layout stays mostly as it is. We'll treat it as a hard cap."
+      }
+    ]
+  },
+  {
+    "id": "N_3",
+    "date": "2026-01-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How is a budget like that usually split?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Roughly: cabinets 25%, countertop 10–15%, labour 35–45%, appliances and tiles 15%, plus a contingency if you can. Labour is usually the biggest single line in Lisbon."
+      }
+    ]
+  },
+  {
+    "id": "N_4",
+    "date": "2026-01-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "For the layout, should we go L-shaped or galley?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That depends on the room. What are the dimensions, and where are the window and the door?"
+      }
+    ]
+  },
+  {
+    "id": "N_5",
+    "date": "2026-01-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The window is on the short wall and the door is opposite it, so the long back wall is free."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then an L-shape along the back wall and the window wall works well: it keeps the door path clear and gives you the most counter space."
+      }
+    ]
+  },
+  {
+    "id": "N_6",
+    "date": "2026-01-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I measured the back wall: 3.40 m."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good; the cabinet plan will be built around 3.40 m of run on that wall."
+      }
+    ]
+  },
+  {
+    "id": "N_7",
+    "date": "2026-01-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "IKEA or custom cabinets?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "With your budget, IKEA. Custom joinery for an L-shape would easily eat half the budget on its own."
+      }
+    ]
+  },
+  {
+    "id": "N_8",
+    "date": "2026-01-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I did the IKEA planner for Metod cabinets: €4,200 for the whole L."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's about 23% of the budget, right in range. Metod cabinets at €4,200 it is."
+      }
+    ]
+  },
+  {
+    "id": "N_9",
+    "date": "2026-01-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We asked two contractors for labour quotes. Ferreira Obras quoted €7,900."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's on the low end for demolition, plumbing, electrics and installation. Check what's excluded."
+      }
+    ]
+  },
+  {
+    "id": "N_10",
+    "date": "2026-01-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And Casa Nova Remodelações quoted €9,400, but as a fixed price, and they include waste removal."
+      },
+      {
+        "speaker": "assistant",
+        "text": "A fixed price with waste removal is worth something: fewer surprises. €1,500 more, but with a firm number."
+      }
+    ]
+  },
+  {
+    "id": "N_11",
+    "date": "2026-01-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Which one would you pick?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "On numbers alone Ferreira is cheaper. If the budget is truly tight, Ferreira, as long as the scope is written down."
+      }
+    ]
+  },
+  {
+    "id": "N_12",
+    "date": "2026-01-16",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We'll go with Ferreira Obras then."
+      },
+      {
+        "speaker": "assistant",
+        "text": "OK, Ferreira Obras. Get the quote itemised and signed before any work starts."
+      }
+    ]
+  },
+  {
+    "id": "N_13",
+    "date": "2026-01-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Countertop: what material?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "For the look you described, quartz or a good stone-look laminate. Quartz is more durable; laminate is much cheaper."
+      }
+    ]
+  },
+  {
+    "id": "N_14",
+    "date": "2026-01-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We love quartz. The quote is €2,300 for both runs."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Quartz at €2,300 is about 13% of the budget, within range. Quartz it is."
+      }
+    ]
+  },
+  {
+    "id": "N_15",
+    "date": "2026-01-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We want the hob on the back wall instead of by the window. That means moving the gas line. Do we need a permit?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Moving a gas line is regulated work; it may need a comunicação prévia to the Câmara."
+      }
+    ]
+  },
+  {
+    "id": "N_16",
+    "date": "2026-01-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How do I find out for sure?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Ask the Câmara's urbanism desk or have the contractor check. Gas works also need a certified gas technician and an inspection afterwards."
+      }
+    ]
+  },
+  {
+    "id": "N_17",
+    "date": "2026-02-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Sr. Ferreira came to measure properly: the back wall is actually 3.28 m, not 3.40. It's out of plumb and narrower at the top."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's 12 cm less than the plan assumes, which matters for the cabinet run."
+      }
+    ]
+  },
+  {
+    "id": "N_18",
+    "date": "2026-02-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "He also sent a revised quote: €2,100 extra 'for surprises', and he can only start in six weeks."
+      },
+      {
+        "speaker": "assistant",
+        "text": "An open-ended €2,100 'surprises' line on a quote you chose for being cheap removes its main advantage, and a six-week wait threatens the May deadline."
+      }
+    ]
+  },
+  {
+    "id": "N_19",
+    "date": "2026-02-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We're not comfortable with that. Should we drop Ferreira?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. Ferreira at €10,000 with an open-ended line is now more expensive than Casa Nova's fixed price, and slower."
+      }
+    ]
+  },
+  {
+    "id": "N_20",
+    "date": "2026-02-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then we go with Casa Nova?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: Casa Nova Remodelações at their €9,400 fixed price [N_10]. Ana will be your project manager."
+      }
+    ]
+  },
+  {
+    "id": "N_21",
+    "date": "2026-02-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Ana says they can start on 2 March."
+      },
+      {
+        "speaker": "assistant",
+        "text": "2 March leaves about eight weeks before early May, enough for a six-week job with some slack."
+      }
+    ]
+  },
+  {
+    "id": "N_22",
+    "date": "2026-02-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Because the wall is 3.28 m, the 40 cm drawer unit no longer fits. IKEA's planner suggests custom filler panels and a narrow custom unit. Cabinets go up to €5,100."
+      },
+      {
+        "speaker": "assistant",
+        "text": "The 12 cm shortfall forces custom pieces, so the cabinet line rises from €4,200 to €5,100."
+      }
+    ]
+  },
+  {
+    "id": "N_23",
+    "date": "2026-02-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Where does that leave the total?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Cabinets €5,100 + labour €9,400 + quartz €2,300 + appliances and tiles about €2,900 = €19,700. That's €1,700 over the €18,000 cap."
+      }
+    ]
+  },
+  {
+    "id": "N_24",
+    "date": "2026-02-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Idea: if we switch to an induction hob, there's no gas line to move at all. Does that also get rid of the permit question?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. With induction there's no gas work, so there's nothing to notify the Câmara about and no gas inspection. The permit question disappears. Switching to induction solves both problems."
+      }
+    ]
+  },
+  {
+    "id": "N_25",
+    "date": "2026-02-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Ana says induction needs a dedicated circuit, so the electrician has to upgrade it: about €650."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a common requirement. It adds €650, so we need to keep an eye on the total."
+      }
+    ]
+  },
+  {
+    "id": "N_26",
+    "date": "2026-02-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So now we're at €20,350? Where can we cut?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, €20,350. The biggest flexible line is the countertop: a good stone-look laminate is around €800 versus €2,300 for quartz."
+      }
+    ]
+  },
+  {
+    "id": "N_27",
+    "date": "2026-02-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK. We'll switch the countertop from quartz to the stone-look HPL laminate."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That saves €1,500 and brings the total to €18,850. Still €850 over, but much closer."
+      }
+    ]
+  },
+  {
+    "id": "N_28",
+    "date": "2026-02-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Miguel hates the idea. He says laminate will look cheap."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Modern HPL stone-look laminates are quite convincing, and they handle heat and scratches reasonably well. It's worth seeing a sample in person before deciding it looks cheap."
+      }
+    ]
+  },
+  {
+    "id": "N_29",
+    "date": "2026-02-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "News: Miguel's parents offered to help. They're adding €3,500, so our budget is now €21,500."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's very generous, and it changes the picture: the budget is now €21,500."
+      }
+    ]
+  },
+  {
+    "id": "N_30",
+    "date": "2026-02-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So should we go back to quartz?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "You could afford it now. But think about what else the margin could buy that you'd use more."
+      }
+    ]
+  },
+  {
+    "id": "N_31",
+    "date": "2026-02-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We talked it over. We'll keep the laminate and instead put the oven in a tall column cabinet at eye level, not under the hob. Miguel's mother has a bad back."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good use of the margin. A tall oven column adds about €900 for the cabinet and installation, and it's far more comfortable to use. Laminate stays."
+      }
+    ]
+  },
+  {
+    "id": "N_32",
+    "date": "2026-02-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can you recap the whole budget now?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Cabinets €5,100 [N_22], labour with Casa Nova €9,400 [N_20], laminate €800 [N_27], appliances and tiles €2,900, circuit upgrade €650, oven column €900 [N_31]: €19,750 against a €21,500 budget, leaving €1,750 of contingency."
+      }
+    ]
+  },
+  {
+    "id": "N_33",
+    "date": "2026-02-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Bad news: the porcelain tiles are delayed two weeks, so Ana moved the start to 16 March."
+      },
+      {
+        "speaker": "assistant",
+        "text": "16 March instead of 2 March. That eats most of the slack before May."
+      }
+    ]
+  },
+  {
+    "id": "N_34",
+    "date": "2026-02-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Will it still be done before the visit in early May?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Let's check it against Casa Nova's schedule."
+      }
+    ]
+  },
+  {
+    "id": "N_35",
+    "date": "2026-02-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Ana says it's a six-week job."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Six weeks from 16 March ends around 27 April. Tight, but it works, provided the cabinets and tiles arrive on time."
+      }
+    ]
+  },
+  {
+    "id": "N_36",
+    "date": "2026-03-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Good news: IKEA restocked a standard 30 cm Metod drawer unit. With it, the 3.28 m wall only needs a small standard filler, no custom pieces."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then drop the custom filler panels and the narrow custom unit. Cabinets come down to €4,600."
+      }
+    ]
+  },
+  {
+    "id": "N_37",
+    "date": "2026-03-16",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Demolition started today!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Exciting. The first few days usually reveal whatever is hiding behind the old cabinets."
+      }
+    ]
+  },
+  {
+    "id": "N_38",
+    "date": "2026-03-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "They found old cloth-insulated wiring behind the back wall. Ana says it has to be replaced: €1,100."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That has to be done; old cloth wiring is a fire risk. It comes out of the contingency."
+      }
+    ]
+  },
+  {
+    "id": "N_39",
+    "date": "2026-03-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Since the electrician is redoing the wiring anyway, does that change the induction circuit upgrade?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "It might; ask him to check what the hob actually needs against what's there."
+      }
+    ]
+  },
+  {
+    "id": "N_40",
+    "date": "2026-03-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The electrician checked: the existing 32A line to the hob position is enough for our induction hob. No upgrade needed."
+      },
+      {
+        "speaker": "assistant",
+        "text": "So the €650 circuit upgrade [N_25] is off the list; it partly offsets the rewiring."
+      }
+    ]
+  },
+  {
+    "id": "N_41",
+    "date": "2026-03-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Funny: Miguel told his parents on the phone that our '€18k kitchen' is coming along nicely. I didn't correct him."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Ha, that number stuck from the beginning. It's a good sign that things feel on track."
+      }
+    ]
+  },
+  {
+    "id": "N_42",
+    "date": "2026-03-25",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Tiling started. Do we tile the whole wall or just the backsplash?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Just the backsplash, up to the wall cabinets. Full-height tiling adds cost and time for little benefit."
+      }
+    ]
+  },
+  {
+    "id": "N_43",
+    "date": "2026-03-30",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The cabinets are being installed. The small filler at the end of the 3.28 m wall looks fine."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good; the standard filler works because the 30 cm unit absorbed most of the difference."
+      }
+    ]
+  },
+  {
+    "id": "N_44",
+    "date": "2026-04-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The oven column is in. Miguel's mother is going to love not bending down."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That was a good call. It's the change people use every single day."
+      }
+    ]
+  },
+  {
+    "id": "N_45",
+    "date": "2026-04-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We ran a bit short on tiles, since some broke. Ana says another box and fitting is €350."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Normal breakage. €350 is fine within the remaining contingency."
+      }
+    ]
+  },
+  {
+    "id": "N_46",
+    "date": "2026-04-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What colour should we paint the remaining walls?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "A warm off-white goes well with the stone-look laminate and keeps the small room bright."
+      }
+    ]
+  },
+  {
+    "id": "N_47",
+    "date": "2026-04-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Ana gave us the snag list: a drawer that doesn't close fully and a missing plinth."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Both are small. Make sure they're fixed before you sign off the final payment."
+      }
+    ]
+  },
+  {
+    "id": "N_48",
+    "date": "2026-04-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Final bill: €20,050 in total."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That matches: the €19,750 plan, minus €500 on cabinets and the €650 upgrade you didn't need, plus €1,100 rewiring and €350 tiles. €20,050 against a €21,500 budget, €1,450 under."
+      }
+    ]
+  },
+  {
+    "id": "N_49",
+    "date": "2026-04-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Looking back, what did we change from our original plan, and why?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Four big changes. Contractor: Ferreira was dropped for an open-ended extra and a long wait [N_19], replaced by Casa Nova. Hob: induction instead of gas, which removed the permit issue [N_24]. Countertop: laminate instead of quartz to stay on budget [N_27]. Cabinets: back to a standard layout once IKEA restocked the 30 cm unit [N_36]. And the budget itself grew to €21,500."
+      }
+    ]
+  },
+  {
+    "id": "N_50",
+    "date": "2026-04-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Snags fixed, final payment made. The kitchen is done, two weeks before the visit!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations, Carla and Miguel. Finished before the visit and under budget."
+      }
+    ]
+  }
+]

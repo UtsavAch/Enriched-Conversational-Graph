@@ -1,0 +1,2743 @@
+{
+  "conversation_id": "hpc_support",
+  "domain": "Document-grounded HPC cluster onboarding and troubleshooting",
+  "document": "aurora_user_guide.md",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip. Domain entity types (domain_config.json): partition, command, filesystem. Adds one field not in the base schema: grounding_sections, the Aurora User Guide sections (§x.y) each answer relies on. citations keeps its existing meaning (interaction ids cited in the answer text as [N_k]). Built to exercise document grounding, error -> diagnosis -> fix resolves chains, two assistant claims contradicted by the document itself (N_9 via N_24, N_12 via N_36), and constraint: lifted.",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_24",
+      "issue": "Gold document grounding can't be expressed as InteractionNode.grounded_by, because that field holds DocumentChunk ids (DOC_n:k) that only exist after ingestion and depend on the chunking parameters.",
+      "proposed_direction": "Record stable guide section ids in grounding_sections. To score grounding, map each retrieved chunk to the section(s) its text spans at evaluation time, instead of freezing chunk ids into the gold file."
+    },
+    {
+      "raised_at_node": "N_46",
+      "issue": "SN_8 (24 h walltime) is marked 'lifted' although the cluster policy itself never changed; what changed is that the constraint stopped binding the user's plan (checkpoint chains make every job shorter than 24 h).",
+      "proposed_direction": "Kept as lifted, since state nodes track the conversation's plan, not the world. Flagged so annotators apply 'lifted' consistently: 'no longer constrains the plan' counts, even if the underlying rule still exists."
+    },
+    {
+      "raised_at_node": "N_43",
+      "issue": "SN_3 goes active -> revised (N_24) -> reverted (N_43): the environment was first moved, then abandoned in favour of a container. The replacement is a new decision (SN_12), since reverted is terminal.",
+      "proposed_direction": "Same convention as the outlines: a replaced decision is reverted and the replacement is a new state node, never a re-activation."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "Hi! I'm Tomás, a new PhD student. I just got my account on Aurora and I need to train a protein-embedding model on the GPUs there for my first project. I've never used a cluster before, so where do I even start?",
+      "answer": "Welcome! The short path is: log in with an SSH key, set up a software environment, put your data in the right storage area, then submit training as SLURM batch jobs on a GPU partition. The Aurora User Guide covers each step; it also flags four sections that cause most new-user problems (login-node limits, where to install conda, memory requests, and the scratch purge policy). Let's go step by step.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§1"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 10,
+      "retrieval_count": 10,
+      "summary": "Tomás sets the goal of training a protein-embedding model on Aurora GPUs; assistant outlines the onboarding path.",
+      "reference": "Goal: train on Aurora GPUs",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "OK, first things first. How do I actually log in?",
+      "answer": "Aurora only accepts SSH keys; passwords are disabled. Generate a key on your laptop with `ssh-keygen -t ed25519`, upload the public key (`~/.ssh/id_ed25519.pub`) in the Research Computing portal under Profile → SSH keys, then connect with `ssh <username>@login.aurora.inst`.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§2.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "open"
+        ],
+        [
+          "N_3",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks how to log in; answer: SSH key authentication via the portal.",
+      "reference": "Login method asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_3": {
+      "question": "Uploaded the key but the login still gets rejected. Did I do something wrong?",
+      "answer": "Probably not. New keys take up to 15 minutes to propagate to the login nodes. Wait a bit and try again, and make sure you uploaded the .pub file, not the private key. Never copy your private key onto Aurora itself.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§2.1"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Login rejected right after uploading the key; explained by the 15-minute propagation delay.",
+      "reference": "Key propagation delay",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_4": {
+      "question": "I'm in. Can I just run a quick Python test of my data loader right here on the login node? It only takes a few minutes.",
+      "answer": "Please don't. The login nodes are shared by every user and are only for editing, managing files and submitting jobs. Any process using more than 10 minutes of CPU time there is killed automatically, and repeated violations can get the account suspended.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§2.2"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "open"
+        ],
+        [
+          "N_5",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether a quick test can run on the login node.",
+      "reference": "Login-node test asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "Got it. So what's the right way to do a quick interactive test then?",
+      "answer": "Ask SLURM for an interactive session on a compute node, e.g. `srun --partition=cpu --time=00:30:00 --cpus-per-task=4 --mem=8G --pty bash`. You get a shell on a real compute node and can test freely. Treat it as a hard rule from now on: no computation on login nodes.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [
+        "E_13"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§2.2"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Interactive srun session recommended; establishes the no-compute-on-login-nodes rule.",
+      "reference": "No compute on login nodes",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_4",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_6": {
+      "question": "Next: what Python is available on Aurora?",
+      "answer": "Centrally installed software comes as environment modules. Run `module avail` to see everything, and `module load python/3.11` for Python. In batch scripts, start with `module purge` so jobs don't inherit whatever you had loaded interactively.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "open"
+        ],
+        [
+          "N_7",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks which Python is available; answer: environment modules, python/3.11.",
+      "reference": "Python via modules",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_7": {
+      "question": "`module load python/3.11` works. Is that enough for everything, or should I add packages to it?",
+      "answer": "The module gives you the interpreter and a small standard set of packages; you can't install into it. For anything beyond that, you'll want your own environment.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§3.1"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Module Python confirmed working but cannot be extended with packages.",
+      "reference": "Module Python limits",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "I need PyTorch plus a couple of custom protein libraries. Module or conda?",
+      "answer": "For a custom stack like that, conda is the practical option.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.2"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "open"
+        ],
+        [
+          "N_9",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether to use modules or conda for PyTorch plus custom libraries.",
+      "reference": "Module vs conda asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_9": {
+      "question": "Is conda actually allowed on Aurora, though? Some clusters ban it.",
+      "answer": "Yes, conda is allowed. Load it with `module load miniforge`, then create and activate your own environment as usual.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [
+        "E_11",
+        "E_2"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.2"
+      ],
+      "speech_act": "clarification_request",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "open"
+        ],
+        [
+          "N_24",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Confirms conda is allowed via the miniforge module (omits the install-location rule).",
+      "reference": "Conda allowed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_10": {
+      "question": "Done: I created the environment in ~/envs/protein with PyTorch and my libraries. Everything imports fine.",
+      "answer": "Great, that gives you a working environment. Keep an `environment.yml` exported in your repo so you can recreate it later.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [
+        "E_11",
+        "E_6"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.2"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Tomás installs his conda environment in $HOME (~/envs/protein).",
+      "reference": "Conda env in $HOME",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ]
+      }
+    },
+    "N_11": {
+      "question": "Where should my training data live? It's about 400 GB of protein sequence shards.",
+      "answer": "Aurora has three storage areas, $HOME, $PROJECT and $SCRATCH, with very different sizes and rules. 400 GB certainly doesn't fit in $HOME.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_7",
+        "E_8"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "open"
+        ],
+        [
+          "N_12",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks where to store the 400 GB training dataset.",
+      "reference": "Dataset location asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "So which of the other two is best for a big dataset that training reads over and over?",
+      "answer": "$SCRATCH: it's the high-performance parallel filesystem with 50 TB of space, so it's the fastest place for heavy training I/O and large datasets.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.3"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_36",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Assistant recommends $SCRATCH for the dataset for speed (omits the purge policy).",
+      "reference": "Scratch recommended for data",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_11",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_11",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_13": {
+      "question": "Perfect, I've copied the whole 400 GB dataset to $SCRATCH and deleted it from my laptop to free space.",
+      "answer": "Good. Your training jobs will read it quickly from there.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "grounding_sections": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Dataset copied to $SCRATCH as its only copy.",
+      "reference": "Dataset kept only in scratch",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4"
+        ]
+      }
+    },
+    "N_14": {
+      "question": "Now I want to submit my first real job. Can you help me write a batch script?",
+      "answer": "Sure. Batch jobs are shell scripts with `#SBATCH` directives at the top, submitted with `sbatch job.sh`. You need at least a job name, partition, time limit and CPU count.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_13"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.1"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_15",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Asks for help writing a first SLURM batch script.",
+      "reference": "First batch script asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_15": {
+      "question": "Could you give me a minimal template I can adapt?",
+      "answer": "Here's the guide's minimal version: `#SBATCH --job-name=test`, `--partition=cpu`, `--time=01:00:00`, `--cpus-per-task=4`, then `module purge`, `module load python/3.11` and your command. Submit with `sbatch job.sh` and watch it with `squeue -u $USER`.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.1"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Provides a minimal sbatch template and the squeue command.",
+      "reference": "Minimal sbatch template",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_16": {
+      "question": "Submitted it, but it's been sitting in PENDING for twenty minutes. Is something broken?",
+      "answer": "Check the REASON column in `squeue -u $USER`. What does it say?",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§4.1"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_17",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "First job stuck in PENDING.",
+      "reference": "Job pending",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_17": {
+      "question": "It says `Resources`.",
+      "answer": "Then nothing is broken: the resources you asked for simply aren't free yet. It will start when they are. Smaller requests (fewer cores, shorter time) usually start sooner. `Priority` would instead mean other jobs are ahead of yours.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§4.1"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Pending reason 'Resources' explained; smaller requests start sooner.",
+      "reference": "Pending reason explained",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_16",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_16",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_18": {
+      "question": "The job ran this time, but it died after about 3 minutes, and there's no Python traceback in the output file at all. It just stops. Any idea?",
+      "answer": "A job that ends abruptly with no traceback is usually killed by the scheduler, not by Python. Let's find out what SLURM thinks happened.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "open"
+        ],
+        [
+          "N_21",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Training job dies after 3 minutes with no traceback.",
+      "reference": "Silent job death",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ]
+      }
+    },
+    "N_19": {
+      "question": "How do I check what SLURM thinks happened?",
+      "answer": "Run `sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS,ExitCode` and look at the State and MaxRSS columns.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [
+        "E_14"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.1"
+      ],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "sacct recommended to inspect the finished job.",
+      "reference": "Use sacct",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_18",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_18",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_20": {
+      "question": "State is `OUT_OF_MEMORY`, and MaxRSS is about 7.8 GB. I only asked for 4 CPUs.",
+      "answer": "That explains it: with 4 cores and no memory request you only got 8 GB.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [
+        "E_14"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.2"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "sacct shows OUT_OF_MEMORY with MaxRSS ~7.8 GB.",
+      "reference": "OOM state found",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_21": {
+      "question": "Why only 8 GB? And what should I ask for?",
+      "answer": "Without an explicit request, Aurora gives 2 GB per allocated core, so 4 cores = 8 GB, and exceeding it gets the job killed silently. Your data loader alone is close to that. Request memory explicitly: for this setup `--mem=32G` gives plenty of headroom.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.2"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_29",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Default 2 GB/core explains the silent kill; decides to request --mem=32G.",
+      "reference": "Request --mem=32G",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_20",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_18",
+            "resolves"
+          ],
+          [
+            "N_20",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ],
+        "updates": [
+          [
+            "SN_5",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_5",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_22": {
+      "question": "Resubmitted with --mem=32G and it's been running for an hour now. Thanks!",
+      "answer": "Great. Keep an eye on MaxRSS in sacct after each run so you can size future requests with about 20% headroom.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.2"
+      ],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Job runs successfully with --mem=32G.",
+      "reference": "32G job runs",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_21",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_6",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_23": {
+      "question": "New problem: pip suddenly fails inside my environment with 'Disk quota exceeded', and even saving a small file in my home directory fails.",
+      "answer": "That's your $HOME quota, which is 10 GB and strictly enforced. Your conda environment in ~/envs [N_10] is almost certainly what's filling it.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_16"
+      ],
+      "citations": [
+        "N_10"
+      ],
+      "grounding_sections": [
+        "§5.1"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_24",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Disk quota exceeded in $HOME, traced to the conda environment.",
+      "reference": "Home quota exceeded",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_10",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "But you said conda was fine to use. What should I have done?",
+      "answer": "Conda is allowed, but I left out the important part earlier: the guide says to install environments under $PROJECT, not $HOME, because deep-learning environments are typically 5–15 GB and $HOME has a 10 GB quota. So create it as `conda create --prefix $PROJECT/envs/protein python=3.11`. It's also worth pointing caches elsewhere, e.g. `export HF_HOME=$PROJECT/.cache/huggingface`.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_11",
+        "E_16"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.2",
+        "§5.1"
+      ],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Corrects the earlier conda advice: environments belong in $PROJECT; the env is moved.",
+      "reference": "Conda env belongs in $PROJECT",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_23",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "contradicts"
+          ],
+          [
+            "N_23",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_25": {
+      "question": "Can I just `mv ~/envs/protein $PROJECT/envs/` to move it?",
+      "answer": "No. Conda environments hard-code their own paths, so a moved directory breaks in subtle ways.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.2"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_26",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether the environment can simply be moved.",
+      "reference": "Moving env asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_26": {
+      "question": "Then how do I move it without breaking anything?",
+      "answer": "Export it with `conda env export > environment.yml`, recreate it with `conda env create --prefix $PROJECT/envs/protein -f environment.yml`, check it imports, then delete ~/envs/protein to free your home quota.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [
+        "E_11",
+        "E_7"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§3.2"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Recreate the environment in $PROJECT from environment.yml, then delete the old one.",
+      "reference": "Recreate env from yml",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_25",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_27": {
+      "question": "The CPU pipeline works. Time for the real thing: which GPU partition should I use for training?",
+      "answer": "For training and production runs, `gpu-a100`: A100 40 GB cards, normal priority. Request GPUs with `--partition=gpu-a100 --gres=gpu:1`, up to 4 per node.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§6.1"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Chooses the gpu-a100 partition for training.",
+      "reference": "Use gpu-a100",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ],
+        "relates": [
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_28": {
+      "question": "Is there a time limit on gpu-a100?",
+      "answer": "Yes: 24 hours maximum walltime per job. Jobs asking for more than that are rejected at submission.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_15"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§6.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "gpu-a100 has a 24-hour walltime limit.",
+      "reference": "24 h walltime limit",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_29": {
+      "question": "The first GPU run on the full dataset got killed with OUT_OF_MEMORY again, even with 32G. MaxRSS says about 51 GB.",
+      "answer": "The full dataset needs more host memory than the subset did. With 51 GB peak plus roughly 20% headroom, request `--mem=64G` for the full-dataset runs.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [
+        "E_10",
+        "E_14"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.2"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Full-dataset run OOMs at 32G; memory request raised to 64G.",
+      "reference": "Memory raised to 64G",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_6",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_30": {
+      "question": "Bigger problem: I estimate one full training run takes about 60 hours. How can I do that with a 24-hour limit?",
+      "answer": "You can't do it in a single job on any partition; you'll need to split the run across several jobs.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§6.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "open"
+        ],
+        [
+          "N_32",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "A ~60 h training run conflicts with the 24 h limit.",
+      "reference": "60 h run vs 24 h limit",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_28",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ],
+        "relates": [
+          [
+            "SN_8",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_31": {
+      "question": "Split it how, exactly? Can't I just ask for a longer reservation?",
+      "answer": "Extended reservations exist but only in exceptional cases with PI approval. The standard approach, and a requirement for work over 24 hours, is checkpointing: save model and optimizer state every 1–2 hours so a new job can resume from the last checkpoint.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§6.2"
+      ],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Checkpointing is required for work over 24 hours; reservations are exceptional.",
+      "reference": "Checkpointing required",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_30",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_30",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_32": {
+      "question": "OK, so I checkpoint every 2 hours. How do the jobs pick up automatically after each other?",
+      "answer": "Chain them with dependencies: `sbatch --dependency=afterany:<jobid> train.sh`, where train.sh always resumes from the latest checkpoint. `afterany` starts the next job even when the previous one hits the time limit, which is exactly what you want here. Three to four chained 24-hour jobs cover the 60 hours.",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [
+        "E_9"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.4",
+        "§6.2"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Decides on 2-hourly checkpoints with an afterany dependency chain.",
+      "reference": "Checkpoint + dependency chain",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_31",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_30",
+            "resolves"
+          ],
+          [
+            "N_31",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ],
+        "updates": [
+          [
+            "SN_9",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_9",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_33": {
+      "question": "My debug runs sit in the gpu-a100 queue for ages before they start. Is there a faster way to iterate on small tests?",
+      "answer": "Yes, there's a partition meant for exactly that.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§6.1"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_34",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Debug runs wait too long on gpu-a100.",
+      "reference": "Slow debug iterations",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_34": {
+      "question": "Which one?",
+      "answer": "`gpu-short`: same A100 cards, 2-hour maximum, higher priority. Use it for debugging and short tests, and keep `gpu-a100` for the real training chain.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [
+        "E_5",
+        "E_4"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§6.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "gpu-short (2 h, high priority) for debugging; gpu-a100 stays for training.",
+      "reference": "gpu-short for debugging",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_7",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_35": {
+      "question": "Something scary happened. About half of my dataset shards have vanished from $SCRATCH. I didn't delete anything!",
+      "answer": "That matches the scratch purge policy. The shards that disappeared are probably the ones your jobs hadn't read recently.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.3"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_36",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Half the dataset shards vanished from $SCRATCH.",
+      "reference": "Scratch files vanished",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_13",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_4",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_36": {
+      "question": "Purge policy? You told me scratch was the right place for my dataset!",
+      "answer": "I did, and that advice was incomplete, sorry. Scratch is fast, but the guide is explicit: files not accessed in 30 days are deleted automatically, and scratch is not backed up, so it must never hold the only copy of anything. The recommended pattern is to keep the master copy in $PROJECT (backed up, never purged) and stage a working copy to $SCRATCH at the start of each job or job chain.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_7"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.3",
+        "§5.2"
+      ],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Corrects the scratch advice: master copy in $PROJECT, per-job working copy staged to $SCRATCH.",
+      "reference": "Master copy in $PROJECT",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_35",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "contradicts"
+          ],
+          [
+            "N_35",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_4",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_37": {
+      "question": "Is there enough room in $PROJECT for 400 GB?",
+      "answer": "$PROJECT is 1 TB per group, and it's shared by everyone in your group, so check current usage with `aurora-quota` before adding 400 GB and coordinate with your group.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.2"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "$PROJECT is a 1 TB quota shared by the group.",
+      "reference": "Project quota shared",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ]
+      }
+    },
+    "N_38": {
+      "question": "aurora-quota shows the group already uses about 650 GB. So 400 GB won't fit?",
+      "answer": "1 TB minus 650 GB leaves roughly 350 GB, so the raw 400 GB won't fit as-is. Talk to whoever manages your group's storage before anything else.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.2"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_39",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Group already uses 650 GB; 400 GB does not fit in the remaining space.",
+      "reference": "400 GB doesn't fit",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_11",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_39": {
+      "question": "I talked to Inês, who manages our group's storage. She confirmed there's 350 GB free and suggested compressing the shards. They compress to about 230 GB.",
+      "answer": "That works: 230 GB fits in the 350 GB free. Store the compressed master copy in $PROJECT and decompress into $SCRATCH when staging for a run.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_17",
+        "E_7"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.2"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Compressed dataset (230 GB) fits in the group's free $PROJECT space.",
+      "reference": "Compressed copy fits",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_38",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_38",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_11",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_40": {
+      "question": "To stop the purge from hitting the scratch copy again, can I just run a nightly `touch` over all the shards?",
+      "answer": "Please don't: the guide explicitly prohibits artificially updating access times to dodge the purge, and it can cost you scratch access.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.3"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_41",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether touching files can keep the scratch copy from being purged.",
+      "reference": "Touch-to-avoid-purge asked",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_41": {
+      "question": "Then what's the right way to keep a working copy available?",
+      "answer": "Re-stage from $PROJECT at the start of each job chain: the first job decompresses the shards into $SCRATCH, and the later jobs in the chain reuse them. If the chain is idle for weeks and the copy gets purged, the next chain simply re-stages it; nothing is lost because the master is in $PROJECT.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§5.3"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Re-stage the working copy from $PROJECT at the start of each job chain.",
+      "reference": "Re-stage per job chain",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_40",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_40",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_4",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_42": {
+      "question": "On the GPU nodes my environment now crashes on import with a CUDA error: 'CUDA driver version is insufficient for CUDA runtime version'. It worked on gpu-short last week.",
+      "answer": "That's a classic conda problem on these nodes: conda-installed CUDA libraries often mismatch the A100 driver, and the guide warns about this. It's the same environment we rebuilt in $PROJECT [N_24], so rebuilding it again won't reliably fix it.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_11"
+      ],
+      "citations": [
+        "N_24"
+      ],
+      "grounding_sections": [
+        "§3.2"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_43",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Conda environment fails on GPU nodes with a CUDA driver mismatch.",
+      "reference": "CUDA mismatch in conda",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_43": {
+      "question": "So what should I use instead?",
+      "answer": "Containers. Apptainer is the recommended way to run GPU workloads on Aurora: the image bundles a CUDA runtime that matches the driver when you run it with `--nv`. I'd move the whole training stack into an Apptainer image and retire the conda environment for GPU jobs.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_11"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§7.1"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Switches GPU jobs to an Apptainer container; conda env retired.",
+      "reference": "Switch to Apptainer",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_42",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ],
+        "updates": [
+          [
+            "SN_3",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_44": {
+      "question": "I don't have root on Aurora. How do I build the .sif image?",
+      "answer": "Two options: build it on a compute node with `apptainer build --fakeroot train.sif train.def` (not on a login node), or build it on your own machine and copy it to $PROJECT. You can also convert a Docker image, e.g. `apptainer build train.sif docker://pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime`, then run with `apptainer exec --nv train.sif python train.py`.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§7.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Build the .sif with --fakeroot on a compute node, or locally, or from a Docker image.",
+      "reference": "Building the image",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_43",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_43",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_45": {
+      "question": "Training works in the container. Now my supervisor wants a sweep over 40 hyper-parameter configurations. Do I submit 40 separate jobs?",
+      "answer": "Use a job array instead: `#SBATCH --array=1-40%10` submits all 40 configs as one array and runs at most 10 at a time; each task reads its config via `$SLURM_ARRAY_TASK_ID`. The guide asks for a concurrency limit on large arrays, and each task still uses the same checkpoint-and-resume logic.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_13"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§4.3"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Decides to run the 40-config sweep as a job array with at most 10 concurrent tasks.",
+      "reference": "Sweep as job array",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_14",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_32",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_13"
+        ]
+      }
+    },
+    "N_46": {
+      "question": "Looking back, the 24-hour limit really isn't a problem for me anymore, is it?",
+      "answer": "Right: with checkpoint-and-resume chains [N_32] every run is already split into sub-24-hour jobs, so the limit no longer constrains anything you plan to do. It's still the partition policy, but it has stopped binding your work.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [
+        "N_32"
+      ],
+      "grounding_sections": [
+        "§6.2"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "With checkpoint chains, the 24-hour limit no longer constrains the plan.",
+      "reference": "24 h limit no longer binding",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_30",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_8",
+            "lifted"
+          ]
+        ]
+      }
+    },
+    "N_47": {
+      "question": "Weird: after the sweep, my jobs are suddenly waiting much longer than before, with reason `Priority`.",
+      "answer": "That's fair-share at work. Priority depends on your group's recent usage, and a 40-config sweep is a lot of usage.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§8.1"
+      ],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "open"
+        ],
+        [
+          "N_48",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Jobs wait longer with reason Priority after the sweep.",
+      "reference": "Priority dropped",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_45",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_45",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "How long until my priority recovers? And good news: the first full 60-hour training finished overnight with good results!",
+      "answer": "Congratulations, that's the main goal done! Usage decays with a 7-day half-life, so your priority recovers over about one to two weeks; `sshare -u $USER` shows your current standing.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "grounding_sections": [
+        "§8.1"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Fair-share recovery explained; the first full training run completed successfully.",
+      "reference": "First full training done",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_47",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_47",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    },
+    "N_49": {
+      "question": "A new labmate starts on Aurora next week. Can you give me a checklist of everything I learned the hard way?",
+      "answer": "Here's the checklist: (1) never compute on login nodes; use `srun --pty` for tests. (2) Keep environments out of $HOME, and for GPU work use an Apptainer image rather than conda. (3) Master data lives in $PROJECT (a 1 TB quota shared by the group); scratch is a purged working area, staged per job chain. (4) Always request memory explicitly, sized from MaxRSS plus about 20%. (5) Anything longer than 24 h is checkpointed and chained; debug on gpu-short; sweeps go in job arrays with a concurrency limit.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_8",
+        "E_12",
+        "E_5"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§2.2",
+        "§3.2",
+        "§4.2",
+        "§5.3",
+        "§6.2",
+        "§7.1"
+      ],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Summarises all the onboarding lessons as a checklist for a new labmate.",
+      "reference": "Onboarding checklist",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "supercase"
+          ],
+          [
+            "N_24",
+            "supercase"
+          ],
+          [
+            "N_36",
+            "supercase"
+          ],
+          [
+            "N_43",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_50": {
+      "question": "Thanks. I'm also opening a helpdesk ticket suggesting that the quickstart page mention the scratch purge right next to the dataset advice.",
+      "answer": "Good idea, since that was the most costly surprise. Include the section number (§5.3) in the ticket. If they want to discuss it, Research Computing holds office hours on Thursdays, 14:00–16:00.",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "grounding_sections": [
+        "§9.1"
+      ],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Tomás opens a helpdesk ticket to add the scratch-purge warning to the quickstart.",
+      "reference": "Helpdesk ticket opened",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_49",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Tomás",
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_2": {
+      "type": "system",
+      "name": "Aurora",
+      "mentioned_in": [
+        "N_1",
+        "N_2",
+        "N_4",
+        "N_6",
+        "N_9"
+      ]
+    },
+    "E_3": {
+      "type": "document",
+      "name": "Aurora User Guide",
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_4": {
+      "type": "partition",
+      "name": "gpu-a100",
+      "mentioned_in": [
+        "N_27",
+        "N_28",
+        "N_33",
+        "N_34",
+        "N_42"
+      ]
+    },
+    "E_5": {
+      "type": "partition",
+      "name": "gpu-short",
+      "mentioned_in": [
+        "N_34",
+        "N_49"
+      ]
+    },
+    "E_6": {
+      "type": "filesystem",
+      "name": "$HOME",
+      "mentioned_in": [
+        "N_10",
+        "N_11",
+        "N_23"
+      ]
+    },
+    "E_7": {
+      "type": "filesystem",
+      "name": "$PROJECT",
+      "mentioned_in": [
+        "N_11",
+        "N_24",
+        "N_26",
+        "N_36",
+        "N_37",
+        "N_38",
+        "N_39",
+        "N_41",
+        "N_49"
+      ]
+    },
+    "E_8": {
+      "type": "filesystem",
+      "name": "$SCRATCH",
+      "mentioned_in": [
+        "N_11",
+        "N_12",
+        "N_13",
+        "N_35",
+        "N_36",
+        "N_40",
+        "N_41",
+        "N_49"
+      ]
+    },
+    "E_9": {
+      "type": "command",
+      "name": "sbatch",
+      "mentioned_in": [
+        "N_14",
+        "N_15",
+        "N_32",
+        "N_45"
+      ]
+    },
+    "E_10": {
+      "type": "command",
+      "name": "--mem",
+      "mentioned_in": [
+        "N_21",
+        "N_22",
+        "N_29"
+      ]
+    },
+    "E_11": {
+      "type": "tool",
+      "name": "conda",
+      "mentioned_in": [
+        "N_8",
+        "N_9",
+        "N_10",
+        "N_24",
+        "N_25",
+        "N_26",
+        "N_42",
+        "N_43"
+      ]
+    },
+    "E_12": {
+      "type": "tool",
+      "name": "Apptainer",
+      "mentioned_in": [
+        "N_43",
+        "N_44",
+        "N_49"
+      ]
+    },
+    "E_13": {
+      "type": "tool",
+      "name": "SLURM",
+      "mentioned_in": [
+        "N_5",
+        "N_14",
+        "N_45"
+      ]
+    },
+    "E_14": {
+      "type": "command",
+      "name": "sacct",
+      "mentioned_in": [
+        "N_19",
+        "N_20",
+        "N_29"
+      ]
+    },
+    "E_15": {
+      "type": "measurement",
+      "name": "24-hour walltime limit",
+      "mentioned_in": [
+        "N_28",
+        "N_30",
+        "N_46"
+      ]
+    },
+    "E_16": {
+      "type": "measurement",
+      "name": "10 GB home quota",
+      "mentioned_in": [
+        "N_23",
+        "N_24"
+      ]
+    },
+    "E_17": {
+      "type": "person",
+      "name": "Inês",
+      "mentioned_in": [
+        "N_39"
+      ]
+    },
+    "E_18": {
+      "type": "organization",
+      "name": "Research Computing helpdesk",
+      "mentioned_in": [
+        "N_50"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Run the protein-embedding training pipeline on Aurora GPUs",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_48",
+            "achieved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_27",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_2": {
+      "type": "constraint",
+      "label": "No computation on the login nodes",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_5",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_44",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "decision",
+      "label": "Use a conda environment installed under $PROJECT/envs (originally: in $HOME, ~/envs)",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_10",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_24",
+            "revised"
+          ],
+          [
+            "N_43",
+            "reverted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_23",
+            "contradicts"
+          ],
+          [
+            "N_42",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "decision",
+      "label": "Keep the master copy of the dataset in $PROJECT and stage a working copy to $SCRATCH per job (originally: dataset kept in $SCRATCH only)",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_13",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_36",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_35",
+            "contradicts"
+          ],
+          [
+            "N_41",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_5": {
+      "type": "open_question",
+      "label": "Why do training jobs die after a few minutes with no Python traceback?",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_18",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_21",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_21",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_6": {
+      "type": "decision",
+      "label": "Request --mem=64G per training job for the full dataset (originally: --mem=32G)",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_21",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_29",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_22",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_7": {
+      "type": "decision",
+      "label": "Run training on the gpu-a100 partition",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_27",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_34",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_8": {
+      "type": "constraint",
+      "label": "Jobs on gpu-a100 are limited to 24 hours of walltime",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_28",
+      "status": "lifted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_46",
+            "lifted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_30",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_9": {
+      "type": "open_question",
+      "label": "How to run a training that needs about 60 hours given the partition limit?",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_30",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_32",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_32",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_10": {
+      "type": "decision",
+      "label": "Checkpoint every 2 hours and resubmit via an afterany dependency chain",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_32",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_11": {
+      "type": "constraint",
+      "label": "$PROJECT quota is 1 TB shared by the whole group",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_37",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_38",
+            "constrained_by"
+          ],
+          [
+            "N_39",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "SN_12": {
+      "type": "decision",
+      "label": "Run GPU jobs inside an Apptainer container instead of a conda environment",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_43",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_13": {
+      "type": "decision",
+      "label": "Run the 40-configuration hyper-parameter sweep as a job array, max 10 concurrent",
+      "embedding": "<vector: SN_13 label>",
+      "creation_turn": "N_45",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    }
+  }
+}

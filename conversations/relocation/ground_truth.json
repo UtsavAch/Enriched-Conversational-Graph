@@ -1,0 +1,4067 @@
+{
+  "conversation_id": "relocation",
+  "domain": "Family relocation from Lisbon to Munich (six interleaved threads)",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip. Domain entity type (domain_config.json): permit. Adds one field not in the base schema: thread (V visa, H housing, R registration/bank, S school, I insurance, M moving, - overview), for analysing retrieval across interleaved threads. Built to exercise same_level between parallel threads, cross-thread depends_on (lease -> Anmeldung -> Sparkasse -> deposit -> school), threads resumed 10-30 turns later, two decisions reverted (SN_6, SN_8), and a second goal: abandoned (SN_16, Sofia's remote-work plan).",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_7",
+      "issue": "Opening a new thread gets two hierarchical edges: subcase of the overall goal turn (N_1) and same_level with the previous thread's opener (N_3). The outline's convention, applied to every thread opener.",
+      "proposed_direction": "Keep both: subcase encodes the topic tree, same_level encodes that the threads are parallel. Metrics that allow one hierarchical label per pair will count only one of them (see the per-pair scoring issue noted for hpc_support)."
+    },
+    {
+      "raised_at_node": "N_39",
+      "issue": "SN_16 (Sofia keeps her Lisbon job remotely) is contradicted at N_39 by a hint (an interview), but only abandoned at N_59 when she resigns, 20 turns later in the same thread.",
+      "proposed_direction": "A contradicts relation on a goal does not change its status; only the explicit decision does. The gap between the two is what tests whether the extractor tracks status over time instead of reacting to the first sign."
+    },
+    {
+      "raised_at_node": "N_4",
+      "issue": "The outline quoted a €58,400 Blue Card threshold, which is not a real figure. The corpus says 'around €48,000 in 2025, adjusted every year' and keeps the €72,000 offer.",
+      "proposed_direction": "No schema change; recorded so the outline and corpus aren't read as inconsistent."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "I'm Daniel, a software engineer in Lisbon. I just accepted an offer from Brennwerk GmbH in Munich. My partner Sofia and our daughter Lia, who's 8, are coming too, and we want to be settled before the German school year starts in September. Where do we even begin?",
+      "answer": "Congratulations! A family move to Munich has six moving parts that depend on each other: your work permit, housing, the city registration (Anmeldung) and a bank account, a school for Lia, health insurance, and shipping your things. We'll track each thread, since they interlock.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2",
+        "E_3",
+        "E_4",
+        "E_5",
+        "E_6"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_80",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 10,
+      "retrieval_count": 10,
+      "summary": "Daniel's family is moving from Lisbon to Munich for a Brennwerk job and wants to be settled by September.",
+      "reference": "Move to Munich goal",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "Brennwerk wants me to start on 1 July.",
+      "answer": "1 July gives about twelve weeks for the permit and a first place to live, which is doable. We'll plan backwards from that date.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_21"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_45",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Start date at Brennwerk set for 1 July.",
+      "reference": "Start 1 July",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_3": {
+      "question": "First, the work permit. I'm Brazilian-born with only a Brazilian passport, so I do need one. Which permit should I apply for?",
+      "answer": "As a non-EU citizen with a university degree and a skilled job offer, the EU Blue Card is usually the best route: faster, and better family rights than a general work visa.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "open"
+        ],
+        [
+          "N_5",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Asks which work permit to apply for; the EU Blue Card is suggested.",
+      "reference": "Which permit?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_4": {
+      "question": "Do I qualify on salary?",
+      "answer": "The Blue Card needs a salary above a threshold that's adjusted every year, around €48,000 in 2025. Your offer of €72,000 is comfortably above it.",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [
+        "E_19"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The €72,000 offer is well above the Blue Card salary threshold.",
+      "reference": "Salary qualifies",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "Then the Blue Card it is.",
+      "answer": "Good. Brennwerk's HR can request a pre-approval from the Federal Employment Agency, which speeds things up.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_4"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Daniel will apply for the EU Blue Card.",
+      "reference": "Blue Card chosen",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ]
+      }
+    },
+    "N_6": {
+      "question": "What about Sofia? She's also Brazilian. She's a UX designer at a Lisbon agency and wants to keep that job, working remotely from Munich. Is she allowed to work in Germany?",
+      "answer": "Good question, and the answer depends on the permit she gets as your family member. Let's check the family rules before she plans on it.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_6"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "open"
+        ],
+        [
+          "N_23",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether Sofia may work in Germany; she plans to keep her Lisbon job remotely.",
+      "reference": "Sofia's work rights?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4",
+          "SN_16"
+        ]
+      }
+    },
+    "N_7": {
+      "question": "Housing next. Where should we live in Munich?",
+      "answer": "Munich is expensive and competitive, so let's first set a budget, then compare neighbourhoods by commute, schools and rent.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 8,
+      "retrieval_count": 8,
+      "summary": "Asks where to live in Munich.",
+      "reference": "Where to live?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ],
+          [
+            "N_3",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "We can spend at most €2,300 a month, warm.",
+      "answer": "€2,300 warm (including heating and utilities) for a family flat in Munich is tight but possible outside the most central areas.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [
+        "E_20"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_27",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Rent cap set at €2,300 per month warm.",
+      "reference": "Rent cap €2,300",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_7",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ]
+      }
+    },
+    "N_9": {
+      "question": "Which neighbourhoods fit that?",
+      "answer": "Pasing is cheaper and has a fast S-Bahn to the centre; Haidhausen is more central and walkable but pricier. Brennwerk's office is in the east, near Haidhausen.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [
+        "E_13",
+        "E_12"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Pasing is cheaper; Haidhausen is central and closer to Brennwerk but pricier.",
+      "reference": "Pasing vs Haidhausen",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_10": {
+      "question": "Pasing, then. It fits the budget.",
+      "answer": "Pasing it is. The S-Bahn commute to the east side is about 35 minutes.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [
+        "E_13"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_28",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Decides to live in Pasing.",
+      "reference": "Live in Pasing",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ],
+        "relates": [
+          [
+            "SN_5",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_11": {
+      "question": "Anything special about renting in Munich as foreigners?",
+      "answer": "Landlords usually ask for a credit record (SCHUFA). You won't have one yet, so bring your employment contract, recent payslips and a Portuguese bank reference instead.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Bring contract, payslips and a bank reference instead of a SCHUFA record.",
+      "reference": "Rental documents",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_7",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "People keep mentioning the Anmeldung. What is it?",
+      "answer": "The Anmeldung is the mandatory registration of your address with the city, within two weeks of moving in. Almost everything else in Germany, from bank accounts to your tax ID, depends on it.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "open"
+        ],
+        [
+          "N_14",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Explains the Anmeldung (address registration).",
+      "reference": "What is Anmeldung?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ],
+          [
+            "N_7",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_13": {
+      "question": "I'll open an N26 account before we arrive, so we have a German IBAN from day one.",
+      "answer": "N26 lets you open an account online before you move, which is handy for salary and everyday spending.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_32",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Decides to open an N26 account before arriving.",
+      "reference": "N26 before arrival",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_14": {
+      "question": "What do I need for the Anmeldung itself?",
+      "answer": "Your passport and a Wohnungsgeberbestätigung, a form your landlord signs confirming you moved in. So you can only register once you actually have a flat.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_17"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The Anmeldung needs the landlord's Wohnungsgeberbestätigung.",
+      "reference": "Anmeldung needs landlord form",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_15": {
+      "question": "Lia's school: should she go to a public Grundschule or an international school?",
+      "answer": "Both are realistic in Munich; let's look at the trade-offs.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "open"
+        ],
+        [
+          "N_36",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 7,
+      "retrieval_count": 7,
+      "summary": "Opens the question of public vs international school for Lia.",
+      "reference": "Which school?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ],
+          [
+            "N_7",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ]
+      }
+    },
+    "N_16": {
+      "question": "How does a public Grundschule work?",
+      "answer": "Free, and assigned by address: each address belongs to one school's catchment area, so where you live decides which Grundschule Lia attends.",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Public Grundschule places are assigned by catchment area.",
+      "reference": "Catchment areas",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_15",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_17": {
+      "question": "And the international option?",
+      "answer": "The Bavarian International School is the best known. Teaching is in English, but fees are around €18,000 a year.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "BIS teaches in English but costs about €18,000 a year.",
+      "reference": "BIS fees",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_15",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_16",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_18": {
+      "question": "Lia doesn't speak any German. Is a Grundschule even possible?",
+      "answer": "Yes. Munich schools have German-support programmes for newly arrived children, and eight-year-olds pick up the language fast.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Grundschule is possible without German; schools support new arrivals.",
+      "reference": "No German yet",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_16",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_17",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_19": {
+      "question": "Health insurance: public or private?",
+      "answer": "With a family and one main earner, public insurance is usually better: your spouse and children can be co-insured for free, whereas private insurance charges per person.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "open"
+        ],
+        [
+          "N_20",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Asks public vs private health insurance; public favoured for families.",
+      "reference": "Public vs private",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ],
+          [
+            "N_15",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_20": {
+      "question": "Then public, with Techniker Krankenkasse, and Sofia and Lia co-insured on my policy.",
+      "answer": "TK is a good choice with English-language service. Sofia and Lia are co-insured through your membership.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_41",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Public insurance with TK; Sofia and Lia co-insured.",
+      "reference": "TK family insurance",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ]
+      }
+    },
+    "N_21": {
+      "question": "Back to the visa: the earliest appointment at the KVR, Munich's immigration office, is 8 July.",
+      "answer": "That's a week after your planned start date. The Blue Card itself is issued at that appointment.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_7"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "The earliest KVR appointment is 8 July, after the planned start.",
+      "reference": "KVR 8 July",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_5",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_22": {
+      "question": "Can I start working before I have the card?",
+      "answer": "Possibly, depending on the entry visa. Let's check what the pre-approval allows.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "open"
+        ],
+        [
+          "N_23",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether he can start working before the card.",
+      "reference": "Start before card?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_23": {
+      "question": "What did you find?",
+      "answer": "With the pre-approval and a Blue Card entry visa, you may start working before the KVR appointment. And for Sofia: as the spouse of a Blue Card holder, she gets a residence permit with unrestricted work rights, so she can work in Germany, for a German or a foreign employer.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_2"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Daniel can start before the appointment; Sofia gets unrestricted work rights through family reunification.",
+      "reference": "Sofia may work",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "resolves"
+          ],
+          [
+            "N_6",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_4",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_4",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "Housing update: finding a Pasing flat from Lisbon is impossible, so we found a temporary furnished flat from 1 July instead.",
+      "answer": "Sensible: a furnished flat lets you search in person, and you can register your address there.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_13"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "A temporary furnished flat is booked from 1 July.",
+      "reference": "Temporary flat",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_7",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_25": {
+      "question": "The catch: it's only available until 31 July.",
+      "answer": "So you need a permanent lease starting by 1 August. That's the real deadline for the flat search.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "The temporary flat ends on 31 July.",
+      "reference": "Temp flat until 31 July",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_13"
+        ]
+      }
+    },
+    "N_26": {
+      "question": "Good news: Brennwerk offers a €300 a month relocation allowance for the first year.",
+      "answer": "That's real money in the Munich rental market.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Brennwerk offers a €300/month relocation allowance.",
+      "reference": "€300 allowance",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_7",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_27": {
+      "question": "So we can raise the rent cap?",
+      "answer": "Yes: with the allowance, raise the cap to €2,600 warm.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_20"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Rent cap raised to €2,600 warm.",
+      "reference": "Rent cap €2,600",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_26",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_8",
+            "revises"
+          ],
+          [
+            "N_26",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_5",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_28": {
+      "question": "With €2,600 we could afford Haidhausen after all. It's walkable to Lia's future school and my commute would be 15 minutes. Should we switch from Pasing?",
+      "answer": "Yes, switch to Haidhausen: a 15-minute commute instead of 35, and a walkable school, are worth the extra rent now that it's within budget.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_13"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Switches from Pasing to Haidhausen.",
+      "reference": "Switch to Haidhausen",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "contradicts"
+          ],
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ],
+        "updates": [
+          [
+            "SN_6",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_29": {
+      "question": "Does living in Haidhausen change which school Lia would go to?",
+      "answer": "Yes: the catchment rules [N_16] mean the address decides the Grundschule, so a Haidhausen address gives you a Haidhausen school.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [
+        "N_16"
+      ],
+      "thread": "H",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The Haidhausen address determines Lia's Grundschule.",
+      "reference": "Address decides school",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_28",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_16",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_30": {
+      "question": "Landlords in Haidhausen want the deposit in a rent-deposit account, a Mietkautionskonto.",
+      "answer": "That's standard: the deposit, up to three months' cold rent, is held in a special blocked account.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_53",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Landlords require a rent-deposit account.",
+      "reference": "Deposit account needed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_31": {
+      "question": "Can my N26 account do that?",
+      "answer": "Let's check: not every bank offers deposit accounts.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "open"
+        ],
+        [
+          "N_32",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether N26 can hold the deposit.",
+      "reference": "N26 deposit?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_30",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_13",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_32": {
+      "question": "And?",
+      "answer": "No: N26 doesn't offer rent-deposit accounts, and many landlords won't accept its alternatives. Open a Sparkasse account after the Anmeldung for the deposit and rent, and keep N26 only for everyday spending.",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [
+        "E_10",
+        "E_11"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "N26 can't hold deposits; a Sparkasse account after the Anmeldung becomes the main account.",
+      "reference": "Sparkasse after Anmeldung",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_31",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_13",
+            "contradicts"
+          ],
+          [
+            "N_31",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ],
+        "updates": [
+          [
+            "SN_8",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_33": {
+      "question": "So what order do things have to happen in?",
+      "answer": "A strict chain: sign a lease, get the landlord's Wohnungsgeberbestätigung, do the Anmeldung, open the Sparkasse account, then set up the deposit account. The Anmeldung certificate is also what the school will ask for.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_17",
+        "E_8",
+        "E_11"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Chain: lease, landlord form, Anmeldung, Sparkasse, deposit account (and school).",
+      "reference": "The dependency chain",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "supercase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "depends_on"
+          ],
+          [
+            "N_30",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_9",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_34": {
+      "question": "Back to school: for the Haidhausen addresses we're looking at, the catchment school is the Grundschule an der Kirchenstraße.",
+      "answer": "That's a well-regarded school, and a short walk from most of Haidhausen.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_12"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The Haidhausen catchment school is Kirchenstraße.",
+      "reference": "Kirchenstraße school",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_15",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_35": {
+      "question": "Sofia still prefers the international school, so Lia doesn't have to struggle with German. I worry about the €18,000 a year.",
+      "answer": "Both worries are fair. The fees [N_17] add up over years, while a Grundschule gives Lia German and local friends, which matters if you stay long-term.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_15"
+      ],
+      "citations": [
+        "N_17"
+      ],
+      "thread": "S",
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Sofia prefers BIS; Daniel worries about the fees.",
+      "reference": "BIS vs Grundschule debate",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_34",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_17",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_36": {
+      "question": "We've decided: Kirchenstraße, plus a weekly German tutor so Lia catches up faster.",
+      "answer": "A good compromise: free, local, and the tutor addresses Sofia's concern.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_56",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Lia will attend Kirchenstraße with a weekly German tutor.",
+      "reference": "Kirchenstraße + tutor",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_35",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ],
+        "updates": [
+          [
+            "SN_10",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_10",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_37": {
+      "question": "How do we register her at the school?",
+      "answer": "In person at the school, with Lia's documents and proof of address.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_14"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "open"
+        ],
+        [
+          "N_38",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks how to register Lia at the school.",
+      "reference": "School registration?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_38": {
+      "question": "What counts as proof of address?",
+      "answer": "The Anmeldung certificate, so school registration sits at the end of the same chain [N_33]: lease, landlord form, Anmeldung, then the school.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [
+        "N_33"
+      ],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The school needs the Anmeldung certificate as proof of address.",
+      "reference": "School needs Anmeldung",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "resolves"
+          ],
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_39": {
+      "question": "Insurance again: Sofia has an interview with a Munich design studio next week. She's starting to think a local job would be better than working remotely for Lisbon.",
+      "answer": "That would change a few things, insurance included.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_2"
+      ],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Sofia is interviewing for a Munich job instead of working remotely.",
+      "reference": "Sofia's Munich interview",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_16",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_40": {
+      "question": "Would she still be co-insured on my TK policy if she works in Munich?",
+      "answer": "Let's check the co-insurance rules for employed spouses.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_16"
+      ],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "open"
+        ],
+        [
+          "N_41",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether Sofia stays co-insured if employed.",
+      "reference": "Co-insured if employed?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_20",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_41": {
+      "question": "What are the rules?",
+      "answer": "Co-insurance only covers family members without a significant income. If Sofia takes a salaried job in Munich, she'll be insured through her own employer. Lia stays co-insured on your policy.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "If employed, Sofia is insured through her own employer; Lia stays co-insured.",
+      "reference": "Sofia insured separately",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_40",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_40",
+            "resolves"
+          ],
+          [
+            "N_20",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_12",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_42": {
+      "question": "Moving logistics: should we bring our car or sell it?",
+      "answer": "Importing a car means German registration and possibly an inspection. Let's get a moving quote first.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "open"
+        ],
+        [
+          "N_62",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Opens the question of shipping or selling the car.",
+      "reference": "Car: ship or sell?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_15"
+        ]
+      }
+    },
+    "N_43": {
+      "question": "For the household goods, Transeuropa Movers can do a full 20 ft container. Let's book that.",
+      "answer": "A full container fits the furniture and, in principle, the car. Booked with Transeuropa.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_62",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Books a full 20 ft container with Transeuropa.",
+      "reference": "20 ft container",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_14"
+        ]
+      }
+    },
+    "N_44": {
+      "question": "The Blue Card pre-approval arrived. The KVR appointment is still 8 July, though.",
+      "answer": "Good; with the pre-approval your entry visa is straightforward. The 8 July appointment stays.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_9"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Blue Card pre-approval arrived; KVR stays on 8 July.",
+      "reference": "Pre-approval arrived",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_45": {
+      "question": "To be safe, Brennwerk agreed to move my start date to 15 July, after the appointment.",
+      "answer": "That removes any doubt about working before the card is issued. Your start date is now 15 July.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_21"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Start date moved to 15 July.",
+      "reference": "Start 15 July",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_44",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_2",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_46": {
+      "question": "Does the later start mess up the temporary flat?",
+      "answer": "Not really: it still runs until 31 July [N_25], so you'd just use it from mid-July.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_25"
+      ],
+      "thread": "V",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The temporary flat still works with a mid-July arrival.",
+      "reference": "Temp flat still OK",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_45",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_47": {
+      "question": "I flew over for a weekend and viewed three Haidhausen flats.",
+      "answer": "Good; viewings in person make a huge difference with Munich landlords.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Daniel viewed three flats in Haidhausen.",
+      "reference": "Three viewings",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_28",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_28",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "We got one! Lease signed: €2,480 warm, starting 1 August.",
+      "answer": "Congratulations. €2,480 is within your €2,600 cap, and a 1 August start means you no longer depend on the temporary flat after July.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_20"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Lease signed in Haidhausen: €2,480 warm from 1 August.",
+      "reference": "Lease signed €2,480",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_47",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_13",
+            "lifted"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_5",
+            "supports"
+          ],
+          [
+            "SN_7",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_49": {
+      "question": "So the temporary flat is only needed from 15 to 31 July now?",
+      "answer": "Right: with the later start [N_45], you'll use it for just over two weeks.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [],
+      "citations": [
+        "N_45"
+      ],
+      "thread": "H",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The temporary flat is needed only from 15 to 31 July.",
+      "reference": "Temp flat 15-31 July",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_48",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_45",
+            "depends_on"
+          ],
+          [
+            "N_25",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_50": {
+      "question": "We've arrived in Munich! The new landlord already gave us the Wohnungsgeberbestätigung for the Haidhausen flat.",
+      "answer": "Perfect: with that form you can do the Anmeldung for the new address right away, even before moving in on 1 August.",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [
+        "E_17",
+        "E_5"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Arrived; landlord form for Haidhausen received.",
+      "reference": "Landlord form received",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_48",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_51": {
+      "question": "Anmeldung done at the Bürgerbüro this morning!",
+      "answer": "That unlocks the rest of the chain: bank account, deposit, school registration.",
+      "embedding": "<vector: N_51 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_51",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Anmeldung completed.",
+      "reference": "Anmeldung done",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_50",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_52": {
+      "question": "The Sparkasse account is open.",
+      "answer": "Good; that's your main account for rent and the deposit.",
+      "embedding": "<vector: N_52 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_52",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Sparkasse account opened.",
+      "reference": "Sparkasse opened",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_51",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_9",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_53": {
+      "question": "And the deposit is in the Mietkautionskonto. The landlord confirmed.",
+      "answer": "Then the whole registration and banking chain is complete.",
+      "embedding": "<vector: N_53 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "thread": "R",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_53",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Deposit account set up; the chain is complete.",
+      "reference": "Deposit set up",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_52",
+            "depends_on"
+          ],
+          [
+            "N_30",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_54": {
+      "question": "We registered Lia at Kirchenstraße with the Anmeldung certificate.",
+      "answer": "Great, the last link in the chain.",
+      "embedding": "<vector: N_54 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_3",
+        "E_8"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_54",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Lia is registered at Kirchenstraße.",
+      "reference": "Lia registered",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_36",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_38",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_11",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_55": {
+      "question": "The school tested Lia's German. As expected, she's a beginner.",
+      "answer": "Normal for a new arrival. Schools then decide how to place her.",
+      "embedding": "<vector: N_55 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_55",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Lia's German is assessed as beginner level.",
+      "reference": "German test",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_54",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_54",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_56": {
+      "question": "The school wants Lia to start in the Übergangsklasse, a transition class for new arrivals, for about six months, before joining a regular third-grade class. We'll keep the tutor too.",
+      "answer": "That's a strong model: intensive German with other newcomers, then a regular class. So the plan is Kirchenstraße, starting in the Übergangsklasse, plus the weekly tutor.",
+      "embedding": "<vector: N_56 question+answer>",
+      "named_entities": [
+        "E_3",
+        "E_14"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_56",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Lia starts with six months in the transition class, then a regular class.",
+      "reference": "Übergangsklasse first",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_55",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_11",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_57": {
+      "question": "Sofia worries it will set Lia back a year.",
+      "answer": "Usually the opposite: children who get a solid German base first tend to catch up faster in regular classes than those thrown straight in.",
+      "embedding": "<vector: N_57 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_57",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Transition classes usually help children catch up faster.",
+      "reference": "Won't set her back",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_56",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_56",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_58": {
+      "question": "Sofia got the job at the Munich design studio!",
+      "answer": "Congratulations to her! That settles the question of working remotely.",
+      "embedding": "<vector: N_58 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_5"
+      ],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_58",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Sofia got a job at a Munich design studio.",
+      "reference": "Sofia hired in Munich",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_39",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_59": {
+      "question": "She's resigning from the Lisbon agency. No more remote work for them.",
+      "answer": "Then the plan to keep her Lisbon job is off. She'll be a regular employee in Munich from September.",
+      "embedding": "<vector: N_59 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_6"
+      ],
+      "citations": [],
+      "thread": "I",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_59",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Sofia resigns from her Lisbon job; the remote-work plan is abandoned.",
+      "reference": "Remote plan abandoned",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_58",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_58",
+            "depends_on"
+          ],
+          [
+            "N_6",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_16",
+            "abandoned"
+          ]
+        ]
+      }
+    },
+    "N_60": {
+      "question": "What happens with insurance now?",
+      "answer": "As we worked out [N_41]: from her start date Sofia is insured through her new employer, and Lia stays co-insured on your TK policy.",
+      "embedding": "<vector: N_60 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_2",
+        "E_3"
+      ],
+      "citations": [
+        "N_41"
+      ],
+      "thread": "I",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_60",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Sofia's insurance moves to her employer; Lia stays co-insured.",
+      "reference": "Insurance updated",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_58",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_41",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_12",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_61": {
+      "question": "Transeuropa's final quote for the full 20 ft container, car included, is €7,800. That's way over what we planned.",
+      "answer": "The car is the expensive part: it takes most of the container space and needs German registration afterwards.",
+      "embedding": "<vector: N_61 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_61",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The full container with the car costs €7,800.",
+      "reference": "€7,800 quote",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_43",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_43",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_14",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_62": {
+      "question": "Haidhausen has great transport and we'd hardly use a car. Let's sell it and ship the rest in a shared container.",
+      "answer": "Agreed: sell the car in Lisbon and switch to a shared container for the household goods. Much cheaper, and it arrives in a similar time.",
+      "embedding": "<vector: N_62 question+answer>",
+      "named_entities": [
+        "E_18",
+        "E_12"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_62",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Sell the car; ship household goods in a shared container.",
+      "reference": "Sell car, shared container",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_61",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_42",
+            "resolves"
+          ],
+          [
+            "N_43",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_15",
+            "resolved"
+          ],
+          [
+            "SN_14",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_15",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_63": {
+      "question": "The KVR issued my Blue Card, and Sofia's residence permit came with it.",
+      "answer": "Congratulations, that's the legal side done for both of you.",
+      "embedding": "<vector: N_63 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_9",
+        "E_2"
+      ],
+      "citations": [],
+      "thread": "V",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_63",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Blue Card and Sofia's residence permit issued.",
+      "reference": "Blue Card issued",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_44",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_64": {
+      "question": "We moved into the Haidhausen flat yesterday.",
+      "answer": "Welcome home! Mostly empty for now, I assume, until the container arrives.",
+      "embedding": "<vector: N_64 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_64",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "The family moved into the Haidhausen flat.",
+      "reference": "Moved in",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_47",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_48",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_7",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_65": {
+      "question": "Yes, when does our stuff arrive?",
+      "answer": "Shared containers usually take a little longer to fill; Transeuropa's estimate is the first week of August.",
+      "embedding": "<vector: N_65 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "thread": "H",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_65",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Shipment expected in the first week of August.",
+      "reference": "Arrival estimate",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_64",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_62",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_66": {
+      "question": "The container arrived today and everything was unloaded.",
+      "answer": "Great timing, well before school starts.",
+      "embedding": "<vector: N_66 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_66",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "The shipment arrived.",
+      "reference": "Container arrived",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_62",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_62",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_67": {
+      "question": "One box is missing: the one with Lia's books.",
+      "answer": "Check the inventory list the movers made at packing; each box should be numbered.",
+      "embedding": "<vector: N_67 question+answer>",
+      "named_entities": [
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_67",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "A box with Lia's books is missing.",
+      "reference": "Missing box",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_66",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_66",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_68": {
+      "question": "Should we file an insurance claim?",
+      "answer": "Report it to Transeuropa in writing first; the transit insurance usually requires notice within a few days of delivery.",
+      "embedding": "<vector: N_68 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_68",
+          "creation",
+          "open"
+        ],
+        [
+          "N_69",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks about an insurance claim for the missing box.",
+      "reference": "Claim?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_67",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_67",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_69": {
+      "question": "Transeuropa found the box: it had been loaded onto another family's shipment. It's being delivered next week.",
+      "answer": "Good outcome. Keep the written report until it arrives.",
+      "embedding": "<vector: N_69 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "thread": "M",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_69",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The missing box was found and will be delivered.",
+      "reference": "Box found",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_68",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_68",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_70": {
+      "question": "Can you give me the status of everything?",
+      "answer": "Visa: Blue Card issued. Housing: in Haidhausen at €2,480. Registration and bank: Anmeldung, Sparkasse and deposit done. School: Lia starts at Kirchenstraße in the transition class. Insurance: TK for you and Lia, Sofia through her employer. Moving: goods arrived, car sold.",
+      "embedding": "<vector: N_70 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_12",
+        "E_8",
+        "E_11",
+        "E_14",
+        "E_16"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_70",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Status across all six threads.",
+      "reference": "Status of everything",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "supercase"
+          ],
+          [
+            "N_7",
+            "supercase"
+          ],
+          [
+            "N_12",
+            "supercase"
+          ],
+          [
+            "N_15",
+            "supercase"
+          ],
+          [
+            "N_19",
+            "supercase"
+          ],
+          [
+            "N_42",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_71": {
+      "question": "What's still open?",
+      "answer": "Three admin items: waiting for your tax ID, the broadcasting fee registration, and sorting out transport now that you have no car.",
+      "embedding": "<vector: N_71 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_71",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Open items: tax ID, broadcasting fee, transport.",
+      "reference": "Open items",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_70",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_70",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_72": {
+      "question": "Lia's school confirmed her first day: 14 September.",
+      "answer": "Perfect, with a few weeks to settle in first.",
+      "embedding": "<vector: N_72 question+answer>",
+      "named_entities": [
+        "E_3",
+        "E_14"
+      ],
+      "citations": [],
+      "thread": "S",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_72",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Lia's first school day is 14 September.",
+      "reference": "First day 14 Sept",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_56",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_56",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_73": {
+      "question": "Has the tax ID shown up? Brennwerk payroll keeps asking.",
+      "answer": "It's sent automatically by post a few weeks after the Anmeldung, so it should arrive soon.",
+      "embedding": "<vector: N_73 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_8"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_73",
+          "creation",
+          "open"
+        ],
+        [
+          "N_74",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Waiting for the tax ID, which follows the Anmeldung.",
+      "reference": "Tax ID?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_71",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_74": {
+      "question": "It arrived today!",
+      "answer": "Send it to Brennwerk's payroll so your salary is taxed correctly from the start.",
+      "embedding": "<vector: N_74 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_74",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Tax ID arrived; forward to payroll.",
+      "reference": "Tax ID arrived",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_73",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_73",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_75": {
+      "question": "We got a letter about the Rundfunkbeitrag. What is it?",
+      "answer": "The public broadcasting fee: every household pays it, whether or not you own a TV.",
+      "embedding": "<vector: N_75 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_75",
+          "creation",
+          "open"
+        ],
+        [
+          "N_76",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks about the Rundfunkbeitrag letter.",
+      "reference": "Broadcasting fee?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_71",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_76": {
+      "question": "How much, and do we both pay?",
+      "answer": "Once per household, not per person: roughly €18 a month. Register the household once, in one name.",
+      "embedding": "<vector: N_76 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_76",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "One broadcasting fee per household, about €18 a month.",
+      "reference": "Fee per household",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_75",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_75",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_77": {
+      "question": "Without a car, what's the best way to get around?",
+      "answer": "Munich's public transport covers everything you need from Haidhausen. Now that the car is sold [N_62], a monthly Deutschlandticket is the obvious choice.",
+      "embedding": "<vector: N_77 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [
+        "N_62"
+      ],
+      "thread": "-",
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_77",
+          "creation",
+          "open"
+        ],
+        [
+          "N_78",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks about transport without a car; the Deutschlandticket is suggested.",
+      "reference": "Transport without car",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_71",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_62",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_78": {
+      "question": "Brennwerk subsidises the Deutschlandticket as a job ticket, so I've ordered it through them.",
+      "answer": "Even better. That closes the last open item.",
+      "embedding": "<vector: N_78 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_78",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Deutschlandticket ordered as a subsidised job ticket.",
+      "reference": "Job ticket ordered",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_77",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_77",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_79": {
+      "question": "Looking back, what changed from our April plan?",
+      "answer": "Five things: Haidhausen instead of Pasing [N_28]; Sparkasse instead of N26 as the main bank [N_32]; a 15 July start instead of 1 July [N_45]; Sofia working in Munich instead of remotely for Lisbon [N_59]; and selling the car with a shared container instead of shipping everything [N_62].",
+      "embedding": "<vector: N_79 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_13",
+        "E_11",
+        "E_10",
+        "E_2"
+      ],
+      "citations": [
+        "N_28",
+        "N_32",
+        "N_45",
+        "N_59",
+        "N_62"
+      ],
+      "thread": "-",
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_79",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Retrospective of the five changes from the April plan.",
+      "reference": "What changed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_28",
+            "supercase"
+          ],
+          [
+            "N_32",
+            "supercase"
+          ],
+          [
+            "N_45",
+            "supercase"
+          ],
+          [
+            "N_59",
+            "supercase"
+          ],
+          [
+            "N_62",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_80": {
+      "question": "Tomorrow Sofia starts her new job, and in two weeks Lia starts school. I think we're actually settled.",
+      "answer": "You are: permits, home, bank, insurance, school and work all in place before the school year. Congratulations to all three of you.",
+      "embedding": "<vector: N_80 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "thread": "-",
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_80",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The family is settled before the school year.",
+      "reference": "Settled",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_1",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Daniel",
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_2": {
+      "type": "person",
+      "name": "Sofia",
+      "mentioned_in": [
+        "N_1",
+        "N_6",
+        "N_20",
+        "N_23",
+        "N_35",
+        "N_39",
+        "N_41",
+        "N_57",
+        "N_58",
+        "N_59",
+        "N_60",
+        "N_63",
+        "N_79",
+        "N_80"
+      ]
+    },
+    "E_3": {
+      "type": "person",
+      "name": "Lia",
+      "mentioned_in": [
+        "N_1",
+        "N_15",
+        "N_18",
+        "N_20",
+        "N_36",
+        "N_41",
+        "N_54",
+        "N_55",
+        "N_56",
+        "N_57",
+        "N_60",
+        "N_67",
+        "N_72",
+        "N_80"
+      ]
+    },
+    "E_4": {
+      "type": "organization",
+      "name": "Brennwerk GmbH",
+      "mentioned_in": [
+        "N_1",
+        "N_2",
+        "N_5",
+        "N_26",
+        "N_45",
+        "N_73",
+        "N_74",
+        "N_78"
+      ]
+    },
+    "E_5": {
+      "type": "location",
+      "name": "Munich",
+      "mentioned_in": [
+        "N_1",
+        "N_7",
+        "N_50",
+        "N_58"
+      ]
+    },
+    "E_6": {
+      "type": "location",
+      "name": "Lisbon",
+      "mentioned_in": [
+        "N_1",
+        "N_6",
+        "N_59"
+      ]
+    },
+    "E_7": {
+      "type": "permit",
+      "name": "EU Blue Card",
+      "mentioned_in": [
+        "N_3",
+        "N_5",
+        "N_21",
+        "N_22",
+        "N_23",
+        "N_44",
+        "N_63",
+        "N_70"
+      ]
+    },
+    "E_8": {
+      "type": "permit",
+      "name": "Anmeldung",
+      "mentioned_in": [
+        "N_12",
+        "N_14",
+        "N_33",
+        "N_38",
+        "N_51",
+        "N_54",
+        "N_70",
+        "N_73"
+      ]
+    },
+    "E_9": {
+      "type": "organization",
+      "name": "KVR",
+      "mentioned_in": [
+        "N_21",
+        "N_44",
+        "N_63"
+      ]
+    },
+    "E_10": {
+      "type": "organization",
+      "name": "N26",
+      "mentioned_in": [
+        "N_13",
+        "N_31",
+        "N_32",
+        "N_79"
+      ]
+    },
+    "E_11": {
+      "type": "organization",
+      "name": "Sparkasse",
+      "mentioned_in": [
+        "N_32",
+        "N_33",
+        "N_52",
+        "N_53",
+        "N_70",
+        "N_79"
+      ]
+    },
+    "E_12": {
+      "type": "location",
+      "name": "Haidhausen",
+      "mentioned_in": [
+        "N_9",
+        "N_28",
+        "N_29",
+        "N_30",
+        "N_34",
+        "N_47",
+        "N_48",
+        "N_62",
+        "N_64",
+        "N_70",
+        "N_77",
+        "N_79"
+      ]
+    },
+    "E_13": {
+      "type": "location",
+      "name": "Pasing",
+      "mentioned_in": [
+        "N_9",
+        "N_10",
+        "N_24",
+        "N_28",
+        "N_79"
+      ]
+    },
+    "E_14": {
+      "type": "organization",
+      "name": "Grundschule an der Kirchenstraße",
+      "mentioned_in": [
+        "N_34",
+        "N_36",
+        "N_37",
+        "N_54",
+        "N_56",
+        "N_70",
+        "N_72"
+      ]
+    },
+    "E_15": {
+      "type": "organization",
+      "name": "Bavarian International School",
+      "mentioned_in": [
+        "N_17",
+        "N_35"
+      ]
+    },
+    "E_16": {
+      "type": "organization",
+      "name": "Techniker Krankenkasse",
+      "mentioned_in": [
+        "N_20",
+        "N_40",
+        "N_41",
+        "N_60",
+        "N_70"
+      ]
+    },
+    "E_17": {
+      "type": "document",
+      "name": "Wohnungsgeberbestätigung",
+      "mentioned_in": [
+        "N_14",
+        "N_33",
+        "N_50"
+      ]
+    },
+    "E_18": {
+      "type": "organization",
+      "name": "Transeuropa Movers",
+      "mentioned_in": [
+        "N_43",
+        "N_61",
+        "N_62",
+        "N_65",
+        "N_66",
+        "N_68",
+        "N_69"
+      ]
+    },
+    "E_19": {
+      "type": "measurement",
+      "name": "Blue Card salary threshold",
+      "mentioned_in": [
+        "N_4"
+      ]
+    },
+    "E_20": {
+      "type": "measurement",
+      "name": "monthly rent cap",
+      "mentioned_in": [
+        "N_8",
+        "N_27",
+        "N_48"
+      ]
+    },
+    "E_21": {
+      "type": "event",
+      "name": "start date at Brennwerk",
+      "mentioned_in": [
+        "N_2",
+        "N_45"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Move the family to Munich and be settled before Lia's school year starts",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_80",
+            "achieved"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_2": {
+      "type": "decision",
+      "label": "Daniel starts at Brennwerk on 15 July (originally 1 July), after the KVR appointment delay",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_2",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_45",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_21",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "decision",
+      "label": "Apply for the EU Blue Card rather than a general work visa",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_5",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_44",
+            "supports"
+          ],
+          [
+            "N_63",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "open_question",
+      "label": "Does Sofia get the right to work in Germany?",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_6",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_23",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_23",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_5": {
+      "type": "constraint",
+      "label": "Rent cap of €2,600 per month including utilities, after Brennwerk's relocation allowance (originally €2,300)",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_8",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_27",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_10",
+            "constrained_by"
+          ],
+          [
+            "N_48",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_6": {
+      "type": "decision",
+      "label": "Live in Pasing (cheaper, S-Bahn connection)",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_10",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_28",
+            "reverted"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_7": {
+      "type": "decision",
+      "label": "Live in Haidhausen (walkable to school, shorter commute)",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_28",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_48",
+            "supports"
+          ],
+          [
+            "N_64",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_8": {
+      "type": "decision",
+      "label": "Open an N26 account before arriving",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_13",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_32",
+            "reverted"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_9": {
+      "type": "decision",
+      "label": "Open a Sparkasse account after the Anmeldung; keep N26 for everyday spending",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_32",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_33",
+            "supports"
+          ],
+          [
+            "N_52",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_10": {
+      "type": "open_question",
+      "label": "Public Grundschule or international school for Lia?",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_15",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_36",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_36",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_11": {
+      "type": "decision",
+      "label": "Lia attends the Grundschule an der Kirchenstraße, starting with six months in the Übergangsklasse (transition class), plus a weekly German tutor",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_36",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_56",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_54",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_12": {
+      "type": "decision",
+      "label": "Public health insurance with TK: Daniel with Lia co-insured; Sofia insured through her own employer (originally: Sofia co-insured too)",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_20",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_41",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_60",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_13": {
+      "type": "constraint",
+      "label": "The temporary furnished flat is only available until 31 July",
+      "embedding": "<vector: SN_13 label>",
+      "creation_turn": "N_25",
+      "status": "lifted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_48",
+            "lifted"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_14": {
+      "type": "decision",
+      "label": "Ship household goods with Transeuropa Movers in a shared container, fewer items (originally: full 20 ft container)",
+      "embedding": "<vector: SN_14 label>",
+      "creation_turn": "N_43",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_62",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_61",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_15": {
+      "type": "open_question",
+      "label": "Bring the car to Munich or sell it?",
+      "embedding": "<vector: SN_15 label>",
+      "creation_turn": "N_42",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_62",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_62",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_16": {
+      "type": "goal",
+      "label": "Sofia keeps her Lisbon job, working remotely from Munich",
+      "embedding": "<vector: SN_16 label>",
+      "creation_turn": "N_6",
+      "status": "abandoned",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_59",
+            "abandoned"
+          ]
+        ],
+        "relates": [
+          [
+            "N_39",
+            "contradicts"
+          ]
+        ]
+      }
+    }
+  }
+}

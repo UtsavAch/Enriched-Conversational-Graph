@@ -1,0 +1,5 @@
+{
+  "material": "A named building or finishing material (e.g. quartz, HPL laminate, porcelain tile).",
+  "product": "A named product or appliance (e.g. induction hob, built-in oven).",
+  "trade": "A named trade or professional role (e.g. electrician, plumber)."
+}

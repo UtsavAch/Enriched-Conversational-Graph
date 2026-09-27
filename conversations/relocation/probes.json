@@ -1,0 +1,112 @@
+[
+  {
+    "probe_id": "p1",
+    "question": "Which Munich neighbourhood is the family living in?",
+    "target": "SN_7",
+    "expected_any": ["Haidhausen"],
+    "forbidden_any": [],
+    "valid_from_turn": 28,
+    "decision_text": "Haidhausen (Pasing was chosen first, then dropped once the rent cap rose).",
+    "designed_to_defeat": "anti-semantic: N_10 decides on Pasing"
+  },
+  {
+    "probe_id": "p2",
+    "question": "When does Daniel start his job at Brennwerk?",
+    "target": "SN_2",
+    "expected_any": ["15 July", "July 15"],
+    "forbidden_any": [],
+    "valid_from_turn": 45,
+    "decision_text": "15 July, moved from 1 July because of the KVR appointment on 8 July.",
+    "designed_to_defeat": "anti-semantic: N_2 is the canonical start-date turn (1 July)"
+  },
+  {
+    "probe_id": "p3",
+    "question": "What is the family's maximum monthly rent?",
+    "target": "SN_5",
+    "expected_any": ["2,600", "2600"],
+    "forbidden_any": [],
+    "valid_from_turn": 27,
+    "decision_text": "€2,600 warm per month after Brennwerk's €300 relocation allowance (originally €2,300).",
+    "designed_to_defeat": "anti-semantic: N_8 sets €2,300"
+  },
+  {
+    "probe_id": "p4",
+    "question": "Which bank account holds the family's rent deposit?",
+    "target": "SN_9",
+    "expected_any": ["Sparkasse"],
+    "forbidden_any": [],
+    "valid_from_turn": 32,
+    "decision_text": "A Sparkasse account opened after the Anmeldung; N26 is kept only for everyday spending because it can't hold rent deposits.",
+    "designed_to_defeat": "anti-semantic: N_13 plans N26"
+  },
+  {
+    "probe_id": "p5",
+    "question": "What has to be done before the family can open their Sparkasse account?",
+    "target": "SN_9",
+    "expected_any": ["Anmeldung", "Wohnungsgeberbestätigung", "registration"],
+    "forbidden_any": [],
+    "valid_from_turn": 33,
+    "decision_text": "Sign a lease, get the landlord's Wohnungsgeberbestätigung, then do the Anmeldung; only then open the Sparkasse account.",
+    "designed_to_defeat": "anti-hierarchical: a cross-thread dependency chain (housing -> registration -> bank)"
+  },
+  {
+    "probe_id": "p6",
+    "question": "Which school will Lia attend, and how does she start there?",
+    "target": "SN_11",
+    "expected_any": ["Übergangsklasse", "transition class", "Uebergangsklasse"],
+    "forbidden_any": [],
+    "valid_from_turn": 56,
+    "decision_text": "Grundschule an der Kirchenstraße, starting with about six months in the Übergangsklasse (transition class), plus a weekly German tutor.",
+    "designed_to_defeat": "anti-recency: the school choice (N_36) and its revision (N_56) are 20 turns apart in an interleaved thread"
+  },
+  {
+    "probe_id": "p7",
+    "question": "Is Sofia co-insured on Daniel's TK health insurance?",
+    "target": "SN_12",
+    "expected_any": ["own employer", "her employer", "separately"],
+    "forbidden_any": [],
+    "valid_from_turn": 41,
+    "decision_text": "No: once employed in Munich, Sofia is insured through her own employer; Lia stays co-insured on Daniel's TK policy.",
+    "designed_to_defeat": "anti-semantic: N_20 co-insures Sofia and Lia"
+  },
+  {
+    "probe_id": "p8",
+    "question": "Did the family bring their car to Munich?",
+    "target": "SN_15",
+    "expected_any": ["sold", "sell"],
+    "forbidden_any": [],
+    "valid_from_turn": 62,
+    "decision_text": "No: the car was sold in Lisbon to avoid the €7,800 full-container quote.",
+    "designed_to_defeat": "none"
+  },
+  {
+    "probe_id": "p9",
+    "question": "Is Sofia allowed to work in Germany?",
+    "target": "SN_4",
+    "expected_any": ["family reunification", "unrestricted", "work rights", "allowed to work"],
+    "forbidden_any": [],
+    "valid_from_turn": 23,
+    "decision_text": "Yes: as the spouse of a Blue Card holder she gets a residence permit with unrestricted work rights.",
+    "designed_to_defeat": "anti-recency: answered at N_23 in the visa thread, needed at N_39 in the insurance thread"
+  },
+  {
+    "probe_id": "p10",
+    "question": "How are the family's household goods being shipped?",
+    "target": "SN_14",
+    "expected_any": ["shared container"],
+    "forbidden_any": [],
+    "valid_from_turn": 62,
+    "decision_text": "In a shared container with Transeuropa Movers, fewer items and no car (originally a full 20 ft container).",
+    "designed_to_defeat": "anti-semantic: N_43 books a full 20 ft container"
+  },
+  {
+    "probe_id": "p11",
+    "question": "Is Sofia still working remotely for her Lisbon agency?",
+    "target": "SN_16",
+    "expected_any": ["design studio", "resign", "Munich job"],
+    "forbidden_any": [],
+    "valid_from_turn": 59,
+    "decision_text": "No: she resigned from the Lisbon agency and works for a Munich design studio; the remote-work plan was abandoned.",
+    "designed_to_defeat": "anti-recency: the plan is stated at N_6, abandoned at N_59"
+  }
+]

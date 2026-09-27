@@ -1,0 +1,702 @@
+[
+  {
+    "id": "N_1",
+    "date": "2026-05-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I'm Priya, PM at Tessellate. We're launching Falcon, our team-scheduling product for shift-based businesses, and I want a paying beta customer on board before the public launch. Can you help me plan it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Happy to. Let's build a launch checklist: date, scope, pricing, beta customer, and team capacity. Those five decisions drive everything else."
+      }
+    ]
+  },
+  {
+    "id": "N_2",
+    "date": "2026-05-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What goes on the checklist first?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The date, because scope and staffing both work backwards from it. Then scope, then pricing, then the beta customer, who should be secured early so their feedback can still change things."
+      }
+    ]
+  },
+  {
+    "id": "N_3",
+    "date": "2026-05-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Let's say the public launch is 2 June."
+      },
+      {
+        "speaker": "assistant",
+        "text": "2 June gives four weeks, which is tight but workable if scope stays small. I'll plan everything back from that date."
+      }
+    ]
+  },
+  {
+    "id": "N_4",
+    "date": "2026-05-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "For scope, what should Falcon ship with?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "What are the core features on your roadmap? Let's rank them by what a beta customer can't live without."
+      }
+    ]
+  },
+  {
+    "id": "N_5",
+    "date": "2026-05-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Three big ones: Smart Rota, the auto-scheduler; shift swaps between staff; and Tailwind, our codename for offline sync in the mobile app."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Smart Rota and shift swaps are the core of a scheduling product. Tailwind is the riskiest of the three to build, since offline sync is hard, but valuable for staff without reliable signal."
+      }
+    ]
+  },
+  {
+    "id": "N_6",
+    "date": "2026-05-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I want all three in the launch, including Tailwind."
+      },
+      {
+        "speaker": "assistant",
+        "text": "OK, Tailwind is in scope. Let's confirm with engineering that it fits in four weeks alongside everything else."
+      }
+    ]
+  },
+  {
+    "id": "N_7",
+    "date": "2026-05-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Next is pricing. What do competitors charge for team scheduling?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Most charge per seat per month, typically €4–€8, with a free tier for very small teams to drive sign-ups."
+      }
+    ]
+  },
+  {
+    "id": "N_8",
+    "date": "2026-05-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Would a free tier cannibalise the paid one?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Not if it's capped by seats. A cap of a handful of seats keeps it useful for a single small shop but pushes any real team onto the paid plan."
+      }
+    ]
+  },
+  {
+    "id": "N_9",
+    "date": "2026-05-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then two tiers: Falcon Lite, free for up to 5 seats, and Falcon Pro at €5 per seat per month."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a clean structure and within the market range. Falcon Lite (5 seats, free) and Falcon Pro (€5/seat/month) it is."
+      }
+    ]
+  },
+  {
+    "id": "N_10",
+    "date": "2026-05-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "For the beta, Café Aurora (a chain of 12 cafés) is keen. Should we go with them?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. Twelve sites with rotating shift staff is exactly the target customer, and a chain gives you multi-site feedback. Café Aurora as the beta customer is a good choice."
+      }
+    ]
+  },
+  {
+    "id": "N_11",
+    "date": "2026-05-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Their ops manager says what matters most is seeing rotas per site on staff phones."
+      },
+      {
+        "speaker": "assistant",
+        "text": "So mobile-first, per-site rotas. That fits Smart Rota; keep their needs in mind as we lock scope."
+      }
+    ]
+  },
+  {
+    "id": "N_12",
+    "date": "2026-05-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Marcus, our CTO, says until launch we only have 2 backend engineers and 1 mobile engineer."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a hard constraint on scope; everything has to fit into three people's time over four weeks."
+      }
+    ]
+  },
+  {
+    "id": "N_13",
+    "date": "2026-05-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Marcus also estimates Tailwind alone is about three weeks of the mobile engineer's time."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then Tailwind would consume nearly all of your only mobile engineer's time before launch, leaving no room for the rest of the mobile app."
+      }
+    ]
+  },
+  {
+    "id": "N_14",
+    "date": "2026-05-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then we have to cut it, right?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. Cut Tailwind from the launch and ship the mobile app online-only. It can come back after launch."
+      }
+    ]
+  },
+  {
+    "id": "N_15",
+    "date": "2026-05-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What does Café Aurora lose without Tailwind?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Staff will need a connection to see their rota. Given their focus on phones [N_11], it's worth checking how many of their sites have poor signal."
+      }
+    ]
+  },
+  {
+    "id": "N_16",
+    "date": "2026-05-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Along the same lines, should we also hold back the Slack integration?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, no Slack integration before launch either. It's backend time we don't have."
+      }
+    ]
+  },
+  {
+    "id": "N_17",
+    "date": "2026-05-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Smart Rota's suggestions are still a bit rough. Ship it anyway?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Ship it but label it beta in the UI, so customers treat the suggestions as a starting point and give feedback rather than trusting them blindly."
+      }
+    ]
+  },
+  {
+    "id": "N_18",
+    "date": "2026-05-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can you recap Falcon's launch plan so far?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Falcon launches 2 June with Smart Rota (labelled beta) and shift swaps, no Tailwind and no Slack. Pricing is Falcon Lite (free, 5 seats) and Falcon Pro (€5/seat). Café Aurora is the beta customer."
+      }
+    ]
+  },
+  {
+    "id": "N_19",
+    "date": "2026-05-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Bad news from legal: a company called Falcon Systems Ltd holds the 'Falcon' trademark in our software class. Can we keep the name?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a serious risk. Launching under a mark someone else holds in your class invites an injunction right when you get traction."
+      }
+    ]
+  },
+  {
+    "id": "N_20",
+    "date": "2026-05-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What are our options?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Two: negotiate a coexistence agreement, which could take months with no guarantee, or rename before launch while you have almost no public footprint."
+      }
+    ]
+  },
+  {
+    "id": "N_21",
+    "date": "2026-05-13",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We've decided: we're renaming Falcon to Nimbus, everywhere."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good call; renaming now is far cheaper than after launch. The product is Nimbus from here on."
+      }
+    ]
+  },
+  {
+    "id": "N_22",
+    "date": "2026-05-13",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What does the rename checklist look like?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Domain and email, the app-store listings, the marketing site and copy, in-app strings, legal documents, and the beta customer's onboarding materials."
+      }
+    ]
+  },
+  {
+    "id": "N_23",
+    "date": "2026-05-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Problem: changing the app name in the app stores triggers a fresh review cycle, roughly 10 days."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That doesn't fit the current date. The store review alone eats most of the remaining time."
+      }
+    ]
+  },
+  {
+    "id": "N_24",
+    "date": "2026-05-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then let's move the launch to 16 June."
+      },
+      {
+        "speaker": "assistant",
+        "text": "16 June leaves room for the store review plus a buffer. Nimbus launches on 16 June."
+      }
+    ]
+  },
+  {
+    "id": "N_25",
+    "date": "2026-05-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Elena, our design lead, has a first version of the Nimbus brand: a cloud mark and a soft blue palette."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Nice, and it fits the name. Get it into the app-store assets first, since they gate the review."
+      }
+    ]
+  },
+  {
+    "id": "N_26",
+    "date": "2026-05-16",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Store listings for Nimbus are submitted."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good; the review clock starts now, so 16 June still holds."
+      }
+    ]
+  },
+  {
+    "id": "N_27",
+    "date": "2026-05-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Marketing copy for the Nimbus site is done too. Should the pricing page change while we're at it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "It's a good moment. Every page is being rewritten anyway, so a pricing change costs nothing extra now."
+      }
+    ]
+  },
+  {
+    "id": "N_28",
+    "date": "2026-05-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "New tiers then: the old Lite and Pro become Nimbus Free and Nimbus Team. Team goes to €6 per seat, and Free is capped at 3 seats instead of 5."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Nimbus Free (3 seats) and Nimbus Team (€6/seat/month): still in the market range, and the tighter free cap pushes small teams to upgrade sooner."
+      }
+    ]
+  },
+  {
+    "id": "N_29",
+    "date": "2026-05-19",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Marcus pushed back: raising the price right before launch looks bad, especially to the beta customer."
+      },
+      {
+        "speaker": "assistant",
+        "text": "He has a point about the beta: Café Aurora agreed to a price and shouldn't be surprised. For new customers the launch is the natural moment to set the price."
+      }
+    ]
+  },
+  {
+    "id": "N_30",
+    "date": "2026-05-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Compromise: €6 for everyone new, and Café Aurora keeps €5 per seat as the beta customer."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That works: new customers pay €6 per seat on Nimbus Team, and Café Aurora is grandfathered at €5."
+      }
+    ]
+  },
+  {
+    "id": "N_31",
+    "date": "2026-05-25",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Café Aurora just told us they might drop out of the beta. I don't know why yet; their feedback has been vague. Why would they?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Let's find out before guessing. Ask to interview a few shift leads directly rather than the head office."
+      }
+    ]
+  },
+  {
+    "id": "N_32",
+    "date": "2026-05-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Interviewed five shift leads. Several sites have kitchens and stockrooms in basements with no phone signal."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a strong clue. Where do staff usually check their rota?"
+      }
+    ]
+  },
+  {
+    "id": "N_33",
+    "date": "2026-05-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Right there, on their breaks, in the basement. And the app shows nothing without a connection."
+      },
+      {
+        "speaker": "assistant",
+        "text": "So the gap is exactly the per-site rota on phones they asked for at the start [N_11], which only works online."
+      }
+    ]
+  },
+  {
+    "id": "N_34",
+    "date": "2026-05-27",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So the root cause is that staff can't see their rotas offline?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. That's why Café Aurora is at risk: staff can't access rotas without signal, and for a scheduling product that's the core job."
+      }
+    ]
+  },
+  {
+    "id": "N_35",
+    "date": "2026-05-27",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Marcus found budget to hire a mobile contractor for four weeks."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That doubles mobile capacity to two engineers until launch, which changes what's feasible on the app side."
+      }
+    ]
+  },
+  {
+    "id": "N_36",
+    "date": "2026-05-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then let's bring offline access back for launch. We'll call it Work Offline, and put it on the Team tier only."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Agreed: Work Offline goes back into the launch scope, Team tier only. With two mobile engineers it fits, and it directly fixes Café Aurora's problem."
+      }
+    ]
+  },
+  {
+    "id": "N_37",
+    "date": "2026-05-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Wait, is Work Offline the same thing as Tailwind, the offline sync we cut back in early May?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, it's the same feature under a new name: Tailwind was the internal codename. What changed is capacity, not the feature itself."
+      }
+    ]
+  },
+  {
+    "id": "N_38",
+    "date": "2026-05-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Same design as before, then?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Same design, but read-only first: staff can view rotas offline, and edits sync when they reconnect. That keeps it within the contractor's four weeks."
+      }
+    ]
+  },
+  {
+    "id": "N_39",
+    "date": "2026-05-29",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The mobile team says Work Offline needs one more week than we have before 16 June."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then the date has to move again, or Work Offline misses launch, and Café Aurora made it clear that it can't."
+      }
+    ]
+  },
+  {
+    "id": "N_40",
+    "date": "2026-05-29",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "OK, final answer: we launch on 23 June."
+      },
+      {
+        "speaker": "assistant",
+        "text": "23 June it is. That's the new public launch date for Nimbus."
+      }
+    ]
+  },
+  {
+    "id": "N_41",
+    "date": "2026-06-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Work Offline QA started. Sync works, but there are conflicts when a manager edits the rota while someone is offline."
+      },
+      {
+        "speaker": "assistant",
+        "text": "For a read-only first version the rule is simple: the server always wins, and offline devices just refresh their copy on reconnect."
+      }
+    ]
+  },
+  {
+    "id": "N_42",
+    "date": "2026-06-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What about staff who stay offline for days?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Show a clear 'last updated' timestamp on the rota, and a warning if it's older than 24 hours."
+      }
+    ]
+  },
+  {
+    "id": "N_43",
+    "date": "2026-06-09",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Work Offline passed QA on Café Aurora's own devices."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Great: that's the customer who needed it, on their real hardware."
+      }
+    ]
+  },
+  {
+    "id": "N_44",
+    "date": "2026-06-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Surprise: Marcus built the Slack integration during a hack week, and it's solid enough to ship."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then the earlier reason for holding it back, a lack of backend time, no longer applies. It can ship at launch."
+      }
+    ]
+  },
+  {
+    "id": "N_45",
+    "date": "2026-06-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Should Slack be on Free or only on Team?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Slack is cheap for you to run and good for adoption; on the free tier it helps word-of-mouth inside companies."
+      }
+    ]
+  },
+  {
+    "id": "N_46",
+    "date": "2026-06-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then both tiers get Slack."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Slack integration on both Nimbus Free and Nimbus Team."
+      }
+    ]
+  },
+  {
+    "id": "N_47",
+    "date": "2026-06-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Final launch-day scope check for Nimbus, please."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Nimbus launches 23 June with Smart Rota (labelled beta), shift swaps, Work Offline (read-only, Team tier) and Slack integration on both tiers. Pricing: Nimbus Free up to 3 seats, Nimbus Team €6 per seat, Café Aurora grandfathered at €5."
+      }
+    ]
+  },
+  {
+    "id": "N_48",
+    "date": "2026-06-23",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We launched today! And Café Aurora converted to a paid Nimbus Team account."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations. A public launch with a paying customer on day one is exactly the goal you set."
+      }
+    ]
+  },
+  {
+    "id": "N_49",
+    "date": "2026-06-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I need to write the launch retro. What changed from the original plan, and why?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Three big changes. The name: Falcon became Nimbus because of Falcon Systems' trademark [N_21], which pushed launch to 16 June. Scope: offline sync was cut for capacity [N_14], then restored as Work Offline once a contractor was hired and Café Aurora's basement problem surfaced [N_36], pushing launch to 23 June. Pricing: Falcon Lite/Pro became Nimbus Free (3 seats) and Team (€6). Slack also made it in after Marcus's hack week."
+      }
+    ]
+  },
+  {
+    "id": "N_50",
+    "date": "2026-06-26",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "First-week numbers: 41% of new sign-ups activated."
+      },
+      {
+        "speaker": "assistant",
+        "text": "41% activation in week one is a strong start for a scheduling product. Track it weekly against the Work Offline and Slack usage to see which one drives it."
+      }
+    ]
+  }
+]

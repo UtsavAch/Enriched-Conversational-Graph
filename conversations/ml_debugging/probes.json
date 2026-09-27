@@ -1,0 +1,127 @@
+[
+  {
+    "probe_id": "p1",
+    "question": "Was train/validation leakage the main reason LeafScan did so much worse in the field?",
+    "target": "SN_2",
+    "expected_any": [
+      "3 points",
+      "3%",
+      "minor"
+    ],
+    "forbidden_any": [
+      "leakage is the main cause",
+      "leakage was the main cause"
+    ],
+    "valid_from_turn": 12,
+    "decision_text": "H1 resolved: leakage exists (3% near-duplicates) but only inflated validation by about 3 points; it is not the main cause of the field gap.",
+    "designed_to_defeat": "anti-semantic: N_7 (assistant predicts leakage is the main cause) is the closest match"
+  },
+  {
+    "probe_id": "p2",
+    "question": "Does the LeafScan field app normalise images differently from the training pipeline?",
+    "target": "SN_3",
+    "expected_any": [
+      "identical",
+      "same normalisation",
+      "same normalization",
+      "ruled out"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 18,
+    "decision_text": "H2 resolved: the app applies exactly the same ImageNet normalisation as training; normalisation is not the problem.",
+    "designed_to_defeat": "anti-semantic: N_14 asserts the app skips normalisation"
+  },
+  {
+    "probe_id": "p3",
+    "question": "Which image-resizing method should LeafScan's training pipeline and field app use?",
+    "target": "SN_5",
+    "expected_any": [
+      "INTER_AREA"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 23,
+    "decision_text": "Use OpenCV INTER_AREA resizing in both the training pipeline and the field app (Pillow is not available on-device).",
+    "designed_to_defeat": "anti-semantic: N_21 recommends Pillow bilinear"
+  },
+  {
+    "probe_id": "p4",
+    "question": "How does LeafScan currently handle the difference in class balance between training data and field data?",
+    "target": "SN_7",
+    "expected_any": [
+      "prior",
+      "logit"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 31,
+    "decision_text": "Class weights were dropped (reverted); the class-prior shift is handled at inference time with logit prior adjustment.",
+    "designed_to_defeat": "anti-hierarchical: the answer is reached via N_31 contradicts N_27"
+  },
+  {
+    "probe_id": "p5",
+    "question": "How much does the phones' JPEG compression affect LeafScan's accuracy?",
+    "target": "SN_8",
+    "expected_any": [
+      "17 points",
+      "17-point",
+      "74%",
+      "biggest",
+      "largest"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 36,
+    "decision_text": "H5 resolved: JPEG compression at quality ~40 is the biggest remaining factor (validation 91% -> 74%); fixed with random JPEG-quality augmentation.",
+    "designed_to_defeat": "anti-semantic: N_34 says compression is unlikely to matter"
+  },
+  {
+    "probe_id": "p6",
+    "question": "How many field images can Joana's team label for fine-tuning?",
+    "target": "SN_10",
+    "expected_any": [
+      "800"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 43,
+    "decision_text": "Labelling budget of 800 field images (originally 500).",
+    "designed_to_defeat": "anti-semantic: N_39 (500) is the canonical budget turn"
+  },
+  {
+    "probe_id": "p7",
+    "question": "How is LeafScan fine-tuned on the labelled field images?",
+    "target": "SN_11",
+    "expected_any": [
+      "freeze",
+      "frozen"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 44,
+    "decision_text": "Fine-tune on 800 field images with the backbone frozen, training only the head and last block (a full fine-tune overfit).",
+    "designed_to_defeat": "anti-semantic: N_40 (full fine-tune) is the closest decision turn"
+  },
+  {
+    "probe_id": "p8",
+    "question": "What must be done to the data splits before every LeafScan retrain?",
+    "target": "SN_12",
+    "expected_any": [
+      "dedup",
+      "perceptual hash",
+      "phash"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 12,
+    "decision_text": "Deduplicate data splits with perceptual hashing before every retrain (also across the field fine-tuning and test sets).",
+    "designed_to_defeat": "anti-recency: set at N_12, referenced again only at N_45-N_46"
+  },
+  {
+    "probe_id": "p9",
+    "question": "What field accuracy does the final LeafScan model reach?",
+    "target": "SN_1",
+    "expected_any": [
+      "86%",
+      "86 %"
+    ],
+    "forbidden_any": [],
+    "valid_from_turn": 47,
+    "decision_text": "The goal of at least 85% field accuracy is achieved: 86% on the deduplicated field test set.",
+    "designed_to_defeat": "none (control probe)"
+  }
+]

@@ -1,0 +1,1122 @@
+[
+  {
+    "id": "N_1",
+    "date": "2026-04-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I'm Daniel, a software engineer in Lisbon. I just accepted an offer from Brennwerk GmbH in Munich. My partner Sofia and our daughter Lia, who's 8, are coming too, and we want to be settled before the German school year starts in September. Where do we even begin?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations! A family move to Munich has six moving parts that depend on each other: your work permit, housing, the city registration (Anmeldung) and a bank account, a school for Lia, health insurance, and shipping your things. We'll track each thread, since they interlock."
+      }
+    ]
+  },
+  {
+    "id": "N_2",
+    "date": "2026-04-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Brennwerk wants me to start on 1 July."
+      },
+      {
+        "speaker": "assistant",
+        "text": "1 July gives about twelve weeks for the permit and a first place to live, which is doable. We'll plan backwards from that date."
+      }
+    ]
+  },
+  {
+    "id": "N_3",
+    "date": "2026-04-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "First, the work permit. I'm Brazilian-born with only a Brazilian passport, so I do need one. Which permit should I apply for?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "As a non-EU citizen with a university degree and a skilled job offer, the EU Blue Card is usually the best route: faster, and better family rights than a general work visa."
+      }
+    ]
+  },
+  {
+    "id": "N_4",
+    "date": "2026-04-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Do I qualify on salary?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The Blue Card needs a salary above a threshold that's adjusted every year, around €48,000 in 2025. Your offer of €72,000 is comfortably above it."
+      }
+    ]
+  },
+  {
+    "id": "N_5",
+    "date": "2026-04-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then the Blue Card it is."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good. Brennwerk's HR can request a pre-approval from the Federal Employment Agency, which speeds things up."
+      }
+    ]
+  },
+  {
+    "id": "N_6",
+    "date": "2026-04-07",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What about Sofia? She's also Brazilian. She's a UX designer at a Lisbon agency and wants to keep that job, working remotely from Munich. Is she allowed to work in Germany?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good question, and the answer depends on the permit she gets as your family member. Let's check the family rules before she plans on it."
+      }
+    ]
+  },
+  {
+    "id": "N_7",
+    "date": "2026-04-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Housing next. Where should we live in Munich?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Munich is expensive and competitive, so let's first set a budget, then compare neighbourhoods by commute, schools and rent."
+      }
+    ]
+  },
+  {
+    "id": "N_8",
+    "date": "2026-04-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We can spend at most €2,300 a month, warm."
+      },
+      {
+        "speaker": "assistant",
+        "text": "€2,300 warm (including heating and utilities) for a family flat in Munich is tight but possible outside the most central areas."
+      }
+    ]
+  },
+  {
+    "id": "N_9",
+    "date": "2026-04-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Which neighbourhoods fit that?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Pasing is cheaper and has a fast S-Bahn to the centre; Haidhausen is more central and walkable but pricier. Brennwerk's office is in the east, near Haidhausen."
+      }
+    ]
+  },
+  {
+    "id": "N_10",
+    "date": "2026-04-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Pasing, then. It fits the budget."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Pasing it is. The S-Bahn commute to the east side is about 35 minutes."
+      }
+    ]
+  },
+  {
+    "id": "N_11",
+    "date": "2026-04-11",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Anything special about renting in Munich as foreigners?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Landlords usually ask for a credit record (SCHUFA). You won't have one yet, so bring your employment contract, recent payslips and a Portuguese bank reference instead."
+      }
+    ]
+  },
+  {
+    "id": "N_12",
+    "date": "2026-04-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "People keep mentioning the Anmeldung. What is it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The Anmeldung is the mandatory registration of your address with the city, within two weeks of moving in. Almost everything else in Germany, from bank accounts to your tax ID, depends on it."
+      }
+    ]
+  },
+  {
+    "id": "N_13",
+    "date": "2026-04-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I'll open an N26 account before we arrive, so we have a German IBAN from day one."
+      },
+      {
+        "speaker": "assistant",
+        "text": "N26 lets you open an account online before you move, which is handy for salary and everyday spending."
+      }
+    ]
+  },
+  {
+    "id": "N_14",
+    "date": "2026-04-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What do I need for the Anmeldung itself?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Your passport and a Wohnungsgeberbestätigung, a form your landlord signs confirming you moved in. So you can only register once you actually have a flat."
+      }
+    ]
+  },
+  {
+    "id": "N_15",
+    "date": "2026-04-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Lia's school: should she go to a public Grundschule or an international school?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Both are realistic in Munich; let's look at the trade-offs."
+      }
+    ]
+  },
+  {
+    "id": "N_16",
+    "date": "2026-04-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How does a public Grundschule work?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Free, and assigned by address: each address belongs to one school's catchment area, so where you live decides which Grundschule Lia attends."
+      }
+    ]
+  },
+  {
+    "id": "N_17",
+    "date": "2026-04-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And the international option?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The Bavarian International School is the best known. Teaching is in English, but fees are around €18,000 a year."
+      }
+    ]
+  },
+  {
+    "id": "N_18",
+    "date": "2026-04-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Lia doesn't speak any German. Is a Grundschule even possible?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes. Munich schools have German-support programmes for newly arrived children, and eight-year-olds pick up the language fast."
+      }
+    ]
+  },
+  {
+    "id": "N_19",
+    "date": "2026-04-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Health insurance: public or private?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "With a family and one main earner, public insurance is usually better: your spouse and children can be co-insured for free, whereas private insurance charges per person."
+      }
+    ]
+  },
+  {
+    "id": "N_20",
+    "date": "2026-04-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Then public, with Techniker Krankenkasse, and Sofia and Lia co-insured on my policy."
+      },
+      {
+        "speaker": "assistant",
+        "text": "TK is a good choice with English-language service. Sofia and Lia are co-insured through your membership."
+      }
+    ]
+  },
+  {
+    "id": "N_21",
+    "date": "2026-04-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Back to the visa: the earliest appointment at the KVR, Munich's immigration office, is 8 July."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a week after your planned start date. The Blue Card itself is issued at that appointment."
+      }
+    ]
+  },
+  {
+    "id": "N_22",
+    "date": "2026-04-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can I start working before I have the card?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Possibly, depending on the entry visa. Let's check what the pre-approval allows."
+      }
+    ]
+  },
+  {
+    "id": "N_23",
+    "date": "2026-04-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What did you find?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "With the pre-approval and a Blue Card entry visa, you may start working before the KVR appointment. And for Sofia: as the spouse of a Blue Card holder, she gets a residence permit with unrestricted work rights, so she can work in Germany, for a German or a foreign employer."
+      }
+    ]
+  },
+  {
+    "id": "N_24",
+    "date": "2026-05-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Housing update: finding a Pasing flat from Lisbon is impossible, so we found a temporary furnished flat from 1 July instead."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Sensible: a furnished flat lets you search in person, and you can register your address there."
+      }
+    ]
+  },
+  {
+    "id": "N_25",
+    "date": "2026-05-04",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The catch: it's only available until 31 July."
+      },
+      {
+        "speaker": "assistant",
+        "text": "So you need a permanent lease starting by 1 August. That's the real deadline for the flat search."
+      }
+    ]
+  },
+  {
+    "id": "N_26",
+    "date": "2026-05-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Good news: Brennwerk offers a €300 a month relocation allowance for the first year."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's real money in the Munich rental market."
+      }
+    ]
+  },
+  {
+    "id": "N_27",
+    "date": "2026-05-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So we can raise the rent cap?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: with the allowance, raise the cap to €2,600 warm."
+      }
+    ]
+  },
+  {
+    "id": "N_28",
+    "date": "2026-05-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "With €2,600 we could afford Haidhausen after all. It's walkable to Lia's future school and my commute would be 15 minutes. Should we switch from Pasing?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes, switch to Haidhausen: a 15-minute commute instead of 35, and a walkable school, are worth the extra rent now that it's within budget."
+      }
+    ]
+  },
+  {
+    "id": "N_29",
+    "date": "2026-05-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Does living in Haidhausen change which school Lia would go to?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Yes: the catchment rules [N_16] mean the address decides the Grundschule, so a Haidhausen address gives you a Haidhausen school."
+      }
+    ]
+  },
+  {
+    "id": "N_30",
+    "date": "2026-05-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Landlords in Haidhausen want the deposit in a rent-deposit account, a Mietkautionskonto."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's standard: the deposit, up to three months' cold rent, is held in a special blocked account."
+      }
+    ]
+  },
+  {
+    "id": "N_31",
+    "date": "2026-05-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can my N26 account do that?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Let's check: not every bank offers deposit accounts."
+      }
+    ]
+  },
+  {
+    "id": "N_32",
+    "date": "2026-05-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "No: N26 doesn't offer rent-deposit accounts, and many landlords won't accept its alternatives. Open a Sparkasse account after the Anmeldung for the deposit and rent, and keep N26 only for everyday spending."
+      }
+    ]
+  },
+  {
+    "id": "N_33",
+    "date": "2026-05-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So what order do things have to happen in?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "A strict chain: sign a lease, get the landlord's Wohnungsgeberbestätigung, do the Anmeldung, open the Sparkasse account, then set up the deposit account. The Anmeldung certificate is also what the school will ask for."
+      }
+    ]
+  },
+  {
+    "id": "N_34",
+    "date": "2026-05-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Back to school: for the Haidhausen addresses we're looking at, the catchment school is the Grundschule an der Kirchenstraße."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a well-regarded school, and a short walk from most of Haidhausen."
+      }
+    ]
+  },
+  {
+    "id": "N_35",
+    "date": "2026-05-18",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Sofia still prefers the international school, so Lia doesn't have to struggle with German. I worry about the €18,000 a year."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Both worries are fair. The fees [N_17] add up over years, while a Grundschule gives Lia German and local friends, which matters if you stay long-term."
+      }
+    ]
+  },
+  {
+    "id": "N_36",
+    "date": "2026-05-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We've decided: Kirchenstraße, plus a weekly German tutor so Lia catches up faster."
+      },
+      {
+        "speaker": "assistant",
+        "text": "A good compromise: free, local, and the tutor addresses Sofia's concern."
+      }
+    ]
+  },
+  {
+    "id": "N_37",
+    "date": "2026-05-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How do we register her at the school?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "In person at the school, with Lia's documents and proof of address."
+      }
+    ]
+  },
+  {
+    "id": "N_38",
+    "date": "2026-05-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What counts as proof of address?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The Anmeldung certificate, so school registration sits at the end of the same chain [N_33]: lease, landlord form, Anmeldung, then the school."
+      }
+    ]
+  },
+  {
+    "id": "N_39",
+    "date": "2026-05-25",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Insurance again: Sofia has an interview with a Munich design studio next week. She's starting to think a local job would be better than working remotely for Lisbon."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That would change a few things, insurance included."
+      }
+    ]
+  },
+  {
+    "id": "N_40",
+    "date": "2026-05-25",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Would she still be co-insured on my TK policy if she works in Munich?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Let's check the co-insurance rules for employed spouses."
+      }
+    ]
+  },
+  {
+    "id": "N_41",
+    "date": "2026-05-25",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What are the rules?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Co-insurance only covers family members without a significant income. If Sofia takes a salaried job in Munich, she'll be insured through her own employer. Lia stays co-insured on your policy."
+      }
+    ]
+  },
+  {
+    "id": "N_42",
+    "date": "2026-06-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Moving logistics: should we bring our car or sell it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Importing a car means German registration and possibly an inspection. Let's get a moving quote first."
+      }
+    ]
+  },
+  {
+    "id": "N_43",
+    "date": "2026-06-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "For the household goods, Transeuropa Movers can do a full 20 ft container. Let's book that."
+      },
+      {
+        "speaker": "assistant",
+        "text": "A full container fits the furniture and, in principle, the car. Booked with Transeuropa."
+      }
+    ]
+  },
+  {
+    "id": "N_44",
+    "date": "2026-06-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The Blue Card pre-approval arrived. The KVR appointment is still 8 July, though."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good; with the pre-approval your entry visa is straightforward. The 8 July appointment stays."
+      }
+    ]
+  },
+  {
+    "id": "N_45",
+    "date": "2026-06-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "To be safe, Brennwerk agreed to move my start date to 15 July, after the appointment."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That removes any doubt about working before the card is issued. Your start date is now 15 July."
+      }
+    ]
+  },
+  {
+    "id": "N_46",
+    "date": "2026-06-03",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Does the later start mess up the temporary flat?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Not really: it still runs until 31 July [N_25], so you'd just use it from mid-July."
+      }
+    ]
+  },
+  {
+    "id": "N_47",
+    "date": "2026-06-10",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "I flew over for a weekend and viewed three Haidhausen flats."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good; viewings in person make a huge difference with Munich landlords."
+      }
+    ]
+  },
+  {
+    "id": "N_48",
+    "date": "2026-06-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We got one! Lease signed: €2,480 warm, starting 1 August."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations. €2,480 is within your €2,600 cap, and a 1 August start means you no longer depend on the temporary flat after July."
+      }
+    ]
+  },
+  {
+    "id": "N_49",
+    "date": "2026-06-15",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "So the temporary flat is only needed from 15 to 31 July now?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Right: with the later start [N_45], you'll use it for just over two weeks."
+      }
+    ]
+  },
+  {
+    "id": "N_50",
+    "date": "2026-07-16",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We've arrived in Munich! The new landlord already gave us the Wohnungsgeberbestätigung for the Haidhausen flat."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Perfect: with that form you can do the Anmeldung for the new address right away, even before moving in on 1 August."
+      }
+    ]
+  },
+  {
+    "id": "N_51",
+    "date": "2026-07-17",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Anmeldung done at the Bürgerbüro this morning!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "That unlocks the rest of the chain: bank account, deposit, school registration."
+      }
+    ]
+  },
+  {
+    "id": "N_52",
+    "date": "2026-07-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The Sparkasse account is open."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good; that's your main account for rent and the deposit."
+      }
+    ]
+  },
+  {
+    "id": "N_53",
+    "date": "2026-07-22",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "And the deposit is in the Mietkautionskonto. The landlord confirmed."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then the whole registration and banking chain is complete."
+      }
+    ]
+  },
+  {
+    "id": "N_54",
+    "date": "2026-07-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We registered Lia at Kirchenstraße with the Anmeldung certificate."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Great, the last link in the chain."
+      }
+    ]
+  },
+  {
+    "id": "N_55",
+    "date": "2026-07-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The school tested Lia's German. As expected, she's a beginner."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Normal for a new arrival. Schools then decide how to place her."
+      }
+    ]
+  },
+  {
+    "id": "N_56",
+    "date": "2026-07-27",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The school wants Lia to start in the Übergangsklasse, a transition class for new arrivals, for about six months, before joining a regular third-grade class. We'll keep the tutor too."
+      },
+      {
+        "speaker": "assistant",
+        "text": "That's a strong model: intensive German with other newcomers, then a regular class. So the plan is Kirchenstraße, starting in the Übergangsklasse, plus the weekly tutor."
+      }
+    ]
+  },
+  {
+    "id": "N_57",
+    "date": "2026-07-27",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Sofia worries it will set Lia back a year."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Usually the opposite: children who get a solid German base first tend to catch up faster in regular classes than those thrown straight in."
+      }
+    ]
+  },
+  {
+    "id": "N_58",
+    "date": "2026-07-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Sofia got the job at the Munich design studio!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations to her! That settles the question of working remotely."
+      }
+    ]
+  },
+  {
+    "id": "N_59",
+    "date": "2026-07-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "She's resigning from the Lisbon agency. No more remote work for them."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Then the plan to keep her Lisbon job is off. She'll be a regular employee in Munich from September."
+      }
+    ]
+  },
+  {
+    "id": "N_60",
+    "date": "2026-07-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What happens with insurance now?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "As we worked out [N_41]: from her start date Sofia is insured through her new employer, and Lia stays co-insured on your TK policy."
+      }
+    ]
+  },
+  {
+    "id": "N_61",
+    "date": "2026-07-29",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Transeuropa's final quote for the full 20 ft container, car included, is €7,800. That's way over what we planned."
+      },
+      {
+        "speaker": "assistant",
+        "text": "The car is the expensive part: it takes most of the container space and needs German registration afterwards."
+      }
+    ]
+  },
+  {
+    "id": "N_62",
+    "date": "2026-07-29",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Haidhausen has great transport and we'd hardly use a car. Let's sell it and ship the rest in a shared container."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Agreed: sell the car in Lisbon and switch to a shared container for the household goods. Much cheaper, and it arrives in a similar time."
+      }
+    ]
+  },
+  {
+    "id": "N_63",
+    "date": "2026-08-01",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The KVR issued my Blue Card, and Sofia's residence permit came with it."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Congratulations, that's the legal side done for both of you."
+      }
+    ]
+  },
+  {
+    "id": "N_64",
+    "date": "2026-08-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We moved into the Haidhausen flat yesterday."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Welcome home! Mostly empty for now, I assume, until the container arrives."
+      }
+    ]
+  },
+  {
+    "id": "N_65",
+    "date": "2026-08-02",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Yes, when does our stuff arrive?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Shared containers usually take a little longer to fill; Transeuropa's estimate is the first week of August."
+      }
+    ]
+  },
+  {
+    "id": "N_66",
+    "date": "2026-08-05",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "The container arrived today and everything was unloaded."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Great timing, well before school starts."
+      }
+    ]
+  },
+  {
+    "id": "N_67",
+    "date": "2026-08-06",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "One box is missing: the one with Lia's books."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Check the inventory list the movers made at packing; each box should be numbered."
+      }
+    ]
+  },
+  {
+    "id": "N_68",
+    "date": "2026-08-08",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Should we file an insurance claim?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Report it to Transeuropa in writing first; the transit insurance usually requires notice within a few days of delivery."
+      }
+    ]
+  },
+  {
+    "id": "N_69",
+    "date": "2026-08-12",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Transeuropa found the box: it had been loaded onto another family's shipment. It's being delivered next week."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Good outcome. Keep the written report until it arrives."
+      }
+    ]
+  },
+  {
+    "id": "N_70",
+    "date": "2026-08-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Can you give me the status of everything?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Visa: Blue Card issued. Housing: in Haidhausen at €2,480. Registration and bank: Anmeldung, Sparkasse and deposit done. School: Lia starts at Kirchenstraße in the transition class. Insurance: TK for you and Lia, Sofia through her employer. Moving: goods arrived, car sold."
+      }
+    ]
+  },
+  {
+    "id": "N_71",
+    "date": "2026-08-14",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "What's still open?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Three admin items: waiting for your tax ID, the broadcasting fee registration, and sorting out transport now that you have no car."
+      }
+    ]
+  },
+  {
+    "id": "N_72",
+    "date": "2026-08-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Lia's school confirmed her first day: 14 September."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Perfect, with a few weeks to settle in first."
+      }
+    ]
+  },
+  {
+    "id": "N_73",
+    "date": "2026-08-20",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Has the tax ID shown up? Brennwerk payroll keeps asking."
+      },
+      {
+        "speaker": "assistant",
+        "text": "It's sent automatically by post a few weeks after the Anmeldung, so it should arrive soon."
+      }
+    ]
+  },
+  {
+    "id": "N_74",
+    "date": "2026-08-21",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "It arrived today!"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Send it to Brennwerk's payroll so your salary is taxed correctly from the start."
+      }
+    ]
+  },
+  {
+    "id": "N_75",
+    "date": "2026-08-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "We got a letter about the Rundfunkbeitrag. What is it?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "The public broadcasting fee: every household pays it, whether or not you own a TV."
+      }
+    ]
+  },
+  {
+    "id": "N_76",
+    "date": "2026-08-24",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "How much, and do we both pay?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Once per household, not per person: roughly €18 a month. Register the household once, in one name."
+      }
+    ]
+  },
+  {
+    "id": "N_77",
+    "date": "2026-08-27",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Without a car, what's the best way to get around?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Munich's public transport covers everything you need from Haidhausen. Now that the car is sold [N_62], a monthly Deutschlandticket is the obvious choice."
+      }
+    ]
+  },
+  {
+    "id": "N_78",
+    "date": "2026-08-28",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Brennwerk subsidises the Deutschlandticket as a job ticket, so I've ordered it through them."
+      },
+      {
+        "speaker": "assistant",
+        "text": "Even better. That closes the last open item."
+      }
+    ]
+  },
+  {
+    "id": "N_79",
+    "date": "2026-08-30",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Looking back, what changed from our April plan?"
+      },
+      {
+        "speaker": "assistant",
+        "text": "Five things: Haidhausen instead of Pasing [N_28]; Sparkasse instead of N26 as the main bank [N_32]; a 15 July start instead of 1 July [N_45]; Sofia working in Munich instead of remotely for Lisbon [N_59]; and selling the car with a shared container instead of shipping everything [N_62]."
+      }
+    ]
+  },
+  {
+    "id": "N_80",
+    "date": "2026-08-31",
+    "turns": [
+      {
+        "speaker": "user",
+        "text": "Tomorrow Sofia starts her new job, and in two weeks Lia starts school. I think we're actually settled."
+      },
+      {
+        "speaker": "assistant",
+        "text": "You are: permits, home, bank, insurance, school and work all in place before the school year. Congratulations to all three of you."
+      }
+    ]
+  }
+]

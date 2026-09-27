@@ -1,0 +1,92 @@
+[
+  {
+    "probe_id": "p1",
+    "question": "What is Carla and Miguel's total renovation budget?",
+    "target": "SN_2",
+    "expected_any": ["21,500", "21500", "21.5"],
+    "forbidden_any": [],
+    "valid_from_turn": 29,
+    "decision_text": "€21,500 after a €3,500 family top-up (originally €18,000).",
+    "designed_to_defeat": "anti-recency: the most recent budget mention (N_41) repeats the stale '€18k'"
+  },
+  {
+    "probe_id": "p2",
+    "question": "How much are the kitchen cabinets budgeted at now?",
+    "target": "SN_3",
+    "expected_any": ["4,600", "4600"],
+    "forbidden_any": [],
+    "valid_from_turn": 36,
+    "decision_text": "€4,600 for IKEA Metod with a standard 30 cm drawer unit (originally €4,200, then €5,100 with custom pieces).",
+    "designed_to_defeat": "anti-semantic: three similar cabinet-budget turns, two of them stale"
+  },
+  {
+    "probe_id": "p3",
+    "question": "Which contractor is doing the kitchen work?",
+    "target": "SN_5",
+    "expected_any": ["Casa Nova"],
+    "forbidden_any": [],
+    "valid_from_turn": 20,
+    "decision_text": "Casa Nova Remodelações, at a €9,400 fixed price (Ferreira Obras was hired first, then dropped).",
+    "designed_to_defeat": "anti-semantic: N_12 hires Ferreira"
+  },
+  {
+    "probe_id": "p4",
+    "question": "What countertop material did Carla and Miguel choose?",
+    "target": "SN_7",
+    "expected_any": ["laminate", "HPL"],
+    "forbidden_any": [],
+    "valid_from_turn": 27,
+    "decision_text": "Stone-look HPL laminate (quartz was chosen first, then dropped to save €1,500, and kept as laminate even after the budget grew).",
+    "designed_to_defeat": "anti-semantic: N_14 chooses quartz; N_30 asks about returning to quartz"
+  },
+  {
+    "probe_id": "p5",
+    "question": "How long is the kitchen's back wall?",
+    "target": "SN_10",
+    "expected_any": ["3.28"],
+    "forbidden_any": [],
+    "valid_from_turn": 17,
+    "decision_text": "3.28 m, out of plumb (first measured as 3.40 m).",
+    "designed_to_defeat": "anti-semantic: N_6 states 3.40 m"
+  },
+  {
+    "probe_id": "p6",
+    "question": "Does the kitchen renovation need a permit from the Câmara?",
+    "target": "SN_8",
+    "expected_any": ["induction", "no permit", "not needed", "no gas"],
+    "forbidden_any": [],
+    "valid_from_turn": 24,
+    "decision_text": "No: switching to an induction hob removed the gas-line move, so no comunicação prévia is needed.",
+    "designed_to_defeat": "anti-hierarchical: answered by N_24 resolves N_15"
+  },
+  {
+    "probe_id": "p7",
+    "question": "Does the electrician need to upgrade the circuit for the induction hob?",
+    "target": "SN_13",
+    "expected_any": ["32A", "existing", "no upgrade", "not needed"],
+    "forbidden_any": [],
+    "valid_from_turn": 40,
+    "decision_text": "No: the existing 32A line is sufficient, so the €650 upgrade was dropped.",
+    "designed_to_defeat": "anti-semantic: N_25 says an upgrade is required"
+  },
+  {
+    "probe_id": "p8",
+    "question": "When did the kitchen works start?",
+    "target": "SN_11",
+    "expected_any": ["16 March", "March 16"],
+    "forbidden_any": [],
+    "valid_from_turn": 33,
+    "decision_text": "16 March (originally planned for 2 March; moved because of a tile delay).",
+    "designed_to_defeat": "anti-semantic: N_21 sets 2 March"
+  },
+  {
+    "probe_id": "p9",
+    "question": "Where is the oven installed in the new kitchen?",
+    "target": "SN_12",
+    "expected_any": ["column", "eye level"],
+    "forbidden_any": [],
+    "valid_from_turn": 31,
+    "decision_text": "In a tall column cabinet at eye level, not under the hob.",
+    "designed_to_defeat": "anti-recency"
+  }
+]

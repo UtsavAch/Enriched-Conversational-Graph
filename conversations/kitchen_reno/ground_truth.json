@@ -1,0 +1,2675 @@
+{
+  "conversation_id": "kitchen_reno",
+  "domain": "Kitchen renovation planning on a fixed budget",
+  "schema_note": "Mirrors INESCTEC_RESEARCH.md section 3/4 output schema, same convention as conversations/marathon_trip. Domain entity types (domain_config.json): material, product, trade. Built to exercise numeric state that is revised repeatedly (budget SN_2, cabinets SN_3 twice, wall SN_10, start date SN_11), two decisions reverted and replaced (contractor SN_4 -> SN_5, countertop SN_6 -> SN_7), constraint: lifted (SN_13), and a late stale mention of an old value (N_41: '€18k').",
+  "schema_findings": [
+    {
+      "raised_at_node": "N_41",
+      "issue": "N_41 mentions the superseded €18,000 budget in passing (Miguel's phrase), without asserting it as current. It is neither a revision nor a contradiction of the current budget.",
+      "proposed_direction": "Recorded as references to N_2 only, with no state-node link. This is the intended trap for recency-only retrieval: the most recent budget mention in the conversation carries a stale number."
+    },
+    {
+      "raised_at_node": "N_27",
+      "issue": "N_27 both contradicts N_14 (quartz dropped) and resolves N_26 (where to cut). One turn can close a question and overturn an earlier decision at the same time.",
+      "proposed_direction": "Keep both pragmatic edges; they target different turns and mean different things."
+    },
+    {
+      "raised_at_node": "N_48",
+      "issue": "The outline's final bill (€20,950) did not add up; the corpus uses €20,050, which build.py recomputes from the line items (BUDGET) and asserts against the text.",
+      "proposed_direction": "No schema change; recorded so the outline and corpus aren't read as inconsistent."
+    }
+  ],
+  "interaction_nodes": {
+    "N_1": {
+      "question": "Hi! I'm Carla. My partner Miguel and I want to redo the kitchen in our Alvalade apartment. His parents are visiting in early May and we want it done before then. Where do we start?",
+      "answer": "Nice project. Early May gives about four months, which is realistic for a kitchen if decisions don't drag. Start with the budget and the layout; almost everything else follows from those two.",
+      "embedding": "<vector: N_1 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2",
+        "E_3"
+      ],
+      "citations": [],
+      "speech_act": "request",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_1",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_50",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Carla and Miguel want to renovate their kitchen before early May.",
+      "reference": "Kitchen before May",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_1"
+        ]
+      }
+    },
+    "N_2": {
+      "question": "Our total budget is €18,000, and we really can't go above it.",
+      "answer": "€18,000 is workable for a mid-range kitchen in Lisbon if the layout stays mostly as it is. We'll treat it as a hard cap.",
+      "embedding": "<vector: N_2 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_2",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_29",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 7,
+      "retrieval_count": 7,
+      "summary": "Total budget capped at €18,000.",
+      "reference": "Budget €18,000",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_1",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_2"
+        ]
+      }
+    },
+    "N_3": {
+      "question": "How is a budget like that usually split?",
+      "answer": "Roughly: cabinets 25%, countertop 10–15%, labour 35–45%, appliances and tiles 15%, plus a contingency if you can. Labour is usually the biggest single line in Lisbon.",
+      "embedding": "<vector: N_3 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_3",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 5,
+      "retrieval_count": 5,
+      "summary": "Typical budget split: labour largest, cabinets ~25%, counter 10-15%.",
+      "reference": "Budget split",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_4": {
+      "question": "For the layout, should we go L-shaped or galley?",
+      "answer": "That depends on the room. What are the dimensions, and where are the window and the door?",
+      "embedding": "<vector: N_4 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_4",
+          "creation",
+          "open"
+        ],
+        [
+          "N_5",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Asks about L-shaped vs galley layout.",
+      "reference": "Layout question",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_5": {
+      "question": "The window is on the short wall and the door is opposite it, so the long back wall is free.",
+      "answer": "Then an L-shape along the back wall and the window wall works well: it keeps the door path clear and gives you the most counter space.",
+      "embedding": "<vector: N_5 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_5",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Room layout suits an L-shape along the back and window walls.",
+      "reference": "L-shape layout",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_4",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_6": {
+      "question": "I measured the back wall: 3.40 m.",
+      "answer": "Good; the cabinet plan will be built around 3.40 m of run on that wall.",
+      "embedding": "<vector: N_6 question+answer>",
+      "named_entities": [
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_6",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_17",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Back wall measured at 3.40 m.",
+      "reference": "Wall 3.40 m",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_5",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_10"
+        ]
+      }
+    },
+    "N_7": {
+      "question": "IKEA or custom cabinets?",
+      "answer": "With your budget, IKEA. Custom joinery for an L-shape would easily eat half the budget on its own.",
+      "embedding": "<vector: N_7 question+answer>",
+      "named_entities": [
+        "E_18"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_7",
+          "creation",
+          "open"
+        ],
+        [
+          "N_8",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks IKEA vs custom cabinets; IKEA recommended.",
+      "reference": "IKEA vs custom",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_8": {
+      "question": "I did the IKEA planner for Metod cabinets: €4,200 for the whole L.",
+      "answer": "That's about 23% of the budget, right in range. Metod cabinets at €4,200 it is.",
+      "embedding": "<vector: N_8 question+answer>",
+      "named_entities": [
+        "E_18",
+        "E_9"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_8",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_22",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "IKEA Metod cabinets chosen at €4,200.",
+      "reference": "Cabinets €4,200",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_7",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_7",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_3"
+        ],
+        "relates": [
+          [
+            "SN_2",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_9": {
+      "question": "We asked two contractors for labour quotes. Ferreira Obras quoted €7,900.",
+      "answer": "That's on the low end for demolition, plumbing, electrics and installation. Check what's excluded.",
+      "embedding": "<vector: N_9 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_9",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Ferreira Obras quotes €7,900 for labour.",
+      "reference": "Ferreira quote €7,900",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_3",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_10": {
+      "question": "And Casa Nova Remodelações quoted €9,400, but as a fixed price, and they include waste removal.",
+      "answer": "A fixed price with waste removal is worth something: fewer surprises. €1,500 more, but with a firm number.",
+      "embedding": "<vector: N_10 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_10",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Casa Nova quotes €9,400 fixed price including waste removal.",
+      "reference": "Casa Nova quote €9,400",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_9",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_11": {
+      "question": "Which one would you pick?",
+      "answer": "On numbers alone Ferreira is cheaper. If the budget is truly tight, Ferreira, as long as the scope is written down.",
+      "embedding": "<vector: N_11 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_11",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Assistant leans towards the cheaper Ferreira quote.",
+      "reference": "Leaning Ferreira",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_9",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_10",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_12": {
+      "question": "We'll go with Ferreira Obras then.",
+      "answer": "OK, Ferreira Obras. Get the quote itemised and signed before any work starts.",
+      "embedding": "<vector: N_12 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_12",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_19",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Ferreira Obras hired.",
+      "reference": "Hire Ferreira",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_11",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_11",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_4"
+        ]
+      }
+    },
+    "N_13": {
+      "question": "Countertop: what material?",
+      "answer": "For the look you described, quartz or a good stone-look laminate. Quartz is more durable; laminate is much cheaper.",
+      "embedding": "<vector: N_13 question+answer>",
+      "named_entities": [
+        "E_11",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_13",
+          "creation",
+          "open"
+        ],
+        [
+          "N_14",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Asks about countertop material: quartz vs laminate.",
+      "reference": "Countertop question",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_3",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_14": {
+      "question": "We love quartz. The quote is €2,300 for both runs.",
+      "answer": "Quartz at €2,300 is about 13% of the budget, within range. Quartz it is.",
+      "embedding": "<vector: N_14 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_14",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_27",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Quartz countertop chosen at €2,300.",
+      "reference": "Quartz €2,300",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_13",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_6"
+        ],
+        "relates": [
+          [
+            "SN_2",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_15": {
+      "question": "We want the hob on the back wall instead of by the window. That means moving the gas line. Do we need a permit?",
+      "answer": "Moving a gas line is regulated work; it may need a comunicação prévia to the Câmara.",
+      "embedding": "<vector: N_15 question+answer>",
+      "named_entities": [
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_15",
+          "creation",
+          "open"
+        ],
+        [
+          "N_24",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Moving the hob means moving the gas line; opens whether a permit is needed.",
+      "reference": "Gas line permit?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_4",
+            "subcase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_8"
+        ]
+      }
+    },
+    "N_16": {
+      "question": "How do I find out for sure?",
+      "answer": "Ask the Câmara's urbanism desk or have the contractor check. Gas works also need a certified gas technician and an inspection afterwards.",
+      "embedding": "<vector: N_16 question+answer>",
+      "named_entities": [
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "clarification_request",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_16",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Check with the Câmara; gas work needs a certified technician and inspection.",
+      "reference": "Check with Câmara",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_15",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_17": {
+      "question": "Sr. Ferreira came to measure properly: the back wall is actually 3.28 m, not 3.40. It's out of plumb and narrower at the top.",
+      "answer": "That's 12 cm less than the plan assumes, which matters for the cabinet run.",
+      "embedding": "<vector: N_17 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "correction",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_17",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Back wall re-measured at 3.28 m, out of plumb.",
+      "reference": "Wall 3.28 m",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_6",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_6",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_10",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_18": {
+      "question": "He also sent a revised quote: €2,100 extra 'for surprises', and he can only start in six weeks.",
+      "answer": "An open-ended €2,100 'surprises' line on a quote you chose for being cheap removes its main advantage, and a six-week wait threatens the May deadline.",
+      "embedding": "<vector: N_18 question+answer>",
+      "named_entities": [
+        "E_6",
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_18",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Ferreira adds €2,100 for 'surprises' and a six-week wait.",
+      "reference": "Ferreira revised quote",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_12",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_4",
+            "contradicts"
+          ],
+          [
+            "SN_1",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_19": {
+      "question": "We're not comfortable with that. Should we drop Ferreira?",
+      "answer": "Yes. Ferreira at €10,000 with an open-ended line is now more expensive than Casa Nova's fixed price, and slower.",
+      "embedding": "<vector: N_19 question+answer>",
+      "named_entities": [
+        "E_4"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_19",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Ferreira Obras dropped.",
+      "reference": "Drop Ferreira",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_18",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_12",
+            "contradicts"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_4",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_20": {
+      "question": "Then we go with Casa Nova?",
+      "answer": "Yes: Casa Nova Remodelações at their €9,400 fixed price [N_10]. Ana will be your project manager.",
+      "embedding": "<vector: N_20 question+answer>",
+      "named_entities": [
+        "E_5",
+        "E_7"
+      ],
+      "citations": [
+        "N_10"
+      ],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_20",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Casa Nova Remodelações hired at €9,400 fixed.",
+      "reference": "Hire Casa Nova",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_19",
+            "depends_on"
+          ],
+          [
+            "N_10",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_5"
+        ]
+      }
+    },
+    "N_21": {
+      "question": "Ana says they can start on 2 March.",
+      "answer": "2 March leaves about eight weeks before early May, enough for a six-week job with some slack.",
+      "embedding": "<vector: N_21 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_21",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_33",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Works to start 2 March.",
+      "reference": "Start 2 March",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_20",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_20",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_11"
+        ],
+        "relates": [
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_22": {
+      "question": "Because the wall is 3.28 m, the 40 cm drawer unit no longer fits. IKEA's planner suggests custom filler panels and a narrow custom unit. Cabinets go up to €5,100.",
+      "answer": "The 12 cm shortfall forces custom pieces, so the cabinet line rises from €4,200 to €5,100.",
+      "embedding": "<vector: N_22 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_10",
+        "E_18"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "superseded",
+      "epistemic_history": [
+        [
+          "N_22",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_36",
+          "revises",
+          "superseded"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "The shorter wall forces custom pieces; cabinets rise to €5,100.",
+      "reference": "Cabinets €5,100",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_17",
+            "depends_on"
+          ],
+          [
+            "N_8",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_23": {
+      "question": "Where does that leave the total?",
+      "answer": "Cabinets €5,100 + labour €9,400 + quartz €2,300 + appliances and tiles about €2,900 = €19,700. That's €1,700 over the €18,000 cap.",
+      "embedding": "<vector: N_23 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_23",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Running total €19,700, €1,700 over budget.",
+      "reference": "Total €19,700",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_24": {
+      "question": "Idea: if we switch to an induction hob, there's no gas line to move at all. Does that also get rid of the permit question?",
+      "answer": "Yes. With induction there's no gas work, so there's nothing to notify the Câmara about and no gas inspection. The permit question disappears. Switching to induction solves both problems.",
+      "embedding": "<vector: N_24 question+answer>",
+      "named_entities": [
+        "E_14",
+        "E_17"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_24",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Switch to induction: no gas work, so no permit needed.",
+      "reference": "Switch to induction",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_15",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_15",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_9"
+        ],
+        "updates": [
+          [
+            "SN_8",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "SN_8",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "N_25": {
+      "question": "Ana says induction needs a dedicated circuit, so the electrician has to upgrade it: about €650.",
+      "answer": "That's a common requirement. It adds €650, so we need to keep an eye on the total.",
+      "embedding": "<vector: N_25 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_16",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "contested",
+      "epistemic_history": [
+        [
+          "N_25",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_40",
+          "contradicts",
+          "contested"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Induction needs a circuit upgrade, +€650.",
+      "reference": "Circuit upgrade +€650",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_24",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_24",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_13"
+        ]
+      }
+    },
+    "N_26": {
+      "question": "So now we're at €20,350? Where can we cut?",
+      "answer": "Yes, €20,350. The biggest flexible line is the countertop: a good stone-look laminate is around €800 versus €2,300 for quartz.",
+      "embedding": "<vector: N_26 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_11",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_26",
+          "creation",
+          "resolved"
+        ],
+        [
+          "N_27",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Total €20,350; the countertop is the biggest flexible cost.",
+      "reference": "Total €20,350",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_23",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_23",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_27": {
+      "question": "OK. We'll switch the countertop from quartz to the stone-look HPL laminate.",
+      "answer": "That saves €1,500 and brings the total to €18,850. Still €850 over, but much closer.",
+      "embedding": "<vector: N_27 question+answer>",
+      "named_entities": [
+        "E_12",
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_27",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Countertop switched from quartz to HPL laminate; total €18,850.",
+      "reference": "Laminate countertop",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_13",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_14",
+            "contradicts"
+          ],
+          [
+            "N_26",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_7"
+        ],
+        "updates": [
+          [
+            "SN_6",
+            "reverted"
+          ]
+        ]
+      }
+    },
+    "N_28": {
+      "question": "Miguel hates the idea. He says laminate will look cheap.",
+      "answer": "Modern HPL stone-look laminates are quite convincing, and they handle heat and scratches reasonably well. It's worth seeing a sample in person before deciding it looks cheap.",
+      "embedding": "<vector: N_28 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "disagreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_28",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Miguel objects to the laminate countertop.",
+      "reference": "Miguel objects",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_27",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_7",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "N_29": {
+      "question": "News: Miguel's parents offered to help. They're adding €3,500, so our budget is now €21,500.",
+      "answer": "That's very generous, and it changes the picture: the budget is now €21,500.",
+      "embedding": "<vector: N_29 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_29",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "A family top-up raises the budget to €21,500.",
+      "reference": "Budget €21,500",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_2",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_2",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_2",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_30": {
+      "question": "So should we go back to quartz?",
+      "answer": "You could afford it now. But think about what else the margin could buy that you'd use more.",
+      "embedding": "<vector: N_30 question+answer>",
+      "named_entities": [
+        "E_11"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_30",
+          "creation",
+          "open"
+        ],
+        [
+          "N_31",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether to go back to quartz given the bigger budget.",
+      "reference": "Back to quartz?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_27",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_29",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_31": {
+      "question": "We talked it over. We'll keep the laminate and instead put the oven in a tall column cabinet at eye level, not under the hob. Miguel's mother has a bad back.",
+      "answer": "Good use of the margin. A tall oven column adds about €900 for the cabinet and installation, and it's far more comfortable to use. Laminate stays.",
+      "embedding": "<vector: N_31 question+answer>",
+      "named_entities": [
+        "E_15",
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_31",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Keep laminate; add a tall oven column (+€900) instead of an under-hob oven.",
+      "reference": "Oven in tall column",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_30",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_30",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "creates": [
+          "SN_12"
+        ],
+        "relates": [
+          [
+            "SN_7",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_32": {
+      "question": "Can you recap the whole budget now?",
+      "answer": "Cabinets €5,100 [N_22], labour with Casa Nova €9,400 [N_20], laminate €800 [N_27], appliances and tiles €2,900, circuit upgrade €650, oven column €900 [N_31]: €19,750 against a €21,500 budget, leaving €1,750 of contingency.",
+      "embedding": "<vector: N_32 question+answer>",
+      "named_entities": [
+        "E_8",
+        "E_9",
+        "E_5",
+        "E_12",
+        "E_15"
+      ],
+      "citations": [
+        "N_20",
+        "N_22",
+        "N_27",
+        "N_31"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_32",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Budget recap: €19,750 planned against €21,500.",
+      "reference": "Budget recap €19,750",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_8",
+            "supercase"
+          ],
+          [
+            "N_20",
+            "supercase"
+          ],
+          [
+            "N_27",
+            "supercase"
+          ],
+          [
+            "N_31",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_33": {
+      "question": "Bad news: the porcelain tiles are delayed two weeks, so Ana moved the start to 16 March.",
+      "answer": "16 March instead of 2 March. That eats most of the slack before May.",
+      "embedding": "<vector: N_33 question+answer>",
+      "named_entities": [
+        "E_13",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_33",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 3,
+      "retrieval_count": 3,
+      "summary": "Start moved to 16 March because of a tile delay.",
+      "reference": "Start 16 March",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_21",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_21",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_11",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_34": {
+      "question": "Will it still be done before the visit in early May?",
+      "answer": "Let's check it against Casa Nova's schedule.",
+      "embedding": "<vector: N_34 question+answer>",
+      "named_entities": [],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_34",
+          "creation",
+          "open"
+        ],
+        [
+          "N_35",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether the later start still finishes before May.",
+      "reference": "Still before May?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_33",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_1",
+            "constrained_by"
+          ]
+        ]
+      }
+    },
+    "N_35": {
+      "question": "Ana says it's a six-week job.",
+      "answer": "Six weeks from 16 March ends around 27 April. Tight, but it works, provided the cabinets and tiles arrive on time.",
+      "embedding": "<vector: N_35 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_35",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Six weeks from 16 March ends around 27 April: tight but feasible.",
+      "reference": "Ends ~27 April",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_34",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_34",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_36": {
+      "question": "Good news: IKEA restocked a standard 30 cm Metod drawer unit. With it, the 3.28 m wall only needs a small standard filler, no custom pieces.",
+      "answer": "Then drop the custom filler panels and the narrow custom unit. Cabinets come down to €4,600.",
+      "embedding": "<vector: N_36 question+answer>",
+      "named_entities": [
+        "E_18",
+        "E_9",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "decision",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_36",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "A standard 30 cm unit replaces the custom pieces; cabinets €4,600.",
+      "reference": "Cabinets €4,600",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_22",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_22",
+            "revises"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_3",
+            "revised"
+          ]
+        ]
+      }
+    },
+    "N_37": {
+      "question": "Demolition started today!",
+      "answer": "Exciting. The first few days usually reveal whatever is hiding behind the old cabinets.",
+      "embedding": "<vector: N_37 question+answer>",
+      "named_entities": [
+        "E_5"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_37",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 6,
+      "retrieval_count": 6,
+      "summary": "Demolition starts on 16 March.",
+      "reference": "Demolition started",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_1",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_33",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_1",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_38": {
+      "question": "They found old cloth-insulated wiring behind the back wall. Ana says it has to be replaced: €1,100.",
+      "answer": "That has to be done; old cloth wiring is a fire risk. It comes out of the contingency.",
+      "embedding": "<vector: N_38 question+answer>",
+      "named_entities": [
+        "E_7",
+        "E_16"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_38",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Old cloth wiring found; replacement costs €1,100.",
+      "reference": "Rewiring €1,100",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_39": {
+      "question": "Since the electrician is redoing the wiring anyway, does that change the induction circuit upgrade?",
+      "answer": "It might; ask him to check what the hob actually needs against what's there.",
+      "embedding": "<vector: N_39 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_14"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_39",
+          "creation",
+          "open"
+        ],
+        [
+          "N_40",
+          "resolves",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 2,
+      "retrieval_count": 2,
+      "summary": "Asks whether the rewiring changes the induction upgrade.",
+      "reference": "Upgrade still needed?",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_38",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_40": {
+      "question": "The electrician checked: the existing 32A line to the hob position is enough for our induction hob. No upgrade needed.",
+      "answer": "So the €650 circuit upgrade [N_25] is off the list; it partly offsets the rewiring.",
+      "embedding": "<vector: N_40 question+answer>",
+      "named_entities": [
+        "E_16",
+        "E_14"
+      ],
+      "citations": [
+        "N_25"
+      ],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_40",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "The existing 32A line suffices; the €650 upgrade is dropped.",
+      "reference": "No upgrade needed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_39",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_25",
+            "contradicts"
+          ],
+          [
+            "N_39",
+            "resolves"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_13",
+            "lifted"
+          ]
+        ]
+      }
+    },
+    "N_41": {
+      "question": "Funny: Miguel told his parents on the phone that our '€18k kitchen' is coming along nicely. I didn't correct him.",
+      "answer": "Ha, that number stuck from the beginning. It's a good sign that things feel on track.",
+      "embedding": "<vector: N_41 question+answer>",
+      "named_entities": [
+        "E_2",
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_41",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Miguel mentions the old '€18k' figure in passing.",
+      "reference": "Stale €18k mention",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_2",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_42": {
+      "question": "Tiling started. Do we tile the whole wall or just the backsplash?",
+      "answer": "Just the backsplash, up to the wall cabinets. Full-height tiling adds cost and time for little benefit.",
+      "embedding": "<vector: N_42 question+answer>",
+      "named_entities": [
+        "E_13"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_42",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 4,
+      "retrieval_count": 4,
+      "summary": "Tiling only the backsplash.",
+      "reference": "Backsplash only",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_37",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_43": {
+      "question": "The cabinets are being installed. The small filler at the end of the 3.28 m wall looks fine.",
+      "answer": "Good; the standard filler works because the 30 cm unit absorbed most of the difference.",
+      "embedding": "<vector: N_43 question+answer>",
+      "named_entities": [
+        "E_9",
+        "E_10"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_43",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Cabinet installation fits the 3.28 m wall.",
+      "reference": "Cabinets fit",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_36",
+            "depends_on"
+          ],
+          [
+            "N_17",
+            "references"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_3",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_44": {
+      "question": "The oven column is in. Miguel's mother is going to love not bending down.",
+      "answer": "That was a good call. It's the change people use every single day.",
+      "embedding": "<vector: N_44 question+answer>",
+      "named_entities": [
+        "E_15"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_44",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Oven column installed.",
+      "reference": "Oven column in",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "same_level"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_31",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_12",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_45": {
+      "question": "We ran a bit short on tiles, since some broke. Ana says another box and fitting is €350.",
+      "answer": "Normal breakage. €350 is fine within the remaining contingency.",
+      "embedding": "<vector: N_45 question+answer>",
+      "named_entities": [
+        "E_13",
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_45",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Extra tiles cost €350.",
+      "reference": "Extra tiles €350",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_42",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_42",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_46": {
+      "question": "What colour should we paint the remaining walls?",
+      "answer": "A warm off-white goes well with the stone-look laminate and keeps the small room bright.",
+      "embedding": "<vector: N_46 question+answer>",
+      "named_entities": [
+        "E_12"
+      ],
+      "citations": [],
+      "speech_act": "factual_question",
+      "epistemic_status": "open",
+      "epistemic_history": [
+        [
+          "N_46",
+          "creation",
+          "open"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Asks about wall paint colour; warm off-white suggested.",
+      "reference": "Paint colour",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "same_level"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_47": {
+      "question": "Ana gave us the snag list: a drawer that doesn't close fully and a missing plinth.",
+      "answer": "Both are small. Make sure they're fixed before you sign off the final payment.",
+      "embedding": "<vector: N_47 question+answer>",
+      "named_entities": [
+        "E_7"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_47",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 1,
+      "retrieval_count": 1,
+      "summary": "Snag list: a drawer and a missing plinth.",
+      "reference": "Snag list",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_37",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_45",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {}
+    },
+    "N_48": {
+      "question": "Final bill: €20,050 in total.",
+      "answer": "That matches: the €19,750 plan, minus €500 on cabinets and the €650 upgrade you didn't need, plus €1,100 rewiring and €350 tiles. €20,050 against a €21,500 budget, €1,450 under.",
+      "embedding": "<vector: N_48 question+answer>",
+      "named_entities": [
+        "E_8"
+      ],
+      "citations": [],
+      "speech_act": "information",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_48",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Final bill €20,050, €1,450 under the €21,500 budget.",
+      "reference": "Final bill €20,050",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_32",
+            "subcase"
+          ]
+        ],
+        "pragmatic": [
+          [
+            "N_29",
+            "depends_on"
+          ],
+          [
+            "N_32",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "relates": [
+          [
+            "SN_2",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "N_49": {
+      "question": "Looking back, what did we change from our original plan, and why?",
+      "answer": "Four big changes. Contractor: Ferreira was dropped for an open-ended extra and a long wait [N_19], replaced by Casa Nova. Hob: induction instead of gas, which removed the permit issue [N_24]. Countertop: laminate instead of quartz to stay on budget [N_27]. Cabinets: back to a standard layout once IKEA restocked the 30 cm unit [N_36]. And the budget itself grew to €21,500.",
+      "embedding": "<vector: N_49 question+answer>",
+      "named_entities": [
+        "E_4",
+        "E_5",
+        "E_14",
+        "E_12",
+        "E_9",
+        "E_8"
+      ],
+      "citations": [
+        "N_19",
+        "N_24",
+        "N_27",
+        "N_36"
+      ],
+      "speech_act": "follow_up",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_49",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Retrospective: contractor, hob, countertop and cabinet changes.",
+      "reference": "What changed",
+      "edges": {
+        "hierarchical": [
+          [
+            "N_19",
+            "supercase"
+          ],
+          [
+            "N_24",
+            "supercase"
+          ],
+          [
+            "N_27",
+            "supercase"
+          ],
+          [
+            "N_36",
+            "supercase"
+          ]
+        ],
+        "pragmatic": []
+      },
+      "state_node_links": {}
+    },
+    "N_50": {
+      "question": "Snags fixed, final payment made. The kitchen is done, two weeks before the visit!",
+      "answer": "Congratulations, Carla and Miguel. Finished before the visit and under budget.",
+      "embedding": "<vector: N_50 question+answer>",
+      "named_entities": [
+        "E_1",
+        "E_2"
+      ],
+      "citations": [],
+      "speech_act": "agreement",
+      "epistemic_status": "resolved",
+      "epistemic_history": [
+        [
+          "N_50",
+          "creation",
+          "resolved"
+        ]
+      ],
+      "recurrence_count": 0,
+      "retrieval_count": 0,
+      "summary": "Kitchen finished two weeks before the visit.",
+      "reference": "Kitchen done",
+      "edges": {
+        "hierarchical": [],
+        "pragmatic": [
+          [
+            "N_1",
+            "resolves"
+          ],
+          [
+            "N_47",
+            "depends_on"
+          ]
+        ]
+      },
+      "state_node_links": {
+        "updates": [
+          [
+            "SN_1",
+            "achieved"
+          ]
+        ]
+      }
+    }
+  },
+  "entities": {
+    "E_1": {
+      "type": "person",
+      "name": "Carla",
+      "mentioned_in": [
+        "N_1",
+        "N_50"
+      ]
+    },
+    "E_2": {
+      "type": "person",
+      "name": "Miguel",
+      "mentioned_in": [
+        "N_1",
+        "N_28",
+        "N_29",
+        "N_41",
+        "N_50"
+      ]
+    },
+    "E_3": {
+      "type": "location",
+      "name": "Alvalade apartment",
+      "mentioned_in": [
+        "N_1"
+      ]
+    },
+    "E_4": {
+      "type": "organization",
+      "name": "Ferreira Obras",
+      "mentioned_in": [
+        "N_9",
+        "N_11",
+        "N_12",
+        "N_18",
+        "N_19",
+        "N_49"
+      ]
+    },
+    "E_5": {
+      "type": "organization",
+      "name": "Casa Nova Remodelações",
+      "mentioned_in": [
+        "N_10",
+        "N_11",
+        "N_20",
+        "N_32",
+        "N_37",
+        "N_49"
+      ]
+    },
+    "E_6": {
+      "type": "person",
+      "name": "Sr. Ferreira",
+      "mentioned_in": [
+        "N_17",
+        "N_18"
+      ]
+    },
+    "E_7": {
+      "type": "person",
+      "name": "Ana",
+      "mentioned_in": [
+        "N_20",
+        "N_21",
+        "N_25",
+        "N_33",
+        "N_35",
+        "N_38",
+        "N_45",
+        "N_47"
+      ]
+    },
+    "E_8": {
+      "type": "measurement",
+      "name": "total renovation budget",
+      "mentioned_in": [
+        "N_2",
+        "N_3",
+        "N_23",
+        "N_26",
+        "N_29",
+        "N_32",
+        "N_41",
+        "N_48",
+        "N_49"
+      ]
+    },
+    "E_9": {
+      "type": "measurement",
+      "name": "cabinet budget",
+      "mentioned_in": [
+        "N_8",
+        "N_22",
+        "N_32",
+        "N_36",
+        "N_43",
+        "N_49"
+      ]
+    },
+    "E_10": {
+      "type": "measurement",
+      "name": "back wall length",
+      "mentioned_in": [
+        "N_6",
+        "N_17",
+        "N_22",
+        "N_36",
+        "N_43"
+      ]
+    },
+    "E_11": {
+      "type": "material",
+      "name": "quartz",
+      "mentioned_in": [
+        "N_13",
+        "N_14",
+        "N_26",
+        "N_27",
+        "N_30"
+      ]
+    },
+    "E_12": {
+      "type": "material",
+      "name": "HPL laminate",
+      "mentioned_in": [
+        "N_13",
+        "N_26",
+        "N_27",
+        "N_28",
+        "N_31",
+        "N_32",
+        "N_46",
+        "N_49"
+      ]
+    },
+    "E_13": {
+      "type": "material",
+      "name": "porcelain tile",
+      "mentioned_in": [
+        "N_33",
+        "N_42",
+        "N_45"
+      ]
+    },
+    "E_14": {
+      "type": "product",
+      "name": "induction hob",
+      "mentioned_in": [
+        "N_24",
+        "N_25",
+        "N_39",
+        "N_40",
+        "N_49"
+      ]
+    },
+    "E_15": {
+      "type": "product",
+      "name": "built-in oven",
+      "mentioned_in": [
+        "N_31",
+        "N_32",
+        "N_44"
+      ]
+    },
+    "E_16": {
+      "type": "trade",
+      "name": "electrician",
+      "mentioned_in": [
+        "N_25",
+        "N_38",
+        "N_39",
+        "N_40"
+      ]
+    },
+    "E_17": {
+      "type": "organization",
+      "name": "Câmara Municipal de Lisboa",
+      "mentioned_in": [
+        "N_15",
+        "N_16",
+        "N_24"
+      ]
+    },
+    "E_18": {
+      "type": "organization",
+      "name": "IKEA",
+      "mentioned_in": [
+        "N_7",
+        "N_8",
+        "N_22",
+        "N_36"
+      ]
+    }
+  },
+  "state_nodes": {
+    "SN_1": {
+      "type": "goal",
+      "label": "Finish the kitchen before Miguel's parents visit in early May",
+      "embedding": "<vector: SN_1 label>",
+      "creation_turn": "N_1",
+      "status": "achieved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_50",
+            "achieved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_18",
+            "constrained_by"
+          ],
+          [
+            "N_21",
+            "supports"
+          ],
+          [
+            "N_34",
+            "constrained_by"
+          ],
+          [
+            "N_37",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_2": {
+      "type": "constraint",
+      "label": "Total renovation budget of €21,500 after a family top-up (originally €18,000)",
+      "embedding": "<vector: SN_2 label>",
+      "creation_turn": "N_2",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_29",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_8",
+            "constrained_by"
+          ],
+          [
+            "N_14",
+            "constrained_by"
+          ],
+          [
+            "N_23",
+            "contradicts"
+          ],
+          [
+            "N_32",
+            "supports"
+          ],
+          [
+            "N_48",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_3": {
+      "type": "decision",
+      "label": "IKEA Metod cabinets with a standard 30 cm drawer unit, no custom pieces, budgeted at €4,600 (originally €4,200, then €5,100)",
+      "embedding": "<vector: SN_3 label>",
+      "creation_turn": "N_8",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_22",
+            "revised"
+          ],
+          [
+            "N_36",
+            "revised"
+          ]
+        ],
+        "relates": [
+          [
+            "N_43",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_4": {
+      "type": "decision",
+      "label": "Hire Ferreira Obras as the contractor",
+      "embedding": "<vector: SN_4 label>",
+      "creation_turn": "N_12",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_19",
+            "reverted"
+          ]
+        ],
+        "relates": [
+          [
+            "N_18",
+            "contradicts"
+          ]
+        ]
+      }
+    },
+    "SN_5": {
+      "type": "decision",
+      "label": "Hire Casa Nova Remodelações as the contractor (€9,400 fixed price)",
+      "embedding": "<vector: SN_5 label>",
+      "creation_turn": "N_20",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_6": {
+      "type": "decision",
+      "label": "Quartz countertop (€2,300)",
+      "embedding": "<vector: SN_6 label>",
+      "creation_turn": "N_14",
+      "status": "reverted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_27",
+            "reverted"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_7": {
+      "type": "decision",
+      "label": "Stone-look HPL laminate countertop (€800)",
+      "embedding": "<vector: SN_7 label>",
+      "creation_turn": "N_27",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_28",
+            "contradicts"
+          ],
+          [
+            "N_31",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_8": {
+      "type": "open_question",
+      "label": "Is a permit (comunicação prévia) needed to move the gas line?",
+      "embedding": "<vector: SN_8 label>",
+      "creation_turn": "N_15",
+      "status": "resolved",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_24",
+            "resolved"
+          ]
+        ],
+        "relates": [
+          [
+            "N_24",
+            "resolves"
+          ]
+        ]
+      }
+    },
+    "SN_9": {
+      "type": "decision",
+      "label": "Switch from a gas hob to an induction hob",
+      "embedding": "<vector: SN_9 label>",
+      "creation_turn": "N_24",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": []
+      }
+    },
+    "SN_10": {
+      "type": "constraint",
+      "label": "The back wall is 3.28 m long, out of plumb (originally measured as 3.40 m)",
+      "embedding": "<vector: SN_10 label>",
+      "creation_turn": "N_6",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_17",
+            "revised"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_11": {
+      "type": "decision",
+      "label": "Works start on 16 March (originally 2 March), because of a tile delivery delay",
+      "embedding": "<vector: SN_11 label>",
+      "creation_turn": "N_21",
+      "status": "revised",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_33",
+            "revised"
+          ]
+        ],
+        "relates": []
+      }
+    },
+    "SN_12": {
+      "type": "decision",
+      "label": "Put the oven in a tall column cabinet, not under the hob",
+      "embedding": "<vector: SN_12 label>",
+      "creation_turn": "N_31",
+      "status": "active",
+      "last_updated_turn": {
+        "updates": [],
+        "relates": [
+          [
+            "N_44",
+            "supports"
+          ]
+        ]
+      }
+    },
+    "SN_13": {
+      "type": "constraint",
+      "label": "Induction requires an electrical circuit upgrade (+€650)",
+      "embedding": "<vector: SN_13 label>",
+      "creation_turn": "N_25",
+      "status": "lifted",
+      "last_updated_turn": {
+        "updates": [
+          [
+            "N_40",
+            "lifted"
+          ]
+        ],
+        "relates": []
+      }
+    }
+  }
+}

@@ -21,7 +21,9 @@ gold annotation.
   counts can't be interpreted yet because the matcher only credits near-verbatim labels.
 
 This is **one run per corpus** on the two corpora the revision was designed from, so it measures
-fit on the development data, not generalisation. The six untouched testbeds are the held-out check.
+fit on the development data, not generalisation. The six untouched testbeds are the held-out check:
+see [`prompt_v5_heldout_evaluation_2026-09-28.md`](prompt_v5_heldout_evaluation_2026-09-28.md)
+(v5 beats v3 there too, by about a third to a half of the development-set margins).
 
 ## Setup
 

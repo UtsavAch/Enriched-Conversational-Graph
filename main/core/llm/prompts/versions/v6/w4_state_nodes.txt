@@ -1,0 +1,153 @@
+You maintain a running record of a project's GOALS, DECISIONS, CONSTRAINTS and
+OPEN QUESTIONS as a conversation proceeds.
+
+Given a new turn and the currently-open state nodes, emit three lists:
+
+1. creates - new state nodes this turn brings into existence. A state node is a
+   commitment that LATER turns may need to honour, check, revise or close. Most
+   turns create none.
+   - goal          : an overall objective the user or project is working
+                     towards. A conversation usually has only one to three.
+                     A single request ("help me write the script", "explain X")
+                     is not a goal.
+   - decision      : a choice the user makes or accepts that commits the plan,
+                     settling something that could have gone another way.
+                     Advice, how-to instructions and explanations are not
+                     decisions unless the user adopts them as the plan.
+   - constraint    : a condition the plan must satisfy, whatever else is chosen.
+                     Three common kinds:
+                     (a) limits: a budget, deadline, quota, capacity, size, or
+                         the availability of something ("until 31 July");
+                     (b) rules that apply to this project, whoever set them -
+                         a policy, an instructor, a contract, documentation the
+                         project must follow ("no computation on login nodes");
+                     (c) requirements the design or plan must meet, usually
+                         phrased with must / must not / never / only / at most
+                         ("error responses must never expose stack traces").
+                     Decision vs constraint: a decision picks one option ("use
+                     PostgreSQL"); a constraint restricts every option ("all
+                     data must stay in the EU"). When a turn adopts a
+                     requirement, record it as a constraint, not a decision.
+                     General knowledge that does not bind this plan ("tomatoes
+                     like sun") is not a constraint.
+   - open_question : a question that is STILL OPEN at the end of this turn. If
+                     the same turn's answer settles it, create nothing.
+
+2. updates - existing state nodes whose lifecycle status this turn changed.
+   Valid new_status values depend on the node's type — use exactly one of these,
+   never invent a status outside this list:
+     goal          -> achieved (objective met) | abandoned (given up on)
+     decision      -> revised (changed but still stands, can happen more than once) | reverted (undone entirely)
+     constraint    -> revised (terms changed, still in force) | lifted (no longer applies)
+     open_question -> resolved (answered)
+   achieved, abandoned, reverted, lifted, and resolved are TERMINAL — do not
+   propose an update against a node whose current status is already one of those.
+
+3. relates - existing state nodes this turn stands in a relation to, without
+   necessarily changing their status. Use exactly one of:
+     supports      : reinforces the target without changing it
+     contradicts   : conflicts with the target without revising or lifting it
+     constrained_by: this turn's content is bound or limited by the target
+     resolves      : answers/closes a target open_question
+   IMPORTANT: resolves ALWAYS also produces a matching UPDATE (new_status:
+   "resolved") on the same target. It is the one relation that is also a status
+   change, so it appears in BOTH lists, not one or the other.
+   If none of the above apply, return all three lists empty.
+
+MERGE, DO NOT DUPLICATE. If the turn restates, refines or changes the value of
+something already in the open state-node list, that is an update (revised) or a
+relation on the existing node — never a new create with a similar label. A
+changed number, date or choice for the same thing ("32 GB" -> "64 GB") is a
+revision of the existing node. Duplicate state nodes are the main failure mode of
+this task.
+
+LABELS: one specific sentence under 15 words that names the commitment and its
+key value, e.g. "Request --mem=64G for full-dataset training jobs", not
+"Memory setting decided".
+
+Note on citations: the turn's answer may contain bracketed markers like [N_2]
+pointing back to an earlier interaction. Those are interaction ids, never state
+node ids. Never put an N_ id in a state_node_id field.
+
+Return strict JSON only, no preamble, no markdown fences:
+{{"creates": [{{"state_type": "<goal|decision|constraint|open_question>",
+              "label": "<specific label, under 15 words>"}}, ...],
+  "updates": [{{"state_node_id": "<SN id from the list below>",
+              "new_status": "<a status valid for that node's type>"}}, ...],
+  "relates": [{{"state_node_id": "<SN id from the list below>",
+              "relation": "<supports|contradicts|constrained_by|resolves>"}}, ...]}}
+
+FEW-SHOT EXAMPLES:
+
+NEW TURN:
+Q: "Our garden association wants to run the community garden this season, but
+    we can't spend more than €300 on seeds."
+A: "Understood: the goal is running the garden this season, within a €300 seed
+    budget."
+CURRENTLY OPEN STATE NODES: (none yet)
+→ {{"creates": [{{"state_type": "goal", "label": "Run the community garden this season"}}, {{"state_type": "constraint", "label": "Seed budget capped at €300 for the season"}}], "updates": [], "relates": []}}
+
+NEW TURN:
+Q: "How do I set up a shared spreadsheet for the rota?"
+A: "Create a sheet with one row per day and a column per task, then share it
+    with edit rights for the volunteers."
+CURRENTLY OPEN STATE NODES:
+- SN_1 (goal): "Run the community garden this season" - active
+→ {{"creates": [], "updates": [], "relates": []}}
+(how-to instructions for a request: nothing is committed or left open.)
+
+NEW TURN:
+Q: "Do tomatoes need full sun?"
+A: "Mostly, yes - at least six hours a day. So the south beds are the right
+    place for them."
+CURRENTLY OPEN STATE NODES:
+- SN_1 (goal): "Run the community garden this season" - active
+→ {{"creates": [], "updates": [], "relates": []}}
+(the question is answered in the same turn, so it is not an open_question; the
+horticultural fact is not a constraint on the plan.)
+
+NEW TURN:
+Q: "For the volunteer sign-up sheet, should we collect phone numbers?"
+A: "Yes, but the sheet must never show phone numbers publicly - only the
+    coordinator should see them. Use a private column for that."
+CURRENTLY OPEN STATE NODES:
+- SN_1 (goal): "Run the community garden this season" - active
+→ {{"creates": [{{"state_type": "constraint", "label": "Volunteer phone numbers must never be visible publicly on the sign-up sheet"}}], "updates": [], "relates": []}}
+(a requirement every version of the sheet must meet - kind (c) - so a
+constraint, not a decision. "Use a private column" is how it is met, too small
+to track separately.)
+
+NEW TURN:
+Q: "The allotment rules from the council say no pesticides anywhere on the plot.
+    Does that affect our pest plan?"
+A: "It does: we'll rely on companion planting and netting instead of sprays."
+CURRENTLY OPEN STATE NODES:
+- SN_1 (goal): "Run the community garden this season" - active
+→ {{"creates": [{{"state_type": "constraint", "label": "No pesticides anywhere on the plot (council allotment rules)"}}, {{"state_type": "decision", "label": "Control pests with companion planting and netting instead of sprays"}}], "updates": [], "relates": []}}
+(the council rule binds the project - kind (b) - so it is a constraint; the pest
+plan chosen under it is a decision.)
+
+NEW TURN:
+Q: "The committee added €100 - so the seed budget is €400 now."
+A: "Great, then the heirloom tomatoes fit within the €400."
+CURRENTLY OPEN STATE NODES:
+- SN_2 (constraint): "Seed budget capped at €300 for the season" - active
+→ {{"creates": [], "updates": [{{"state_node_id": "SN_2", "new_status": "revised"}}], "relates": []}}
+(a changed value for the same constraint: revise SN_2, don't create a new node.)
+
+NEW TURN:
+Q: "We tested it - does the W2/W3 ordering actually matter?"
+A: "No, it doesn't - both calls read the same candidate list and neither touches
+    the other's output, so there's no dependency. They run fully in parallel."
+CURRENTLY OPEN STATE NODES:
+- SN_4 (open_question): "Does classification order between W2 and W3 matter?" - open
+→ {{"creates": [], "updates": [{{"state_node_id": "SN_4", "new_status": "resolved"}}], "relates": [{{"state_node_id": "SN_4", "relation": "resolves"}}]}}
+(resolves appears in BOTH lists: status change in updates, typed reason in relates)
+
+=== USER ===
+NEW TURN:
+Q: "{question}"
+A: "{answer}"
+
+CURRENTLY OPEN STATE NODES:
+{open_state_nodes}

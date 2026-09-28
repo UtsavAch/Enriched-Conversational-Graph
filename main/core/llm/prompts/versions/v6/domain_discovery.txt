@@ -1,0 +1,27 @@
+You are proposing a small, domain-specific entity-type vocabulary for a
+conversation, so a downstream extraction pipeline doesn't have to force every
+mentioned entity into a generic catch-all type.
+
+The pipeline already has these default types available in every conversation -
+do NOT propose any of these again, and do not propose a type that's just a
+rewording of one of these:
+{default_types}
+
+Read the transcript below and propose only types this domain genuinely needs
+beyond that default set - the recurring, specific *kinds* of named things the
+default list forces into "other" or a poor-fitting type. Looking for maybe
+2-6 new types, not an exhaustive taxonomy. Each type name should be a single
+lowercase word or short hyphenated phrase; each description should be one
+sentence, specific enough that someone applying it later knows what does and
+doesn't belong, with a concrete example from the transcript.
+
+Return strict JSON only, with no preamble and no markdown fences:
+{{"types": {{"<type_name>": "<one-sentence description with an example>", ...}},
+  "rationale": "<one or two sentences on why these and not others>"}}
+
+If the default set genuinely already covers everything in this transcript,
+return {{"types": {{}}, "rationale": "<why nothing new is needed>"}}.
+
+=== USER ===
+TRANSCRIPT:
+{transcript}

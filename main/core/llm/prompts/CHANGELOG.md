@@ -1,7 +1,43 @@
 # Prompt changelog
 
 All versions are stored in [`versions/`](versions/README.md) and selectable with
-`GM_PROMPT_VERSION=v1|v2|v3|v4|v5`.
+`GM_PROMPT_VERSION=v1|v2|v3|v4|v5|v6`.
+
+## v6 (2026-09-28): uncited callbacks as `references` (W3)
+
+**Problem (v5).** On the held-out testbeds, `references` F1 was 0.080 (44 gold edges). Most gold
+`references` there are uncited callbacks ("as we agreed in May"), and v5 labelled many of them
+`depends_on` or `no_relation` (see `evaluation/reports/prompt_v5_heldout_evaluation_2026-09-28.md`).
+
+**Change.** W3 gains a hard-case rule: most references have no `[N_k]` marker; a turn that
+mentions an earlier one in passing (to remind, compare or give context) and whose own point
+stands without it is `references`, not `depends_on` or `no_relation`. Plus a worked example of an
+uncited comparison. The same sentence is added to `combined_extraction.txt`. W1, W2 and W4 are
+unchanged from v5.
+
+**Evidence (W3-only replay).** W3 v5 and v6 were run on every turn of the six held-out testbeds
+with identical candidates (from the stored `<corpus>_gemma4_v5` graphs, same selection code incl.
+cited turns), gemma4:31b, 0 failed calls. Pragmatic labels only, pooled over 354 gold edges:
+
+| Label | Gold | v5 F1 | v6 F1 | Change |
+|---|---|---|---|---|
+| Pragmatic macro | 354 | 0.274 | 0.275 | +0.001 |
+| references | 44 | 0.077 | 0.080 | +0.003 |
+| depends_on | 201 | 0.366 | 0.378 | +0.012 |
+| revises | 26 | 0.203 | 0.226 | +0.023 |
+| resolves | 63 | 0.361 | 0.357 | −0.004 |
+| contradicts | 20 | 0.361 | 0.333 | −0.027 |
+
+**Result: no measurable effect.** v6 predicts `references` more often (112 → 132) and recall rises
+slightly (0.136 → 0.159), but precision stays at about 5%: roughly 125 predicted `references` per
+version against 44 gold, of which only about 6-7 match. Per corpus, `references` improved only on
+`tutoring_stats` (0 → 0.087) and fell slightly on `thesis_planning` and `relocation`.
+
+**Interpretation.** A 5% precision that no prompt wording moves suggests the gold may under-annotate
+`references`: the model may be finding real callbacks that the annotation left as no relation.
+Before further prompt work on this label, a manual check of a sample of the predicted
+`references` "false positives" is needed to tell model error from annotation gaps. v6 is kept as
+the working version because it is neutral overall (no label moves by more than 0.03).
 
 ## v5 (2026-09-27): looser W4 constraint definition
 

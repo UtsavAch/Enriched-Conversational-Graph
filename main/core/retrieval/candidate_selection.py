@@ -22,9 +22,11 @@ Candidate sources (section 5.7 / 5.5 of the Phase 1-2 report):
        through?" style turns where lexical similarity is near zero.
     4. Cited — prior turns the new answer cites as ``[N_k]``, added on top of
        1-3 (up to ``include_cited``). A citation is the answer's own statement
-       that it builds on that turn; in the gold annotations a cited pair always
-       carries a pragmatic relation, yet with 1-3 alone most cited turns were
-       never shown to W2/W3 (27 of 74 cited pairs on rest_api got no label).
+       that it points back at that turn; in the gold annotations 95 of 128
+       cited pairs carry a pragmatic relation and most others a hierarchical
+       one (recaps citing what they summarise), yet with 1-3 alone many cited
+       turns were never shown to W2/W3 (27 of 74 cited pairs on rest_api got
+       no label).
        The extra cost is bounded by ``include_cited`` per turn and is zero for
        turns without citations.
 """
